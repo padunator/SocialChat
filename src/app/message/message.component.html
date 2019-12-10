@@ -1,0 +1,27 @@
+<div class="messageContainer" contenteditable="true"
+    [ngClass]="{'isOwnMessageContainer':isOwnMessage}">
+    <div class="messageData"
+        [ngClass]="{'isOwnMessageData':isOwnMessage}">
+        <span class="sender"
+            [ngClass]="{'isOwnSender':isOwnMessage}">
+            {{ userName }}
+        </span>
+        <span class="timestamp"
+            [ngClass] = "{'isOwnTimestamp':isOwnMessage}">
+            {{ timeStamp }}
+        </span>
+    </div>
+    <div class="messageContent"
+        [ngClass]="{'isOwnMessageContent':isOwnMessage}">
+        {{ messageContent }}
+    </div>
+</div>
+
+<!--
+<div  class="received-msg">
+  <div autosize class="received-msg-inbox">
+    <p autosize>{{messageContent}}</p>
+    <span class="time">{{timeStamp}}</span>
+  </div>
+</div>
+-->

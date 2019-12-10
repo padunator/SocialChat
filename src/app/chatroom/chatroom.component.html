@@ -1,0 +1,16 @@
+<div class="mainContent">
+  <div class="userListWrapper">
+    <app-user-list></app-user-list>
+  </div>
+  <div #scroller class="feedWrapper">
+    <app-feed></app-feed>
+  </div>
+</div>
+
+<div  ng-app="myApp" ng-controller="myCtrl" class="chatFormWrapper" >
+  <app-chat-form></app-chat-form>
+</div>
+
+<script>
+    const app = angular.module('myApp', ['ngEmoticons'])
+</script>

@@ -1,0 +1,23 @@
+<div *ngIf=" this.gameService.questions && this.gameService.questionsLoaded | async">
+  <div class="wrapper" >
+    <span>Zeitfortschritt: {{gameService.displayTimeElapsed()}}</span>
+    <mat-progress-bar mode="determinate" [value]="gameService.qnProgress+1*10"></mat-progress-bar>
+    <mat-spinner *ngIf="gameService.waitingForPlayer"></mat-spinner>
+    <mat-card *ngIf="!gameService.waitingForPlayer">
+      <mat-card-title-group>
+        <mat-card-title id="score">Current Score:  {{gameService.score}}</mat-card-title>
+        <mat-card-title>{{gameService.qnProgress+1}}</mat-card-title>
+        <mat-card-title>{{gameService.questions[gameService.qnProgress].question}}</mat-card-title>
+        <mat-card-subtitle>Choose your {{gameService.selectionString}} selection! </mat-card-subtitle>
+      </mat-card-title-group>
+      <mat-card-content>
+        <mat-selection-list>
+          <mat-list-option *ngFor="let option of  gameService.questions[gameService.qnProgress].options;let i = index"
+                           (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,i)">
+            {{option.text}}
+          </mat-list-option>
+        </mat-selection-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

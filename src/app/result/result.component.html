@@ -1,0 +1,46 @@
+<div *ngIf="this.gameService.questions">
+  <div class="wrapper">
+    <mat-spinner *ngIf="gameService.waitingForPlayer"></mat-spinner>
+    <div *ngIf="!gameService.waitingForPlayer">
+      <mat-card id="heading">
+        <mat-card-title>
+          <h1 class="mat-display-1" id="complete">Completed !</h1>
+        </mat-card-title>
+        <mat-card-content>
+          <div class="clearfix float-my-children">
+            <img id="trophy" mat-card-image src="../../assets/img/trophy.png" style="width: 400px;height : 400px;">
+            <div>
+              <h1 class="mat-display-1">{{gameService.correctAnswerCount}}/{{this.gameService.questions.length}}</h1>
+              <h2 class="mat-display-1" >Score : {{gameService.score}}</h2>
+              <h2 class="mat-display-2">Time Elapsed : {{gameService.displayTimeElapsed()}}</h2>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="start">
+          <button mat-raised-button color="accent" type="submit" class="btn" id="btn-login">Back</button>
+        </mat-card-actions>
+      </mat-card>
+        <h1 class="mat-display-1" id="correct">Questions with correct answers</h1>
+      <mat-card *ngFor="let question of gameService.questions;let i=index">
+          <mat-card-title-group>
+            <mat-card-title>{{i+1}}</mat-card-title>
+            <mat-card-title>{{question.question}}</mat-card-title>
+          </mat-card-title-group>
+          <mat-card-content>
+            <mat-list>
+              <mat-list-item *ngFor="let option of question.options;let j = index">
+                {{option.text}}
+                <span class="right-badge" *ngIf="gameService.isCorrect(i, j)">
+                            <mat-icon>check_circle_outline</mat-icon>
+                </span>
+                <span class="wrong-badge" *ngIf="!gameService.isCorrect(i, j) &&
+                       gameService.mySelection(i, j)">
+                  <mat-icon>cancel</mat-icon>
+                </span>
+              </mat-list-item>
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
+    </div>
+  </div>
+</div>

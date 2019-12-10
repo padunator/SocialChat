@@ -1,0 +1,18 @@
+<div class="navBar">
+    <div id="logo"></div>
+    <div id="heading"><a routerLink="/">SocialChat</a></div>
+  <div class="links">
+    <span>
+      <a *ngIf="!userAuthenticated" href="#">Login</a>
+    </span>
+    <span>
+      <a *ngIf="!userAuthenticated" routerLink="/signup">Sign Up</a>
+    </span>
+    <span>
+      <span id="userEmail" *ngIf="userAuthenticated">Hello, {{userMail}}</span>
+    </span>
+    <span>
+      <a *ngIf="userAuthenticated" href="#" (click)="logout()">Logout</a>
+    </span>
+  </div>
+</div>

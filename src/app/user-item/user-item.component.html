@@ -1,0 +1,9 @@
+<div class="userItem">
+  <span class="status"
+    [ngClass]="{
+  'online': (user.status),
+  'offline': (!user.status)
+  }"
+  ></span>
+<span (click)=invite(user) >{{user.username}}</span>
+</div>

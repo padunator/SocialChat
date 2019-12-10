@@ -1,0 +1,10 @@
+import {Socket} from 'ngx-socket-io';
+import {Injectable} from '@angular/core';
+
+@Injectable()
+export class GameSocket extends Socket {
+
+  constructor() {
+    super({ url: 'http://localhost:3000/game', options: {} });
+  }
+}
