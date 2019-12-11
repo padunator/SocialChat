@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { FeatherModule } from 'angular-feather';
-import {Smile} from 'angular-feather/icons';
+import {Smile, Camera, Github} from 'angular-feather/icons';
 
 const icons = {
-  Smile
+  Smile,
+  Camera,
+  Github
 };
 
 @NgModule({

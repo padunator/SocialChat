@@ -18,9 +18,9 @@ export class ChatFormComponent implements OnInit {
   currUser: User;
   userAuthenticated = false;
   private authListenerSubscription: Subscription;
-  @ViewChild('autosize', {static: false}) autosize: CdkTextareaAutosize;
+/*  @ViewChild('autosize', {static: false}) autosize: CdkTextareaAutosize;
   @Output()
-  keyPressed = new EventEmitter<boolean>();
+  keyPressed = new EventEmitter<boolean>();*/
   @Output() emojiButtonPressed = new EventEmitter<boolean>();
   constructor(private chatService: ChatService, private authService: AuthService) { }
 
@@ -56,9 +56,9 @@ export class ChatFormComponent implements OnInit {
     return (date + ' ' + time);
   }
 
-  updateSize() {
+/*  updateSize() {
     this.keyPressed.emit(true);
-  }
+  }*/
 
   toggleEmojiPicker() {
     this.showEmojiPicker = !this.showEmojiPicker;

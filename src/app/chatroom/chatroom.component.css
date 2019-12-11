@@ -28,10 +28,12 @@
 }
 
 .chatFormWrapper {
-    display: flex;
-    min-height: 40px;
-    background-color: #eee;
-    z-index: 3;
+  display: flex;
+  height: auto;
+  flex-direction: column;
+  background-color: #eee;
+  margin-right: 30px;
+  margin-left: 10%;
 }
 
 #scroll-style::-webkit-scrollbar-track

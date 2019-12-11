@@ -7,16 +7,48 @@
   <button class="chatButton"
           (click)=send()>Send
   </button>-->
+
+<!--<div class="chatInput">-->
+<button
+  type="button"
+  class="toggle-emoji"
+  (click)="toggleEmojiPicker()"
+>
+  <i-feather class="icon-symbol" name="smile"></i-feather>
+</button><button
+  type="button"
+  class="toggle-emoji"
+  (click)="toggleEmojiPicker()"
+>
+  <i-feather class="icon-symbol" name="Github"></i-feather>
+</button><button
+  type="button"
+  class="toggle-emoji"
+  (click)="toggleEmojiPicker()"
+>
+  <i-feather class="icon-symbol" name="camera"></i-feather>
+</button>
 <footer class="chat-footer">
   <form (ngSubmit)='send()'>
-    <button
-      type="button"
-      class="toggle-emoji"
-      (click)="toggleEmojiPicker()"
-    >
-      <i-feather name="smile"></i-feather>
-    </button>
-    <input placeholder="Type a message. Hit Enter to send" type="text"
-           name="message" [(ngModel)]="message">
+  <textarea
+  (keyup.enter)="send()" rows="1" autosize [maxRows]="10"
+  placeholder="Type a message. Hit Enter to send"
+  name="message" [(ngModel)]="message">
+  </textarea>
   </form>
 </footer>
+
+<!--  <footer class="chat-footer">
+    <form (ngSubmit)='send()'>
+      <button
+        type="button"
+        class="toggle-emoji"
+        (click)="toggleEmojiPicker()"
+      >
+        <i-feather name="smile"></i-feather>
+      </button>
+      <input placeholder="Type a message. Hit Enter to send" type="text"
+             name="message" [(ngModel)]="message">
+    </form>
+  </footer>-->
+

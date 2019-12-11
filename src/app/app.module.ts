@@ -37,7 +37,7 @@ import {GameService} from './services/game.service';
 import { GameComponent } from './game/game.component';
 import { GameroomComponent } from './gameroom/gameroom.component';
 import { ResultComponent } from './result/result.component';
-import {AutosizeDirective, AutosizeModule} from 'ngx-autosize';
+import {AutosizeModule} from 'ngx-autosize';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 
 // const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {} };
