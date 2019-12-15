@@ -18,9 +18,7 @@ export class ChatFormComponent implements OnInit {
   currUser: User;
   userAuthenticated = false;
   private authListenerSubscription: Subscription;
-/*  @ViewChild('autosize', {static: false}) autosize: CdkTextareaAutosize;
-  @Output()
-  keyPressed = new EventEmitter<boolean>();*/
+
   @Output() emojiButtonPressed = new EventEmitter<boolean>();
   constructor(private chatService: ChatService, private authService: AuthService) { }
 
@@ -32,7 +30,7 @@ export class ChatFormComponent implements OnInit {
   }
 
   send() {
-    if (this.message !== '') {
+    if (this.message.length !== 1) {
       const chatMessage: ChatMessage = {
         timeSent: this.getTimeStamp(),
         email: this.authService.currUser.email,
@@ -40,8 +38,8 @@ export class ChatFormComponent implements OnInit {
         message: this.message
       };
       this.chatService.sendMessage(chatMessage);
-      this.message = '';
     }
+    this.message = '';
   }
 
   getTimeStamp() {
@@ -56,14 +54,11 @@ export class ChatFormComponent implements OnInit {
     return (date + ' ' + time);
   }
 
-/*  updateSize() {
-    this.keyPressed.emit(true);
-  }*/
-
   toggleEmojiPicker() {
     this.showEmojiPicker = !this.showEmojiPicker;
+    console.log('IN SHOW EMOJI OF CHATFORM WITH VALUE ' + this.showEmojiPicker.toString());
     this.emojiButtonPressed.emit(this.showEmojiPicker);
-  }
+}
 
   addEmoji(event) {
     const { message } = this;

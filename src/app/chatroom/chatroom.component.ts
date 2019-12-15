@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild, ElementRef, AfterViewChecked, NgZone, Input} from '@angular/core';
 import {CdkTextareaAutosize} from '@angular/cdk/text-field';
 import {take} from 'rxjs/operators';
+import {ChatFormComponent} from '../chat-form/chat-form.component';
 
 @Component({
   selector: 'app-chatroom',
@@ -12,9 +13,11 @@ export class ChatroomComponent implements OnInit, AfterViewChecked {
     @ViewChild('chatForm', {static: false}) private chatFormWrapper: HTMLElement;
     @ViewChild('userList', {static: false}) private userList;
     @ViewChild('autosize', {static: false}) private messageContainer: CdkTextareaAutosize;
-  heightProperty: boolean;
+    private showEmojiPicker: boolean;
+  @ViewChild(ChatFormComponent, {static: false})
+  private chatFormComponent: ChatFormComponent;
 
-  constructor(private _ngZone: NgZone) { }
+  constructor() { }
 
   ngOnInit() {
   }
@@ -25,19 +28,16 @@ export class ChatroomComponent implements OnInit, AfterViewChecked {
     = this.feedContainer.nativeElement.scrollHeight;
   }
 
-   triggerResize() {
-    // Wait for changes to be applied, then trigger textarea resize.
-    this._ngZone.onStable.pipe(take(1))
-      .subscribe(() => this.messageContainer.resizeToFitContent(true));
-  }
-
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
 
   openEmojiMart($event: boolean) {
-    this.heightProperty = true;
-    console.log('EMOJI BUTTON EVENT');
-    this.chatFormWrapper.style.height = '100';
+    console.log('IN CHATROOM - OPENEMOJIMART WITH EVENT VALUE ' + $event.toString());
+    this.showEmojiPicker = $event;
+  }
+
+  addEmoji($event: any) {
+    
   }
 }

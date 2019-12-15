@@ -2,4 +2,13 @@
   <div *ngFor="let message of feed" class="message">
     <app-message [chatMessage]=message></app-message>
   </div>
+  <div class="emojiDiv">
+    <!--    <section class="emojiWindow">-->
+    <emoji-mart class=emojiMart emoji="point_up" set="emojione"
+                (emojiSelect)="addEmoji($event)"
+                *ngIf="showEmojiPicker"
+                title="Pick your emoji…">
+    </emoji-mart>
+    <!--    </section>-->
+  </div>
 </div>

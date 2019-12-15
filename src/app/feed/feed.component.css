@@ -1,9 +1,32 @@
+html {
+  box-sizing:content-box;
+}
+
+*, *::before, *::after {
+  box-sizing: content-box;
+  line-height: normal;
+  margin: 0;
+  padding: 0;
+}
+
 .feed{
     display: flex;
     flex-direction: column;
 }
 
 .message{
-    flex-direction: column;
     margin: 10px 0;
+    z-index: 0;
 }
+
+.emojiDiv{
+  height: auto;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+}
+
+

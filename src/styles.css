@@ -1,9 +1,8 @@
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
-
+@import '~@ctrl/ngx-emoji-mart/picker.css';
 
 
 * {
-    height: 100%;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -12,20 +11,21 @@
 
 body {
   width: 100%;
-    min-height:100%;
+  min-height:100%;
   background: #eee;
   background-attachment: fixed;
   background-size: cover;
   font-family: "Open Sans", sans-serif;
 }
 
-app-chatroom {
+app-chatroom, app-gameroom, app-result {
+    height: 100%; /*replaced height with the one set in * */
     display: flex;
     flex-direction: column;
 }
 
-app-navbar{
-    width: 100%;
+router-outlet {
+  height: 100%;
 }
 
 app-chat-form{
@@ -37,9 +37,8 @@ app-chat-form{
 
 .message {
   display: block;
-  height: auto;
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif}
 

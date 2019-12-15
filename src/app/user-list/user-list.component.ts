@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import { User} from '../interfaces/user.model';
 import {AuthService} from '../services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
@@ -13,6 +13,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   users: User[];
   private loggingSub: Subscription;
 
+
   constructor(private chatService: ChatService) {}
 
   ngOnInit(): void {
@@ -25,5 +26,4 @@ export class UserListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.loggingSub.unsubscribe();
   }
-
 }
