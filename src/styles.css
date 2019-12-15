@@ -18,7 +18,7 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
-app-chatroom, app-gameroom, app-result {
+app-chatroom, app-gameroom, app-result, app-login-form, app-signup-form {
     height: 100%; /*replaced height with the one set in * */
     display: flex;
     flex-direction: column;
