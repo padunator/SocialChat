@@ -9,22 +9,26 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    background-size: 100% 100%;
 }
 
 .loginCard{
   display: block;
+  opacity: 10;
   border: 1px solid #000;
-  border-radius: 4px;
-  background-color: rgba(255,255,255,0.85);
-  width: 700px;
-  height: auto;
-  margin: 40px auto auto;
+  border-radius: 40px;
+  background-color: rgba(255,255,255,0.5);
+  width: 500px;
+  height: 450px;
+  margin: 30px auto 30px auto ;
   text-align: center;
   vertical-align: auto;
   padding: 80px 30px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.17), 0 1px 2px rgba(0,0,0,0.24);
+  /*box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.24);*/
   overflow: auto;
+}
+
+mat-card {
+  background-color: rgba(255,255,255,0.9);
 }
 
 mat-form-field {
@@ -36,7 +40,7 @@ mat-form-field {
   margin-top: 16px;
   display: block;
   width:100%;
-  height: 40px;
+  height: 30px;
   border-radius:4px;
   background:#ecf0f1;
   border: #81cbcc 1px solid;
@@ -45,17 +49,16 @@ mat-form-field {
 }
 
 .btn{
-  height: 54px;
+  height: 40px;
   width: 60%;
-  margin: auto;
   margin-top: 16px;
   border: none;
   color: white;
-  padding: 15px 32px;
-  text-align: center;
+  text-align-all: center;
   text-decoration: none;
   font-size: 16px;
-  border-radius: 4px;
+  vertical-align: middle;
+  border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.17), 0 1px 2px rgba(0,0,0,0.24);
   transition: ease-in 0.2s;
 }
@@ -84,4 +87,13 @@ h2{
 
 a {
     text-decoration: none;
+}
+
+.credentialMsg {
+  color: red;
+  font-size: xx-large;
+  text-align: center;
+  font-family: sans-serif;
+  padding: 0 20px;
+  font-size: 20px;
 }

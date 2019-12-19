@@ -13,7 +13,7 @@ var QuestionSchema = new mongoose.Schema({
   // ownAnswer: { type: String },
   // guessAnswer: {type: String},
   answers: { type: [{ email: String, own: String, guess: String, _id: { id: false } }] },
-  options: { type: [{ val: String, text: String, _id: { id: false } }] },
+  options: { type: [{ val: String, text: String, _id: { id: false } }]   },
   createdAt: { type: Date, default: Date.now }
 });
 

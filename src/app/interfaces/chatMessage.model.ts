@@ -4,4 +4,5 @@ export interface ChatMessage {
   username: string;
   message: string;
   timeSent: string;
+  url_matches?: string[];
 }

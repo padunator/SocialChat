@@ -30,15 +30,12 @@ var ioEvents = function(io) {
     });
 
     socket.on('login', (email) => {
-      console.log('Login of new user with email ' + email);
       const userSocket = new Sockets({
         socket: socket.id,
         email: email
       });
 
-      console.log('New Socket ID to be updated for email ' + email + ' is ' + socket.id);
       Sockets.updateOne({email: email}, {socket: socket.id}, { upsert: true }).then(result => {
-        console.log('Current Socket for email Updated! ');
       });
     });
 
@@ -58,11 +55,8 @@ var ioEvents = function(io) {
 
     // Send game request for creating new room
     socket.on('joinGameRequest', (req) => {
-      console.log('Looking for socket of email: ' + req.to);
       Sockets.findOne({email: req.from}).then(foundSocket => {
         // socket.broadcast.to(foundSocket.socket).emit("ConfirmGame", req.message);
-        console.log('SENDING JOIN GAME TO USER SOCKET ' + foundSocket.socket);
-        console.log('----JOIN GAME REQ----------' + req.title);
         io.of('/chat').to(foundSocket.socket).emit("JoinGame", req);
       });
     });
@@ -95,7 +89,6 @@ var ioEvents = function(io) {
 
     // Join a gameroom
     socket.on('join', function(obj,ack){
-      console.log('Looking for Room - ' + obj.title);
       Room.findOne({title: obj.title}).then(room => {
         if (!room) {
           // Assuming that you already checked in router that gameroom exists
@@ -110,13 +103,11 @@ var ioEvents = function(io) {
           } else {
             // Push a new connection object(i.e. {userId + socketId})
             // const conn = {userId: obj.userId, socketId: socket.id};
-            console.log('PUSHING NEW CONNECTION!');
             room.connections.push({userId: obj.userId, socketId: socket.id});
             room.save().then(room => {
+              console.log('JOINING TO ROOM AND PUSHING CONNECTION!');
               socket.join(room.title);
               socket.username = obj.userId;
-              console.log('----------------------------------------------');
-              console.log(socket.username);
               // Join the room channel
               if (room.noOfPlayers === room.connections.length) {
                 room.isOpen = false;
@@ -148,7 +139,6 @@ var ioEvents = function(io) {
                   ack(true);
                   return Promise.resolve();
                 } else{
-                  console.log('NOW SENDING GAME READY !!!!!!!');
                   // io.of(room._id).emit('GameReady', true);
                   // As second user has joined the room (this is the one which invited the first player)
                   // GameReady is sent and both users open the Game Page
@@ -172,12 +162,14 @@ var ioEvents = function(io) {
     // Registering new Question response
     socket.on('new-game-response', (obj) => {
        console.log('Updating Question answers');
+       console.log('Question answers of user ' + obj.email);
        const own = obj.question.answers.find(s => s.email===obj.email).own;
        const guess = obj.question.answers.find(s => s.email===obj.email).guess;
       Question.updateOne({_id: obj.question._id, 'answers.email': obj.email}, {'$set': {
           'answers.$.own': own,
           'answers.$.guess': guess
         }}, { new: true }).then(updatedAnswer=> {
+          console.log('Send response to other user ! ');
         socket.broadcast.to(obj.roomID).emit('PlayerAnswered', {
           email: obj.email,
           own: own,

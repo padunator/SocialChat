@@ -1,4 +1,4 @@
-import {Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, AfterViewChecked} from '@angular/core';
 import { ChatService } from '../services/chat.service';
 import { ChatMessage} from '../interfaces/chatMessage.model';
 import {Subscription} from 'rxjs/internal/Subscription';
@@ -11,22 +11,23 @@ import {Subscription} from 'rxjs/internal/Subscription';
 
 export class FeedComponent implements OnInit, OnDestroy {
   feed: ChatMessage[] = [];
+  messages = [];
   private feedSub: Subscription;
   private runningChatSub: Subscription;
   @Input() showEmojiPicker: boolean;
-  @Output() emojiSelected = new EventEmitter<any>();
 
   constructor(private chatService: ChatService) { }
 
   ngOnInit() {
     this.chatService.getMessages();
+
     this.feedSub = this.chatService.getChatUpdatedListener().
     subscribe((feed: ChatMessage[]) => {
       this.feed = feed;
     });
 
-    this.runningChatSub = this.chatService.newMessage.subscribe((newMsg) => {
-      this.feed.push(newMsg);
+    this.runningChatSub = this.chatService.newMessage.subscribe((msg) => {
+        this.feed.push({...msg});
     });
   }
 
@@ -36,6 +37,6 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   addEmoji($event: any) {
-    this.emojiSelected.emit($event);
+    this.chatService.addEmoji($event);
   }
 }

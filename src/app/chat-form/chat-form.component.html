@@ -30,11 +30,11 @@
 </button>
 <footer class="chat-footer">
   <form (ngSubmit)='send()'>
-  <textarea
-  (keyup.enter)="send()" rows="1" autosize [maxRows]="10"
-  placeholder="Type a message. Hit Enter to send"
-  name="message" [(ngModel)]="message">
-  </textarea>
+    <textarea
+      (keyup.enter)="send()" rows="1" autosize [maxRows]="10"
+      placeholder="Type a message. Hit Enter to send"
+      name="message" [(ngModel)]="message">
+    </textarea>
   </form>
 </footer>
 

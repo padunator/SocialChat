@@ -14,15 +14,14 @@ export class AuthService {
   private _token: string;
   private userLoggedListener = new Subject<User>();
   private authStatusListener = new Subject<boolean>();
+  private credentialListener = new Subject<boolean>();
   private tokenTimer: NodeJS.Timer;
 
   constructor(private http: HttpClient, private router: Router, private socket: ChatSocket) {}
 
-
   get currUser(): User {
     return this._currUser;
   }
-
 
   get isAuthenticated(): boolean {
     return this._isAuthenticated;
@@ -36,12 +35,16 @@ export class AuthService {
     return this._token;
   }
 
-  getUserLoggedListener() {
+    getUserLoggedListener() {
       return this.userLoggedListener.asObservable();
     }
 
     getAuthStatusListener() {
       return this.authStatusListener.asObservable();
+    }
+
+    getCredentialListener() {
+      return this.credentialListener.asObservable();
     }
 
     login(email: string, password: string) {
@@ -50,10 +53,10 @@ export class AuthService {
         email, password
       });
       this.http.post<{token: string, expiresIn: number}>('http://localhost:3000/api/user/login', authData)
-              .subscribe(response => {
-                this._token = response.token;
-                if (this._token) {
-                  this.restoreAuthData(email);
+      .subscribe(response => {
+          this._token = response.token;
+          if (this._token) {
+            this.restoreAuthData(email);
             // After 1h logout automatically by using the Timeout function
             this.setAuthTimer(response.expiresIn * 1000);
 
@@ -62,10 +65,15 @@ export class AuthService {
             const expirationDate = new Date(now.getTime() + response.expiresIn * 1000);
             this.saveAuthData(this._token, expirationDate, email);
             // this.socket.emit('login', email);
-
             // Route to chat page
+            this.credentialListener.next(true);
             this.router.navigate(['/chat']);
           }
+        }, error => {
+            this.credentialListener.next(false);
+        // use message in error object
+        // you can use Angular Material dialog to show message in the popup.
+        // to show message in the form, you can use a class variable and bind it to the template.
         });
     }
 
@@ -96,11 +104,6 @@ export class AuthService {
       });
     }
 
-
-  // getUserLoggedListener() {
-  //   return this.userLoggedListener.asObservable();
-  // }
-
     getUser() {
       // let params = new HttpParams();
       // params = params.append('fuck', this._userMail);
@@ -122,20 +125,19 @@ export class AuthService {
        });
     }
 
-
-  autoAuthUser() {
-    const authInfo =  this.getAuthData();
-    if (!authInfo) {
-      return;
+    autoAuthUser() {
+      const authInfo =  this.getAuthData();
+      if (!authInfo) {
+        return;
+      }
+      const now = new Date();
+      const expiresIn = authInfo.expirationDate.getTime() - now.getTime();
+      if (expiresIn > 0 ) {
+        this._token = authInfo.token;
+        this.restoreAuthData(authInfo.email);
+        this.setAuthTimer(expiresIn);
+      }
     }
-    const now = new Date();
-    const expiresIn = authInfo.expirationDate.getTime() - now.getTime();
-    if (expiresIn > 0 ) {
-      this._token = authInfo.token;
-      this.restoreAuthData(authInfo.email);
-      this.setAuthTimer(expiresIn);
-    }
-  }
 
     private saveAuthData(token: string, expirationDate: Date, email: string) {
       localStorage.setItem('token', token);

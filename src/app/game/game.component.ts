@@ -67,9 +67,12 @@ export class GameComponent implements OnInit, OnDestroy {
        currAnswer.own = newAnswer.own;
        currAnswer.guess = newAnswer.guess;
         // Second time
+       console.log('FIRST OR SECOND  ' + this.gameService.waitingForPlayer.toString());
        if (this.gameService.waitingForPlayer) {
+         console.log('GETTING NEXT QUESTION');
          this.getNextQuestion();
        } else { // first time
+         console.log('OPPENENT FINISHED!!');
          this.gameService.opponentFinished = true;
        }
      });
@@ -99,9 +102,12 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private waitOrProceed() {
+    console.log('WAIT OR PROCEED ' + this.gameService.opponentFinished.toString());
     if (this.gameService.opponentFinished) {
+      console.log('PLAYER 2 - GET NEXT QUESTION');
       this.getNextQuestion();
     } else {
+      console.log('WAITING FOR OTHER USER');
       this.gameService.waitingForPlayer = true;
     }
   }

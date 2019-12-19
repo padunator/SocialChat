@@ -136,6 +136,10 @@ export class GameService {
   }
 
   getAnswer(email, qnProgress = this._qnProgress) {
+    console.log('IN GET ANSWER WITH FOLLOWING PARAMETERS');
+    console.log('QNPROGRESS' + qnProgress);
+    console.log('EMAIL ' + email);
+    console.log(this.questions);
     return this.questions[qnProgress].answers.
     find(answer => answer.email === email);
   }

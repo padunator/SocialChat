@@ -1,23 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { AuthService} from '../../services/auth.service';
-import { Router } from '@angular/router';
 import {NgForm} from '@angular/forms';
+import {Subscription} from 'rxjs/internal/Subscription';
 
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.css']
 })
-export class LoginFormComponent {
+export class LoginFormComponent implements OnInit, OnDestroy {
+  wrongCredentials: boolean;
+  private credSubject: Subscription;
 
   constructor(public authService: AuthService) { }
 
+  ngOnInit() {
+    this.credSubject = this.authService.getCredentialListener().subscribe(authorized => {
+      this.wrongCredentials = !authorized;
+    });
+  }
+
   login(form: NgForm) {
-    console.log('login() called from login-form component');
     if (form.invalid) {
       return;
     }
-    console.log('Before calling the Auth Service!');
     this.authService.login(form.value.email, form.value.password);
+  }
+
+  ngOnDestroy(): void {
+    this.credSubject.unsubscribe();
   }
 }

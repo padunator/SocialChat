@@ -7,8 +7,8 @@
     transition: 0.1s ease-out;
     padding-left: 80px;
     resize: vertical;
-  min-height: 40px;
-  overflow: hidden;
+    min-height: 40px;
+    overflow: hidden;
 }
 
 .chatInput:focus{
@@ -19,7 +19,6 @@
 
 .chatButton{
     flex: 2;
-    padding: 10px;
     padding: 8px 24px;
     font-size: 1.3em;
     font-family: 'Droid Sans', sans-serif;

@@ -7,6 +7,8 @@ import {AuthGuard} from './app/Auth/auth.guard';
 import {GameComponent} from './app/game/game.component';
 import {GameroomComponent} from './app/gameroom/gameroom.component';
 import {ResultComponent} from './app/result/result.component';
+import {NotFoundComponent} from './app/error-pages/not-found/not-found.component';
+import {ServerErrorComponent} from './app/error-pages/server-error/server-error.component';
 
 export const appRoutes: Routes = [
     { path: 'signup', component: SignupFormComponent },
@@ -15,6 +17,8 @@ export const appRoutes: Routes = [
     {path: 'game', component: GameroomComponent, canActivate: [AuthGuard]},
     {path: 'result', component: ResultComponent, canActivate: [AuthGuard]},
     { path: '', redirectTo: '/login', pathMatch: 'full'},
+    { path: '404', component: NotFoundComponent},
+    { path: '500', component: ServerErrorComponent },
 ];
 
 @NgModule({

@@ -14,6 +14,8 @@ export class ChatService {
   private users: User[] = [];
   private userLoggedListener = new Subject<User[]>();
   private chatUpdated = new Subject<ChatMessage[]>();
+  private emojiSelected = new Subject<any>();
+
   newMessage = this.socket.fromEvent<ChatMessage>('ChatMessage');
 
   constructor(private http: HttpClient, private  router: Router, public socket: ChatSocket) { }
@@ -23,6 +25,7 @@ export class ChatService {
     this.http.post<{ message: string, id: string }>('http://localhost:3000/api/chat', chatMsg)
       .subscribe(responseData => {
         chatMsg.key = responseData.id;
+        console.log('MESSAGE ' + chatMsg);
         this.chatMessages.push(chatMsg);
         // this.chatUpdated.next([...this.chatMessages]);
       });
@@ -38,6 +41,10 @@ export class ChatService {
 
   getChatUpdatedListener() {
     return this.chatUpdated.asObservable();
+  }
+
+  getEmojiSelectedListener() {
+    return this.emojiSelected.asObservable();
   }
 
   getUserLoggedListener() {
@@ -60,5 +67,9 @@ export class ChatService {
         this.users = mappedResult;
         this.userLoggedListener.next([...this.users]);
       });
+  }
+
+  addEmoji($event: any) {
+    this.emojiSelected.next($event);
   }
 }

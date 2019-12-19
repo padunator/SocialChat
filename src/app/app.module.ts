@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatBadgeModule,
   MatButtonModule,
-  MatCardModule,
+  MatCardModule, MatCheckboxModule,
   MatExpansionModule, MatIconModule,
   MatInputModule, MatListModule,
   MatProgressBarModule, MatProgressSpinnerModule,
@@ -39,7 +39,8 @@ import { GameroomComponent } from './gameroom/gameroom.component';
 import { ResultComponent } from './result/result.component';
 import {AutosizeModule} from 'ngx-autosize';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
-
+import { NotFoundComponent } from './error-pages/not-found/not-found.component';
+import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
 // const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {} };
 
 
@@ -58,6 +59,8 @@ import {PickerModule} from '@ctrl/ngx-emoji-mart';
     GameComponent,
     GameroomComponent,
     ResultComponent,
+    NotFoundComponent,
+    ServerErrorComponent,
   ],
   imports: [
     BrowserModule,
@@ -81,6 +84,7 @@ import {PickerModule} from '@ctrl/ngx-emoji-mart';
     MatIconModule,
     MatBadgeModule,
     AutosizeModule,
+    MatCheckboxModule,
     // SocketIoModule.forRoot(config)
   ],
   providers: [

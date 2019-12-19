@@ -1,15 +1,16 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewChecked, Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthService} from './services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {GameService} from './services/game.service';
 import {Router} from '@angular/router';
+declare const microlink: any;
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
   title = 'Social CLEARN App';
   private newGameSub: Subscription;
   private joinGameSub: Subscription;
@@ -21,7 +22,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authService.autoAuthUser();
 
     this.newGameSub = this.gameService.gameRequest.subscribe((req) => {
-      console.log('Got new Game Request! ');
       if (confirm(String(req.message))) {
         this.gameService.createNewRoom(req);
       } else {
@@ -41,10 +41,14 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
   }
+
   ngOnDestroy(): void {
     this.newGameSub.unsubscribe();
     this.joinGameSub.unsubscribe();
     this.gameReadySub.unsubscribe();
   }
 
+  ngAfterViewChecked(): void {
+    microlink('.link-preview');
+  }
 }

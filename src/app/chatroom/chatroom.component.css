@@ -2,36 +2,46 @@
   height: 100%;
 }
 
+app-user-list {
+  width: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.3em;
+}
+
 .mainContent{
 display: flex;
-align-items: end;
 }
 
 .userListWrapper {
   height: 100%;
-
   background-color: #2A2845;
-    color: #fff;
-    display: flex;
-    font-family: "Open Sans", sans-serif;
-    font-size: 1.2em;
-    flex: 1;
-    order: 1;
-    padding:20px 0px 40px 30px;
-    border-right: 1px solid #222;
+  color: #fff;
+  display: flex;
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.2em;
+  flex: 1;
+  order: 1;
+  padding:20px 0px 40px 30px;
+  border-right: 1px solid #222;
 }
 
 .feedWrapper {
     background-color: #fff;
-    background:
-        linear-gradient(181deg, rgba(100,200,255,0.6), rgba(0, 0, 0, 0.9)),
-        url('../../assets/img/chat-bg-1.png') center center no-repeat;;
     font-family: "Open Sans", sans-serif;
     font-size: 1.2em;
     flex: 5;
     order: 2;
     overflow-y: scroll;
     padding:20px 0px 0px 24px;
+  background:
+    linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.9)),
+    url('../../assets/img/ulogo.png') center center no-repeat;;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 .chatFormWrapper {
@@ -48,6 +58,4 @@ align-items: end;
 	background-color: #F5F5F5;
 }
 
-app-user-list {
-    width: 100%;
-}
+

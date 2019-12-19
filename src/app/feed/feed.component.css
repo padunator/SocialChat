@@ -3,15 +3,19 @@ html {
 }
 
 *, *::before, *::after {
-  box-sizing: content-box;
-  line-height: normal;
+  box-sizing: inherit;
   margin: 0;
   padding: 0;
+}
+
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 }
 
 .feed{
     display: flex;
     flex-direction: column;
+  justify-content: flex-end;
 }
 
 .message{

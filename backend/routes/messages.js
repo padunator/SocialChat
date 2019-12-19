@@ -12,9 +12,10 @@ router.post("", checkAuth, (req,res,next)=> {
     username: req.body.username,
     email: req.body.email,
     timeSent: req.body.timeSent,
-    message: req.body.message
+    message: req.body.message,
+    url_matches: req.body.url_matches
   });
-  var result = sentiment.analyze(req.body.message);
+  // var result = sentiment.analyze(req.body.message);
   message.save().then(createdPost => {
     res.status(201).json({
       message: 'Post added!',
