@@ -40,12 +40,10 @@ var getUsers = function(room, socket, userId, callback) {
   // Get the user object by id, and assign it to users array.
   // So, users array will hold users' objects instead of ids.
   users.forEach(function(userId, i) {
-    console.log('FOR EACH USER TRY with id ' + userId + 'and i = ' + i);
     User.findOne({email: userId}).then(user => {
       users[i] = user;
       console.log('Users length ' + users.length + 'and i = ' + i);
       if (i + 1 === users.length) {
-        console.log('RETURNING CALLBACK IN users.forEach with cunut == ' + count);
         return callback(null, users, count);
       }
     }).catch(err => {return callback(err); });

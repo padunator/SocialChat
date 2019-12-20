@@ -1,4 +1,4 @@
-<div *ngIf=" this.gameService.questions && this.gameService.questionsLoaded | async">
+<div *ngIf=" this.gameService.questions">
   <div class="wrapper" >
     <span>Zeitfortschritt: {{gameService.displayTimeElapsed()}}</span>
     <mat-progress-bar mode="determinate" [value]="gameService.qnProgress+1*10"></mat-progress-bar>

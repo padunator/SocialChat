@@ -16,41 +16,29 @@ export class GameComponent implements OnInit, OnDestroy {
   private playerAnsweredSub: Subscription;
   questions: Question[] = [];
   initialized: boolean;
-  // @ViewChild('options', {static: false}) private options: MatSelectionList;
-  // private selectionString = 'own';
-  // private ownSelection: boolean;
-  // private opponentFinished: boolean;
-  // private waitingForPlayer: boolean;
 
   constructor(private gameService: GameService, private  router: Router, private socket: GameSocket,
               private  authService: AuthService) {}
 
    ngOnInit() {
      // Load actual values from local storage (must be done before loading Questions)
+     console.log('IN ON INIT');
      this.gameService.restoreGameDate();
+
+
+     if (this.gameService.seconds > 0) {
+       console.log('Rejoining game');
+       this.gameService.joinGame({
+         user: this.gameService.opponent,
+         from: this.authService.userMail,
+         message: 'Rejoining room',
+         title: this.gameService.roomTitle
+       });
+     }
 
      // Load Question Catalog
      this.gameService.getQuestions();
      // this.questions = this.gameService.questions;
-     // Load Question Catalog and wait for response before loading the Page
-
-/*     if (parseInt(localStorage.getItem('seconds'), 10) > 0) {
-       console.log('Game Component OnInit in IF for running game with seconds ' +  localStorage.getItem('seconds'));
-       // Load actual values from local storage
-       this.gameService.restoreGameDate();
-       // this.questions = this.gameService.questions;
-       if (this.gameService.qnProgress === this.gameService.questions.length) {
-         this.router.navigate(['/result']);
-       }
-     } else {
-       // Init game-variables
-       this.gameService.seconds = 0;
-       this.gameService.qnProgress = 0;
-       this.gameService.score = 0;
-       this.gameService.ownSelection = true;
-       this.gameService.opponentFinished = false;
-       this.gameService.waitingForPlayer = false;
-     }*/
 
      // Get question Catalog at startup
      this.questionSub = this.gameService.getQuestionUpdatedListener().
@@ -77,6 +65,7 @@ export class GameComponent implements OnInit, OnDestroy {
        }
      });
 
+
      // Start Quiz-Game Timer
      this.startTimer();
   }
@@ -89,8 +78,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
   registerAnswer(qID, choice) {
     const result = this.gameService.getAnswer(this.authService.userMail);
-    console.log('IN RegisterAnswer with email ' + this.authService.userMail);
-    console.log('RESULT ' +  result.email);
     if (this.gameService.ownSelection) {
       result.own = choice;
     } else {
@@ -102,12 +89,9 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private waitOrProceed() {
-    console.log('WAIT OR PROCEED ' + this.gameService.opponentFinished.toString());
     if (this.gameService.opponentFinished) {
-      console.log('PLAYER 2 - GET NEXT QUESTION');
       this.getNextQuestion();
     } else {
-      console.log('WAITING FOR OTHER USER');
       this.gameService.waitingForPlayer = true;
     }
   }

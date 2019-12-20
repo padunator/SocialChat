@@ -25,7 +25,6 @@ var ioEvents = function(io) {
     console.log('Chat Socket connected on server');
 
     socket.on('new-message', (message) => {
-      console.log('Received new message ' + message);
       io.of('/chat').emit("ChatMessage", message);
     });
 
@@ -45,9 +44,7 @@ var ioEvents = function(io) {
 
     // Send game request for creating new room
     socket.on('sendGameRequest', (req) => {
-      console.log('Sending confirmation dialog to ' + req.to);
       Sockets.findOne({email: req.to}).then(foundSocket => {
-        console.log('Own Socket ID ' + socket.id + ' socket-to-id ' + foundSocket.socket)
         // socket.broadcast.to(foundSocket.socket).emit("ConfirmGame", req.message);
         io.of('/chat').to(foundSocket.socket).emit("ConfirmGame", req);
       });
@@ -66,7 +63,7 @@ var ioEvents = function(io) {
   // gameroom namespace
   io.of('/game').on('connection', function(socket) {
     console.log('Game Socket connected on server');
-
+    let questionsSaved;
     // Create a new room
     socket.on('createRoom', (title) => {
       Room.findOne({title: title}).then(room => {
@@ -75,7 +72,6 @@ var ioEvents = function(io) {
         }else {
           const room = new Room({title: title});
           room.save().then(newRoom => {
-            console.log('Room ' + title + ' created!');
             // send to current socket
             // socket.emit('updateRoomsList', newRoom);
             // send to all other sockets
@@ -102,25 +98,32 @@ var ioEvents = function(io) {
             socket.emit('updateUsersList', { error: 'Room is Full. Try again later' });
           } else {
             // Push a new connection object(i.e. {userId + socketId})
-            // const conn = {userId: obj.userId, socketId: socket.id};
             room.connections.push({userId: obj.userId, socketId: socket.id});
             room.save().then(room => {
               console.log('JOINING TO ROOM AND PUSHING CONNECTION!');
               socket.join(room.title);
               socket.username = obj.userId;
+
               // Join the room channel
               if (room.noOfPlayers === room.connections.length) {
                 room.isOpen = false;
                 room.save().then(room => {
-                  // Update Question catalog for specific room
                   room.connections.forEach(connection => {
                     Question.find({room: room.title}).then(questions => {
-                      questions.forEach(question => {
-                        if (question.answers.length !== 2) {
-                          question.answers.push({email: connection.userId, own: "", guess: ""});
-                          question.save();
-                        }
-                      })
+                      Promise.all(
+                        questions.map(question => {
+                          if (question.answers.length !== 2) {
+                            question.answers.push({ email: connection.userId, own: "", guess: "" });
+                            return question.save();
+                          }
+                        }),
+                      ).then(() => {
+                        // All questions have been saved. Do the next thing.
+                        io.of("/game")
+                          .in(room.title)
+                          .emit("GameReady", true);
+                        ack(false)
+                      });
                     });
                   });
                 });
@@ -142,7 +145,8 @@ var ioEvents = function(io) {
                   // io.of(room._id).emit('GameReady', true);
                   // As second user has joined the room (this is the one which invited the first player)
                   // GameReady is sent and both users open the Game Page
-                  io.of('/game').in(room.title).emit('GameReady', true);
+                  // io.of('/game').in(room.title).emit('GameReady', true);
+                  // ack(false);
                   // socket.emit('GameReady', true);
                   // socket.broadcast.to(room.title).emit('GameReady', true);
                   io.of('/game').in(obj.roomID).clients(function(error,clients){
@@ -150,7 +154,6 @@ var ioEvents = function(io) {
                       console.log('Username: ' + clients);
                     });
                   });
-                  ack(false);
                 }
               });
             });
@@ -308,5 +311,25 @@ let init = function(app) {
   //    require('../session')(socket.request, {}, next);
   //  });
 }
+
+var insertQuestions = function(room) {
+  let p = Promise.resolve(); // Q() in q
+  console.log('IN INSERT QUESTIONS');
+  // Update Question catalog for specific room
+  room.connections.forEach(connection => {
+    Question.find({room: room.title}).then(questions => {
+      console.log('AFTER FIND QUESTION');
+      questions.forEach(question => {
+        console.log('NEXT QUESTION');
+
+        if (question.answers.length !== 2) {
+          question.answers.push({email: connection.userId, own: "", guess: ""});
+          p = p.then(() => question.save());
+        }
+      });
+    });
+  });
+  return p;
+};
 
 module.exports = init;

@@ -50,7 +50,6 @@ export class GameService {
       room: room,
       email: this.authService.userMail
     }).subscribe(response => {
-          console.log('FROM CREATE ROOM');
           this.joinGame(req);
       });
   }
@@ -136,10 +135,6 @@ export class GameService {
   }
 
   getAnswer(email, qnProgress = this._qnProgress) {
-    console.log('IN GET ANSWER WITH FOLLOWING PARAMETERS');
-    console.log('QNPROGRESS' + qnProgress);
-    console.log('EMAIL ' + email);
-    console.log(this.questions);
     return this.questions[qnProgress].answers.
     find(answer => answer.email === email);
   }
@@ -149,7 +144,6 @@ export class GameService {
   }
 
   getQuestions() {
-      console.log('---------------------GETTING QUESTIONS FOR ROOM -----------------' + this._roomTitle);
       this.http.get<{message: string, questions: Question[]}>('http://localhost:3000/api/game/getQuestions/' + this._roomTitle)
         .pipe(map(data => {
           return data.questions.map(result => {
@@ -168,7 +162,7 @@ export class GameService {
         this._questions = mappedQuestions;
         // this.initialized = true;
         this.questionsUpdated.next([...this._questions]);
-        this.questionsLoaded = Promise.resolve(true);
+        // this.questionsLoaded = Promise.resolve(true);
       });
    // });
   }
@@ -198,7 +192,6 @@ export class GameService {
   }
 
   restoreGameDate() {
-    console.log('LOAD DATA');
     this._seconds = parseInt(localStorage.getItem('seconds'), 10) || 0;
     this._qnProgress = parseInt(localStorage.getItem('qnProgress'), 10) || 0;
     this._score = parseInt(localStorage.getItem('score'), 10) || 0;
