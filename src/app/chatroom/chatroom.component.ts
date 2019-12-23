@@ -1,4 +1,5 @@
 import {Component, OnInit, ViewChild, ElementRef, AfterViewChecked} from '@angular/core';
+import {ChatService} from '../services/chat.service';
 
 
 @Component({
@@ -11,9 +12,10 @@ export class ChatroomComponent implements OnInit, AfterViewChecked {
   @ViewChild('scroller', {static: false}) private feedContainer: ElementRef;
   private showEmojiPicker: boolean;
 
-  constructor() { }
+  constructor(private chatService: ChatService) { }
 
   ngOnInit() {
+    this.chatService.getUsers();
   }
 
   scrollToBottom(): void {

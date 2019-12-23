@@ -56,7 +56,7 @@ export class ChatFormComponent implements OnInit {
       const chatMessage: ChatMessage = {
         timeSent: this.getTimeStamp(),
         email: this.authService.currUser.email,
-        username: this.authService.currUser.username,
+        username: this.authService.currUser.username, // or CurrUser from Subscription
         message: this.message,
         url_matches: urlMatches
       };

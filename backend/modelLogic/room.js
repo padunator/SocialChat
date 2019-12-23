@@ -20,12 +20,12 @@ var incCurrentRound = function(room, callback) {
  * Get all users in a room
  *
  */
-var getUsers = function(room, socket, userId, callback) {
+// var getUsers = function(room, socket, userId, callback) {
+var  getUsers = function(room, callback) {
   console.log('In getUsers');
   var users = [], vis = {}, count = 0;
 
 
-  // Loop on room's connections, Then:
   room.connections.forEach(function(conn) {
 
     // 2. Create an array(i.e. users) contains unique users' ids
@@ -36,18 +36,28 @@ var getUsers = function(room, socket, userId, callback) {
     vis[conn.userId] = true;
   });
 
+   const promises =  users.map(async (userId,i) => {
+     users[i] = await  User.findOne({email: userId});
+     return users;
+    });
+   Promise.all(promises).then(() => {
+     return callback(null, users, count)
+   });
+
   // Loop on each user id, Then:
   // Get the user object by id, and assign it to users array.
   // So, users array will hold users' objects instead of ids.
-  users.forEach(function(userId, i) {
-    User.findOne({email: userId}).then(user => {
+/*  users.forEach(function(userId, i) {
+    console.log('FOR EACH getUsers with userId ' + userId + ' and i = ' + i );
+     User.findOne({email: userId}).then(user => {
       users[i] = user;
-      console.log('Users length ' + users.length + 'and i = ' + i);
-      if (i + 1 === users.length) {
+      console.log('FOUND USER NO  ' + i );
+      console.log(user);
+      if (i+1  === users.length) {
         return callback(null, users, count);
       }
     }).catch(err => {return callback(err); });
-  });
+  });*/
 };
 
 /**

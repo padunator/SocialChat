@@ -17,8 +17,9 @@ export class ChatService {
   private emojiSelected = new Subject<any>();
 
   newMessage = this.socket.fromEvent<ChatMessage>('ChatMessage');
+  newUser = this.socket.fromEvent<any>('userLogged');
 
-  constructor(private http: HttpClient, private  router: Router, public socket: ChatSocket) { }
+  constructor(private http: HttpClient, private  router: Router, private socket: ChatSocket) { }
 
   sendMessage(chatMsg: ChatMessage) {
     this.socket.emit('new-message', chatMsg);

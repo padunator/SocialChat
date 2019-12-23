@@ -5,6 +5,9 @@
     background-color: #EAEAEB;
 }
 
+.pointer {
+  cursor: pointer;
+}
 #logo{
     display: inline-block;
     background: url('../../assets/img/logo.png') no-repeat;

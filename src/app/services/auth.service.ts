@@ -5,6 +5,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {AuthData} from '../interfaces/auth.model';
 import {User} from '../interfaces/user.model';
 import {ChatSocket} from '../Sockets/ChatSocket';
+import {ChatMessage} from '../interfaces/chatMessage.model';
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -64,32 +65,28 @@ export class AuthService {
             const now = new Date();
             const expirationDate = new Date(now.getTime() + response.expiresIn * 1000);
             this.saveAuthData(this._token, expirationDate, email);
-            // this.socket.emit('login', email);
+            this.credentialListener.next(true); // Show wrong user / pw
             // Route to chat page
-            this.credentialListener.next(true);
             this.router.navigate(['/chat']);
           }
         }, error => {
             this.credentialListener.next(false);
-        // use message in error object
-        // you can use Angular Material dialog to show message in the popup.
-        // to show message in the form, you can use a class variable and bind it to the template.
         });
     }
 
     logout() {
-      this.socket.emit('logout', this._currUser);
-      this._token = null;
-      this.userLoggedListener.next(null);
-      this._currUser = null;
-      this._isAuthenticated = false;
-      this.setUserStatus(this._isAuthenticated);
-      this.userLoggedListener.next(this._currUser);
-      this.authStatusListener.next(false);
-      this._userMail = '';
       this.clearLocalStorage();
-      clearTimeout(this.tokenTimer);
-      this.router.navigate(['/login']);
+      this.setUserStatus(false).then(() => {
+        this._isAuthenticated = false;
+        this._token = null;
+        this.userLoggedListener.next(this._currUser); // For chatform  - not really used
+        this.authStatusListener.next(false); // For Nav-Bar
+        this._userMail = '';
+        clearTimeout(this.tokenTimer);
+        this.socket.emit('logout', this._currUser);
+        this._currUser = null;
+        this.router.navigate(['/login']);
+      });
     }
 
 
@@ -105,23 +102,23 @@ export class AuthService {
     }
 
     getUser() {
-      // let params = new HttpParams();
-      // params = params.append('fuck', this._userMail);
       this.http.get<{ message: string, user: User }>('http://localhost:3000/api/user/getUser/' + this._userMail)
         .subscribe(mappedResult => {
           this._currUser = mappedResult.user;
-          console.log('CURR USER NAME  ' + this._currUser.username);
         });
     }
 
-    setUserStatus(status: boolean): void {
-
+     async setUserStatus(status: boolean): Promise<void> {
       const data = {
         status: status
       };
-      this.http.put('http://localhost:3000/api/user/changeStatus/' + this._userMail, data)
+      await this.http.put<{email: any}>('http://localhost:3000/api/user/changeStatus/' + this._userMail, data)
       .subscribe(response => {
-        console.log(response);
+        this.socket.emit('changeStatus', {
+          email: response.email,
+          status: status
+        });
+        return Promise.resolve();
        });
     }
 
@@ -155,6 +152,7 @@ export class AuthService {
       localStorage.removeItem('questions');
       localStorage.removeItem('qnProgress');
       localStorage.removeItem('selection');
+      localStorage.removeItem('selectionString');
       localStorage.removeItem('opponentFinished');
       localStorage.removeItem('waiting');
       localStorage.removeItem('seconds');

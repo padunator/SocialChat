@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require ('jsonwebtoken');
 const User = require('../models/User');
+const Room = require('../models/Room');
+const roomLogic = require('../modelLogic/room');
 const router = express.Router();
 
 router.post("/signup", (req, res, next) => {
@@ -67,7 +69,8 @@ router.post("/login", (req, res, next) => {
 router.put("/changeStatus/:email", (req, res, next) => {
   User.updateOne({email: req.params.email}, {status: req.body.status})
     .then(result => {
-      res.status(200).json({message: "Update successful!"});
+      console.log('STATUS CHANGED ON DB');
+      res.status(200).json({email: req.params.email});
     });
 });
 
@@ -90,6 +93,25 @@ router.get("/getUsers",  (req, res, next) => {
   User.find().then(foundUsers => {
     return res.status(200).json({
       user: foundUsers
+    });
+  });
+});
+
+router.get("/getUsersInRoom/:room",  (req, res, next) => {
+  console.log('GET USERS IN ROOM FROM SERVER for room ! ' + req.params.room);
+  Room.findOne({title: req.params.room}).then(room => {
+    roomLogic.getUsers(room, function (err, users, cuntUserInRoom) {
+      if (err) {
+        console.log('ERROR!!!!!!!!!!!!!!!!!!!!!!');
+        return res.status(500).json({
+        error: 'No users connected to room!'
+        })
+      } else {
+        console.log('__---------------------------------');
+        return res.status(200).json({
+          user: users
+        })
+      }
     });
   });
 });

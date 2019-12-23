@@ -8,6 +8,7 @@ const socketIO = require('socket.io');
 const Sockets = require('../models/UserSockets');
 const Room = require('../models/Room');
 const Question = require('../models/Question');
+const User = require('../models/User');
 const questionLogic = require('../modelLogic/question');
 const roomLogic = require('../modelLogic/room');
 
@@ -28,24 +29,36 @@ var ioEvents = function(io) {
       io.of('/chat').emit("ChatMessage", message);
     });
 
+    socket.on('changeStatus', status => {
+      console.log('CHANGE STATUS EMIT: SENDING BACK TO CLIENTS FROM ' + status.email);
+      console.log('SOCKET ID ' + socket.id);
+      io.of('/chat').emit('userLogged',  {email: status.email, status: status.status});
+      // io.emit('userLogged', {email: status.email, status: status.status});
+      // io.broadcast.emit('userLogger', {email: status.email, status: status.status});
+    });
+
     socket.on('login', (email) => {
       const userSocket = new Sockets({
         socket: socket.id,
         email: email
       });
-
       Sockets.updateOne({email: email}, {socket: socket.id}, { upsert: true }).then(result => {
+        console.log('SOCKET LOGIN: SOCKET UPDATED FOR ' + email);
       });
     });
 
     socket.on('logout', (user) => {
-      Sockets.deleteOne({email: user.email});
+      Sockets.deleteOne({email: user.email}).then( () => {
+        console.log('SOCKET LOGOUT: SOCKET DELETED');
+      });
     });
 
     // Send game request for creating new room
     socket.on('sendGameRequest', (req) => {
+      console.log('SENDING GAME REQUEST LOOK FOR SOCKET!');
       Sockets.findOne({email: req.to}).then(foundSocket => {
         // socket.broadcast.to(foundSocket.socket).emit("ConfirmGame", req.message);
+        console.log('SENDING GAME REQUEST  TO OTHER SOCKET ' + foundSocket.socket);
         io.of('/chat').to(foundSocket.socket).emit("ConfirmGame", req);
       });
     });
@@ -58,6 +71,13 @@ var ioEvents = function(io) {
       });
     });
 
+    // When a socket exits set user status to offline
+    socket.on('disconnect', function() {
+      Sockets.findOne({socket: socket.id}).then(user => {
+        User.updateOne({email: user.email}, {status: false})
+            .then( () => io.of('/chat').emit('userLogged',  {email: user.email, status: false}));
+      }).catch(err => console.log('Disconnect: Socket not found at disconnect!'));
+    });
   });
 
   // gameroom namespace
@@ -95,6 +115,7 @@ var ioEvents = function(io) {
           if (room.currentRound == room.rounds) {
             socket.emit('updateUsersList', { error: 'Game has ended.' });
           } else if (room.noOfPlayers <= room.connections.length) {
+            console.log('ACTUAL CONNECTIONS ' + room.connections.length);
             socket.emit('updateUsersList', { error: 'Room is Full. Try again later' });
           } else {
             // Push a new connection object(i.e. {userId + socketId})
@@ -129,16 +150,19 @@ var ioEvents = function(io) {
                 });
               }
 
-              roomLogic.getUsers(room, socket, obj.userId,function (err, users, cuntUserInRoom)  {
+              // roomLogic.getUsers(room, socket, obj.userId,function (err, users, cuntUserInRoom)  {
+              roomLogic.getUsers(room, function (err, users, cuntUserInRoom)  {
                 if (err) console.log('Error at roomLogic.getUsers in Socket ');
 
                 // Return list of all user connected to the room to the current user
-                socket.emit('updateUsersList', users, true);
+                console.log('NOW UPDATING USERS LIST for ' + users.length + ' users ');
+                console.log(users);
+                socket.emit('updateUsersList', [{...users}]);
 
                 // Return the current user to other connecting sockets in the room
                 // ONLY if the user wasn't connected already to the current room
                 if (cuntUserInRoom === 1) {
-                  socket.broadcast.to(room.title).emit('updateUsersList', users[users.length - 1]);
+                  // socket.broadcast.to(room.title).emit('updateUsersList', users[users.length - 1]);
                   ack(true);
                   return Promise.resolve();
                 } else{

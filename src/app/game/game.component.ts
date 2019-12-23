@@ -21,15 +21,11 @@ export class GameComponent implements OnInit, OnDestroy {
               private  authService: AuthService) {}
 
    ngOnInit() {
-     // Load actual values from local storage (must be done before loading Questions)
-     console.log('IN ON INIT');
-     this.gameService.restoreGameDate();
 
-
+     // If Game page gets reloaded while in game - rejoin to room
      if (this.gameService.seconds > 0) {
-       console.log('Rejoining game');
        this.gameService.joinGame({
-         user: this.gameService.opponent,
+         to: this.gameService.opponent,
          from: this.authService.userMail,
          message: 'Rejoining room',
          title: this.gameService.roomTitle
@@ -49,18 +45,14 @@ export class GameComponent implements OnInit, OnDestroy {
      });
 
      this.playerAnsweredSub = this.gameService.playerAnswered.subscribe((newAnswer: {email: String, own: String, guess: String}) => {
-       console.log('OTHER PLAYER ANSWERED  mail' + newAnswer.email);
        // Update answer array for specific  question
        const  currAnswer = this.gameService.getAnswer(newAnswer.email);
        currAnswer.own = newAnswer.own;
        currAnswer.guess = newAnswer.guess;
         // Second time
-       console.log('FIRST OR SECOND  ' + this.gameService.waitingForPlayer.toString());
        if (this.gameService.waitingForPlayer) {
-         console.log('GETTING NEXT QUESTION');
          this.getNextQuestion();
        } else { // first time
-         console.log('OPPENENT FINISHED!!');
          this.gameService.opponentFinished = true;
        }
      });
@@ -100,7 +92,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.calculateScore();
     this.gameService.qnProgress++;
     this.gameService.opponentFinished = this.gameService.waitingForPlayer = false;
-
     localStorage.setItem('questions', JSON.stringify(this.gameService.questions));
     if (this.gameService.qnProgress === this.gameService.questions.length) {
       clearInterval(this.gameService.timer);
@@ -109,7 +100,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private changeSelectionString() {
-    this.gameService.ownSelection = this.gameService.ownSelection ? false : true;
+    this.gameService.ownSelection = !this.gameService.ownSelection ;
     this.gameService.selectionString = this.gameService.ownSelection ? 'own' : 'opponents';
   }
 

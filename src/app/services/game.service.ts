@@ -28,12 +28,14 @@ export class GameService {
   private _waitingForPlayer: boolean;
   questionsLoaded: Promise<boolean>;
   questionsUpdated  = new Subject<Question[]>();
+  private playersJoined = new Subject<User[]>();
   timer;
 
   // Socket listeners
   gameRequest = this.socket.fromEvent<any>('ConfirmGame');
   joinRequest = this.socket.fromEvent<any>('JoinGame');
   gameReady = this.gameSocket.fromEvent<any>('GameReady');
+  gameUsers = this.gameSocket.fromEvent<User[]>('updateUsersList');
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
 
   // Event emitter erstellen - alle Clients & Componenten können an diesen
@@ -64,16 +66,15 @@ export class GameService {
   }
 
   joinGame(req: any) {
-    console.log('IN JOIN GAME METHOD - FOR ROOM ' + req.title);
     this.roomTitle = req.title;
     this.gameSocket.emit('join', {
       title: req.title,
       userId: this.authService.userMail
     },  (response) => {
-      if (response) { // Player which gets Confirm Dialog creates game and gets into this part
+      if (response) { // Player which gets Confirm Dialog creates game and gets into this part (First Player)
         this.socket.emit('joinGameRequest', req);
         this.opponent = req.from;
-      } else { // Player which sent the game request joins second and gets into this part
+      } else { // Player which sent the game request joins second and gets into this part (Second Player)
         this.opponent = req.to;
       }
     });
@@ -196,10 +197,14 @@ export class GameService {
     this._qnProgress = parseInt(localStorage.getItem('qnProgress'), 10) || 0;
     this._score = parseInt(localStorage.getItem('score'), 10) || 0;
     this._correctAnswerCount = parseInt(localStorage.getItem('counter'), 10) || 0;
-    this._ownSelection = JSON.parse(localStorage.getItem('selection')) || true;
     this._waitingForPlayer = JSON.parse(localStorage.getItem('waiting')) || false;
     this._opponentFinished = JSON.parse(localStorage.getItem('opponentFinished')) || false;
+    // console.log('BEFORE OWN SELECTION ' + this._ownSelection.toString());
+    this._ownSelection = JSON.parse(localStorage.getItem('selection')) ===  null ||
+      JSON.parse(localStorage.getItem('selection'));
+    console.log('OWN SELECTION ' + this._ownSelection.toString());
     this._questions = JSON.parse(localStorage.getItem('questions'));
+    this._selectionString = localStorage.getItem('selectionString');
     this._roomTitle = localStorage.getItem('room');
     this._opponent = localStorage.getItem('opponent');
   }
@@ -232,10 +237,12 @@ export class GameService {
 
   set selectionString(value: string) {
     this._selectionString = value;
+    localStorage.setItem('selectionString', value);
   }
 
   set ownSelection(value: boolean) {
     this._ownSelection = value;
+    console.log('SETTER SELECTION = ' + this._ownSelection.toString());
     localStorage.setItem('selection', JSON.stringify(this._ownSelection));
   }
 
@@ -308,5 +315,30 @@ export class GameService {
 
   sendGameDecline() {
     this.gameSocket.emit('DeclineGame');
+  }
+
+  getPlayersJoinedListener() {
+    return this.playersJoined.asObservable();
+  }
+
+  getUsersInRoom() {
+    console.log('GET USERS - CLIENT SIDE');
+    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsersInRoom/' + this._roomTitle)
+      .pipe(map(postData => {
+        return postData.user.map(user => {
+          return {
+            email: user.email,
+            password: user.password,
+            username: user.username,
+            status: user.status
+          };
+        });
+      }))
+      .subscribe(mappedResult => {
+        // this.users = mappedResult;
+        console.log('USER RECEIVED');
+        console.log(mappedResult);
+        this.playersJoined.next([...mappedResult]);
+      });
   }
 }

@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import { AuthService} from '../../services/auth.service';
 import {NgForm} from '@angular/forms';
 import {Subscription} from 'rxjs/internal/Subscription';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login-form',
@@ -12,12 +13,16 @@ export class LoginFormComponent implements OnInit, OnDestroy {
   wrongCredentials: boolean;
   private credSubject: Subscription;
 
-  constructor(public authService: AuthService) { }
+  constructor(public authService: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.credSubject = this.authService.getCredentialListener().subscribe(authorized => {
       this.wrongCredentials = !authorized;
     });
+
+    if (this.authService.token) {
+      this.router.navigate(['/chat']);
+    }
   }
 
   login(form: NgForm) {

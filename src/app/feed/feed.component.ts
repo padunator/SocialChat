@@ -27,6 +27,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     });
 
     this.runningChatSub = this.chatService.newMessage.subscribe((msg) => {
+        console.log('GOT NEW MESSAGE');
         this.feed.push({...msg});
     });
   }
