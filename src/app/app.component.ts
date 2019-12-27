@@ -36,6 +36,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.gameReadySub = this.gameService.gameReady.subscribe(ready => {
       if (ready) {
+        this.gameService.getUsersInRoom();
         this.router.navigate(['/game']);
       }
     });

@@ -3,25 +3,11 @@ const Room = require('../models/Room');
 const User = require('../models/User');
 
 /**
- * Increment Current round of a room.
- *
- */
-var incCurrentRound = function(room, callback) {
-  if (room.currentRound < room.rounds) {
-    room.currentRound++;
-    room.score.push({ round: room.currentRound, answers: {} })
-    room.save(function(err){
-      callback(null, room);
-    });
-  }
-};
-
-/**
  * Get all users in a room
  *
  */
 // var getUsers = function(room, socket, userId, callback) {
-var  getUsers = function(room, callback) {
+const  getUsers = function(room, callback) {
   console.log('In getUsers');
   var users = [], vis = {}, count = 0;
 
@@ -43,32 +29,17 @@ var  getUsers = function(room, callback) {
    Promise.all(promises).then(() => {
      return callback(null, users, count)
    });
-
-  // Loop on each user id, Then:
-  // Get the user object by id, and assign it to users array.
-  // So, users array will hold users' objects instead of ids.
-/*  users.forEach(function(userId, i) {
-    console.log('FOR EACH getUsers with userId ' + userId + ' and i = ' + i );
-     User.findOne({email: userId}).then(user => {
-      users[i] = user;
-      console.log('FOUND USER NO  ' + i );
-      console.log(user);
-      if (i+1  === users.length) {
-        return callback(null, users, count);
-      }
-    }).catch(err => {return callback(err); });
-  });*/
 };
 
 /**
  * Remove a user along with the corresponding socket from a room
  *
  */
-var removeUser = function(socket, callback) {
+const removeUser = function(socket, callback) {
 
   // Get current user's id
-  var userId = socket.username;
-
+  let userId = socket.username;
+  console.log('REMOVE USER NAMED ' + userId);
   Room.find({}).then( rooms => {
     // For every room,
     // 1. Count the number of connections of the current user(using one or more sockets).
@@ -88,11 +59,18 @@ var removeUser = function(socket, callback) {
         // If so, then, remove the current connection object, and terminate the loop.
         if (!pass) {
           room.connections.id(room.connections[target]._id).remove();
-          room.save(function(err) {
-            callback(err, room, userId, cunt);
+          room.save().then(() => {
+            User.findOne({email: userId})
+              .then(user => {
+                console.log('REMOVE USER: NOW GETTING BACK TO SOCKET WITH REMOVED USER = ');
+                console.log(user);
+              callback(null, room, user, cunt);
+            })
+              .catch(err => {
+                callback(err, room, null, cunt);
+              })
           });
         }
-
         return pass;
       });
     });
@@ -101,6 +79,5 @@ var removeUser = function(socket, callback) {
 
 module.exports = {
   getUsers,
-  removeUser,
-  incCurrentRound
+  removeUser
 };

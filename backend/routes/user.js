@@ -107,7 +107,8 @@ router.get("/getUsersInRoom/:room",  (req, res, next) => {
         error: 'No users connected to room!'
         })
       } else {
-        console.log('__---------------------------------');
+        console.log('SENDING FOLLOWING USERS BACK TO CLIENT');
+        console.log(users);
         return res.status(200).json({
           user: users
         })

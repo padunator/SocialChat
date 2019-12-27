@@ -26,8 +26,7 @@ export class ChatService {
     this.http.post<{ message: string, id: string }>('http://localhost:3000/api/chat', chatMsg)
       .subscribe(responseData => {
         chatMsg.key = responseData.id;
-        console.log('MESSAGE ' + chatMsg);
-        this.chatMessages.push(chatMsg);
+        // this.chatMessages.push(chatMsg);
         // this.chatUpdated.next([...this.chatMessages]);
       });
   }

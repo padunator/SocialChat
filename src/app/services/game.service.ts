@@ -35,8 +35,10 @@ export class GameService {
   gameRequest = this.socket.fromEvent<any>('ConfirmGame');
   joinRequest = this.socket.fromEvent<any>('JoinGame');
   gameReady = this.gameSocket.fromEvent<any>('GameReady');
-  gameUsers = this.gameSocket.fromEvent<User[]>('updateUsersList');
+  // userReconnected = this.gameSocket.fromEvent<User>('updateUsersList');
+  userDisconnected = this.gameSocket.fromEvent<User>('removeUser');
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
+  private users: User[] = [];
 
   // Event emitter erstellen - alle Clients & Componenten können an diesen
   // Alle lokalen - spielrelevanten variablen werden durch events an die entsprechenden Komponenten gesendet und entsprechend
@@ -72,9 +74,11 @@ export class GameService {
       userId: this.authService.userMail
     },  (response) => {
       if (response) { // Player which gets Confirm Dialog creates game and gets into this part (First Player)
+        console.log('FIRST PLAYER SEND JOIN GAME REQUEST TO SECOND PLAYER');
         this.socket.emit('joinGameRequest', req);
         this.opponent = req.from;
       } else { // Player which sent the game request joins second and gets into this part (Second Player)
+        console.log('SECOND PLAYER FINISHED JOINING ');
         this.opponent = req.to;
       }
     });
@@ -216,7 +220,6 @@ export class GameService {
 
   set seconds(value: number) {
     this._seconds = value;
-    localStorage.setItem('seconds', this._seconds.toString());
   }
 
   set qnProgress(value: number) {
@@ -327,6 +330,7 @@ export class GameService {
       .pipe(map(postData => {
         return postData.user.map(user => {
           return {
+            _id: user._id,
             email: user.email,
             password: user.password,
             username: user.username,
@@ -335,10 +339,18 @@ export class GameService {
         });
       }))
       .subscribe(mappedResult => {
-        // this.users = mappedResult;
-        console.log('USER RECEIVED');
+        console.log('getUsersInRoom Subscription: sending to subscription by next following user ');
         console.log(mappedResult);
-        this.playersJoined.next([...mappedResult]);
+        this.users = mappedResult;
+        this.playersJoined.next([...this.users]);
       });
+  }
+
+  updateUserList() {
+    console.log('NOW UPDATE USER LIST');
+    this.gameSocket.emit('updateUserList', {
+      email: this.authService.userMail,
+      room: this._roomTitle
+    });
   }
 }

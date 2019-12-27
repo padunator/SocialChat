@@ -9,17 +9,15 @@ const Sockets = require('../models/UserSockets');
 const Room = require('../models/Room');
 const Question = require('../models/Question');
 const User = require('../models/User');
-const questionLogic = require('../modelLogic/question');
 const roomLogic = require('../modelLogic/room');
 
-var TIME_INTERVAL = 10000; //25 sec
 
 /**
  * Encapsulates all code for emitting and listening to socket events
  *
  */
 
-var ioEvents = function(io) {
+const ioEvents = function(io) {
 
   // Chat namespace
   io.of('/chat').on('connection', (socket) => {
@@ -31,7 +29,6 @@ var ioEvents = function(io) {
 
     socket.on('changeStatus', status => {
       console.log('CHANGE STATUS EMIT: SENDING BACK TO CLIENTS FROM ' + status.email);
-      console.log('SOCKET ID ' + socket.id);
       io.of('/chat').emit('userLogged',  {email: status.email, status: status.status});
       // io.emit('userLogged', {email: status.email, status: status.status});
       // io.broadcast.emit('userLogger', {email: status.email, status: status.status});
@@ -83,7 +80,6 @@ var ioEvents = function(io) {
   // gameroom namespace
   io.of('/game').on('connection', function(socket) {
     console.log('Game Socket connected on server');
-    let questionsSaved;
     // Create a new room
     socket.on('createRoom', (title) => {
       Room.findOne({title: title}).then(room => {
@@ -106,16 +102,7 @@ var ioEvents = function(io) {
     // Join a gameroom
     socket.on('join', function(obj,ack){
       Room.findOne({title: obj.title}).then(room => {
-        if (!room) {
-          // Assuming that you already checked in router that gameroom exists
-          // Then, if a room doesn't exist here, return an error to inform the client-side.
-          socket.emit('updateUsersList', { error: 'Room doesnt exist.' });
-        } else {
-          // Check if user exists in the session
-          if (room.currentRound == room.rounds) {
-            socket.emit('updateUsersList', { error: 'Game has ended.' });
-          } else if (room.noOfPlayers <= room.connections.length) {
-            console.log('ACTUAL CONNECTIONS ' + room.connections.length);
+          if (room.noOfPlayers <= room.connections.length) {
             socket.emit('updateUsersList', { error: 'Room is Full. Try again later' });
           } else {
             // Push a new connection object(i.e. {userId + socketId})
@@ -129,74 +116,79 @@ var ioEvents = function(io) {
               if (room.noOfPlayers === room.connections.length) {
                 room.isOpen = false;
                 room.save().then(room => {
-                  room.connections.forEach(connection => {
+                  console.log('ROOM SAVED  !');
+                  Promise.all(
+                    room.connections.map(connection => {
+                      return Question.find({room: room.title}).then(questions => {
+                         return Promise.all(
+                          questions.map(question => {
+                            if (question.answers.length !== 2) {
+                              question.answers.push({ email: connection.userId, own: "", guess: "" });
+                              console.log('SAVE ANSWER');
+                              return question.save();
+                            }
+                          }),
+                        )
+                      });
+                    })
+                  ).then(() => {
+                    console.log('SENDING GAME READY TO BOTH!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                    io.of("/game")
+                      .in(room.title)
+                      .emit("GameReady", true);
+                    ack(false);
+                  })
+/*                  room.connections.forEach(connection => {
                     Question.find({room: room.title}).then(questions => {
                       Promise.all(
                         questions.map(question => {
+                          console.log('NOW PUSHING ANSWERS WITH LENGTH OF ' + question.answers.length.toString());
                           if (question.answers.length !== 2) {
                             question.answers.push({ email: connection.userId, own: "", guess: "" });
+                            console.log('SAVE ANSWER');
                             return question.save();
                           }
                         }),
                       ).then(() => {
                         // All questions have been saved. Do the next thing.
+                        // Sending GameReady to both players in room! Both players are opening the
+                        // Page at the same time!
                         io.of("/game")
                           .in(room.title)
                           .emit("GameReady", true);
-                        ack(false)
+                        ack(false);
                       });
                     });
-                  });
+                  });*/
                 });
+              } else {
+                console.log('PLAYER 1 SENDING BACK FROM JOINING ROOM !!!!!!!!!!!!!!!');
+                ack(true);
+                return Promise.resolve();
               }
-
-              // roomLogic.getUsers(room, socket, obj.userId,function (err, users, cuntUserInRoom)  {
-              roomLogic.getUsers(room, function (err, users, cuntUserInRoom)  {
-                if (err) console.log('Error at roomLogic.getUsers in Socket ');
-
-                // Return list of all user connected to the room to the current user
-                console.log('NOW UPDATING USERS LIST for ' + users.length + ' users ');
-                console.log(users);
-                socket.emit('updateUsersList', [{...users}]);
-
-                // Return the current user to other connecting sockets in the room
-                // ONLY if the user wasn't connected already to the current room
-                if (cuntUserInRoom === 1) {
-                  // socket.broadcast.to(room.title).emit('updateUsersList', users[users.length - 1]);
-                  ack(true);
-                  return Promise.resolve();
-                } else{
-                  // io.of(room._id).emit('GameReady', true);
-                  // As second user has joined the room (this is the one which invited the first player)
-                  // GameReady is sent and both users open the Game Page
-                  // io.of('/game').in(room.title).emit('GameReady', true);
-                  // ack(false);
-                  // socket.emit('GameReady', true);
-                  // socket.broadcast.to(room.title).emit('GameReady', true);
-                  io.of('/game').in(obj.roomID).clients(function(error,clients){
-                    clients.forEach(function(clients) {
-                      console.log('Username: ' + clients);
-                    });
-                  });
-                }
-              });
             });
           }
-        }
+      }).
+      catch(err => {
+          socket.emit('updateUsersList', { error: err });
       });
     });
 
+/*    socket.on('updateUserList', (gameData) => {
+      console.log('SENDING UPDATE USER BACK TO SENDER');
+      User.findOne({email: gameData.email}).then( user => {
+        console.log('USER FOUND NOW SEND BROADCAST FOR ROOM ' + gameData.room);
+        socket.broadcast.to(gameData.room).emit('updateUsersList', user);
+      });
+    });*/
     // Registering new Question response
     socket.on('new-game-response', (obj) => {
-       console.log('Updating Question answers');
-       console.log('Question answers of user ' + obj.email);
        const own = obj.question.answers.find(s => s.email===obj.email).own;
        const guess = obj.question.answers.find(s => s.email===obj.email).guess;
       Question.updateOne({_id: obj.question._id, 'answers.email': obj.email}, {'$set': {
           'answers.$.own': own,
           'answers.$.guess': guess
         }}, { new: true }).then(updatedAnswer=> {
-          console.log('Send response to other user ! ');
         socket.broadcast.to(obj.roomID).emit('PlayerAnswered', {
           email: obj.email,
           own: own,
@@ -205,14 +197,19 @@ var ioEvents = function(io) {
       });
     });
 
+    // When a user leaves a running Game
+    socket.on('leaveGame', () => {
+      removeUserFromGame(socket)
+    });
 
-    // When a socket exits
+    // When a socket exits or refreshes the Page
     socket.on('disconnect', function() {
-      console.log('DISCONNECTING SOCKET');
+      removeUserFromGame(socket);
+   /*   console.log('DISCONNECTING SOCKET');
       console.log(socket.username);
       // Find the room to which the socket is connected to,
       // and remove the current user + socket from this room
-      roomLogic.removeUser(socket, function(err, room, userId, cuntUserInRoom) {
+      roomLogic.removeUser(socket, function(err, room, user, cuntUserInRoom) {
         if (err) throw err;
 
         // Leave the room channel
@@ -230,13 +227,15 @@ var ioEvents = function(io) {
             room.isOpen = true;
             room.save();
           }
-          socket.broadcast.to(room.id).emit('removeUser', userId);
+          console.log('DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
+          console.log(user);
+          socket.broadcast.to(room.title).emit('removeUser', user);
         }
-      });
+      });*/
     });
 
     /*
-    // When a new answer arrives
+    // When a new answer arrsives
     socket.on('playerAnswer', function(roomId, message) {
       var userId = message.userId;
       var user_answer = message.content;
@@ -269,6 +268,34 @@ var ioEvents = function(io) {
   });
 };
 
+const removeUserFromGame = function(socket, room) {
+  console.log(socket.username);
+  // Find the room to which the socket is connected to,
+  // and remove the current user + socket from this room
+  roomLogic.removeUser(socket, function(err, room, user, cuntUserInRoom) {
+    if (err) throw err;
+
+    // Leave the room channel
+    socket.leave(room.id);
+
+    // Return the user id ONLY if the user was connected to the current room using one socket
+    // The user id will be then used to remove the user from users list on gameroom page
+    if (cuntUserInRoom === 1) {
+      if (room.currentRound >= room.rounds) {
+        // delist the quiz  or take score board
+        room.isOpen = false;
+        room.save();
+      } else {
+        // room availble for new palyer
+        room.isOpen = true;
+        room.save();
+      }
+      console.log('DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
+      console.log(user);
+      socket.broadcast.to(room.title).emit('removeUser', user);
+    }
+  });
+};
 /*var sendQuestion = function(socket, roomId) {
 
   Room.findById(roomId).then(room => {
@@ -334,26 +361,7 @@ let init = function(app) {
   //  io.use((socket, next) => {
   //    require('../session')(socket.request, {}, next);
   //  });
-}
-
-var insertQuestions = function(room) {
-  let p = Promise.resolve(); // Q() in q
-  console.log('IN INSERT QUESTIONS');
-  // Update Question catalog for specific room
-  room.connections.forEach(connection => {
-    Question.find({room: room.title}).then(questions => {
-      console.log('AFTER FIND QUESTION');
-      questions.forEach(question => {
-        console.log('NEXT QUESTION');
-
-        if (question.answers.length !== 2) {
-          question.answers.push({email: connection.userId, own: "", guess: ""});
-          p = p.then(() => question.save());
-        }
-      });
-    });
-  });
-  return p;
 };
+
 
 module.exports = init;

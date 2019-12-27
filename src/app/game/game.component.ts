@@ -30,6 +30,7 @@ export class GameComponent implements OnInit, OnDestroy {
          message: 'Rejoining room',
          title: this.gameService.roomTitle
        });
+      // this.gameService.updateUserList();
      }
 
      // Load Question Catalog
@@ -65,6 +66,7 @@ export class GameComponent implements OnInit, OnDestroy {
   startTimer() {
     this.gameService.timer = setInterval(() => {
       this.gameService.seconds++;
+      localStorage.setItem('seconds', this.gameService.seconds.toString());
     }, 1000);
   }
 
@@ -109,4 +111,25 @@ export class GameComponent implements OnInit, OnDestroy {
     this.questionSub.unsubscribe();
   }
 
+  backToChat() {
+    this.socket.emit('leaveGame');
+    this.clearLocalGameStorage();
+    this.router.navigate(['/chat']);
+  }
+
+  private clearLocalGameStorage() {
+      clearInterval(this.gameService.timer);
+      localStorage.removeItem('room');
+      localStorage.removeItem('opponent');
+      localStorage.removeItem('seconds');
+      localStorage.removeItem('questions');
+      localStorage.removeItem('qnProgress');
+      localStorage.removeItem('selection');
+      localStorage.removeItem('selectionString');
+      localStorage.removeItem('opponentFinished');
+      localStorage.removeItem('waiting');
+      localStorage.removeItem('seconds');
+      localStorage.removeItem('score');
+      localStorage.removeItem('counter');
+  }
 }

@@ -6,6 +6,7 @@ import {AuthData} from '../interfaces/auth.model';
 import {User} from '../interfaces/user.model';
 import {ChatSocket} from '../Sockets/ChatSocket';
 import {ChatMessage} from '../interfaces/chatMessage.model';
+import {GameService} from './game.service';
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -18,7 +19,9 @@ export class AuthService {
   private credentialListener = new Subject<boolean>();
   private tokenTimer: NodeJS.Timer;
 
-  constructor(private http: HttpClient, private router: Router, private socket: ChatSocket) {}
+  constructor(private http: HttpClient,
+              private router: Router,
+              private socket: ChatSocket) {}
 
   get currUser(): User {
     return this._currUser;
@@ -79,7 +82,7 @@ export class AuthService {
       this.setUserStatus(false).then(() => {
         this._isAuthenticated = false;
         this._token = null;
-        this.userLoggedListener.next(this._currUser); // For chatform  - not really used
+        this.userLoggedListener.next(null); // For chatform  - not really used init was currUser
         this.authStatusListener.next(false); // For Nav-Bar
         this._userMail = '';
         clearTimeout(this.tokenTimer);
@@ -112,7 +115,7 @@ export class AuthService {
       const data = {
         status: status
       };
-      await this.http.put<{email: any}>('http://localhost:3000/api/user/changeStatus/' + this._userMail, data)
+      this.http.put<{email: any}>('http://localhost:3000/api/user/changeStatus/' + this._userMail, data)
       .subscribe(response => {
         this.socket.emit('changeStatus', {
           email: response.email,
@@ -143,21 +146,7 @@ export class AuthService {
     }
 
     private clearLocalStorage() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('expiration');
-      localStorage.removeItem('email');
-      localStorage.removeItem('room');
-      localStorage.removeItem('opponent');
-      localStorage.removeItem('seconds');
-      localStorage.removeItem('questions');
-      localStorage.removeItem('qnProgress');
-      localStorage.removeItem('selection');
-      localStorage.removeItem('selectionString');
-      localStorage.removeItem('opponentFinished');
-      localStorage.removeItem('waiting');
-      localStorage.removeItem('seconds');
-      localStorage.removeItem('score');
-      localStorage.removeItem('counter');
+      localStorage.clear();
     }
 
     private getAuthData() {

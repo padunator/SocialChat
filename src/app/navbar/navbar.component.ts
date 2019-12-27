@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
+import {GameService} from '../services/game.service';
 
 
 @Component({
@@ -13,7 +14,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private authListenerSubscription: Subscription;
   private userMail: string;
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private gameService: GameService) { }
 
   ngOnInit() {
     this.userAuthenticated = this.authService.isAuthenticated;
@@ -26,6 +27,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    clearInterval(this.gameService.timer);
     this.authService.logout();
   }
 

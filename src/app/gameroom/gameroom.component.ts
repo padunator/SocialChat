@@ -12,9 +12,9 @@ export class GameroomComponent implements OnInit {
 
   ngOnInit() {
     // Load actual values from local storage (must be done before loading Questions)
+    console.log('ON INIT GAMEROOM');
     this.gameService.restoreGameDate();
 
-    this.gameService.getUsersInRoom();
   }
 
 }
