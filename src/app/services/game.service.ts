@@ -35,6 +35,7 @@ export class GameService {
   gameRequest = this.socket.fromEvent<any>('ConfirmGame');
   joinRequest = this.socket.fromEvent<any>('JoinGame');
   gameReady = this.gameSocket.fromEvent<any>('GameReady');
+  movedEvent = this.gameSocket.fromEvent<any>('playerMoved');
   // userReconnected = this.gameSocket.fromEvent<User>('updateUsersList');
   userDisconnected = this.gameSocket.fromEvent<User>('removeUser');
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
@@ -177,7 +178,6 @@ export class GameService {
   }
 
   updateQuestionCatalog(question: Question) {
-    console.log('ROOM TITLE  ' + this._roomTitle);
     this.gameSocket.emit('new-game-response', {
       question: question,
       roomID: this._roomTitle,
@@ -353,4 +353,5 @@ export class GameService {
       room: this._roomTitle
     });
   }
+
 }

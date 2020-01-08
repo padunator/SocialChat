@@ -132,4 +132,12 @@ export class GameComponent implements OnInit, OnDestroy {
       localStorage.removeItem('score');
       localStorage.removeItem('counter');
   }
+
+  fitty() {
+
+  }
+
+  askOwnQuestion() {
+
+  }
 }

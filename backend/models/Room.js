@@ -12,6 +12,7 @@ var DEFAULT_PLAYERS = 2;
 var RoomSchema = new mongoose.Schema({
   title: { type: String, required: true },
   connections: { type: [{ userId: String, socketId: String }] },
+  // players: { type: [{ rotation: String, x: String, y: String, playerId: String, team: String }] },
   isOpen: { type: Boolean, default: true },
   owner: { type: { userId: String, socketId: String } },
   rounds: { type: Number, default: DEFAULT_ROUNDS },

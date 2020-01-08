@@ -1,8 +1,5 @@
 'use strict';
 
-// var config = require('../config');
-// var redis = require('redis').createClient;
-// var adapter = require('socket.io-redis');
 const http = require("http");
 const socketIO = require('socket.io');
 const Sockets = require('../models/UserSockets');
@@ -10,6 +7,8 @@ const Room = require('../models/Room');
 const Question = require('../models/Question');
 const User = require('../models/User');
 const roomLogic = require('../modelLogic/room');
+const Sentiment = require('sentiment');
+const sentiment = new Sentiment();
 
 
 /**
@@ -24,6 +23,8 @@ const ioEvents = function(io) {
     console.log('Chat Socket connected on server');
 
     socket.on('new-message', (message) => {
+      let result = sentiment.analyze(message.message);
+      console.dir(result);
       io.of('/chat').emit("ChatMessage", message);
     });
 
@@ -174,13 +175,25 @@ const ioEvents = function(io) {
       });
     });
 
-/*    socket.on('updateUserList', (gameData) => {
-      console.log('SENDING UPDATE USER BACK TO SENDER');
-      User.findOne({email: gameData.email}).then( user => {
-        console.log('USER FOUND NOW SEND BROADCAST FOR ROOM ' + gameData.room);
-        socket.broadcast.to(gameData.room).emit('updateUsersList', user);
+    // Joining the Spacecraft Game - Build with Phaser Game Engine
+    socket.on('joinGame', (data) => {
+      // create a new player and add it to our players object
+      Room.findOne({title: data.title}).then(room => {
+        room.players.push({
+          rotation: 0,
+          x: Math.floor(Math.random() * 700) + 50,
+          y: Math.floor(Math.random() * 500) + 50,
+          playerId: socket.id,
+          team: (Math.floor(Math.random() * 2) == 0) ? 'red' : 'blue'
+        });
+        room.save().then(room => {
+          // send the players object to the new player
+          socket.emit('currentPlayers', room.players);
+          // update all other players of the new player
+          socket.broadcast.emit('newPlayer', room.players[socket.id]);
+        });
       });
-    });*/
+    });
     // Registering new Question response
     socket.on('new-game-response', (obj) => {
        const own = obj.question.answers.find(s => s.email===obj.email).own;
@@ -205,34 +218,67 @@ const ioEvents = function(io) {
     // When a socket exits or refreshes the Page
     socket.on('disconnect', function() {
       removeUserFromGame(socket);
-   /*   console.log('DISCONNECTING SOCKET');
-      console.log(socket.username);
-      // Find the room to which the socket is connected to,
-      // and remove the current user + socket from this room
-      roomLogic.removeUser(socket, function(err, room, user, cuntUserInRoom) {
-        if (err) throw err;
-
-        // Leave the room channel
-        socket.leave(room.id);
-
-        // Return the user id ONLY if the user was connected to the current room using one socket
-        // The user id will be then used to remove the user from users list on gameroom page
-        if (cuntUserInRoom === 1) {
-          if (room.currentRound >= room.rounds) {
-            // delist the quiz  or take score board
-            room.isOpen = false;
-            room.save();
-          } else {
-            // room availble for new palyer
-            room.isOpen = true;
-            room.save();
-          }
-          console.log('DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
-          console.log(user);
-          socket.broadcast.to(room.title).emit('removeUser', user);
-        }
-      });*/
     });
+
+    socket.on('playerMovement', (movementData) => {
+      Room.findOne({title: movementData.title}).then(room => {
+        room.players[socket.id].x = movementData.x;
+        room.players[socket.id].y = movementData.y;
+        room.players[socket.id].rotation = movementData.rotation;
+        // emit a message to all players about the player that moved
+        socket.broadcast.emit('playerMoved', room.players[socket.id]);
+      });
+    });
+
+    socket.on('starCollected',  (room) => {
+      Room.findOne({title: room}).then(room => {
+        if (room.players[socket.id].team === 'red') {
+          scores.red += 10;
+        } else {
+          scores.blue += 10;
+        }
+        star.x = Math.floor(Math.random() * 700) + 50;
+        star.y = Math.floor(Math.random() * 500) + 50;
+        io.emit('starLocation', star);
+        io.emit('scoreUpdate', scores);
+      });
+    });
+
+
+    /*   console.log('DISCONNECTING SOCKET');
+       console.log(socket.username);
+       // Find the room to which the socket is connected to,
+       // and remove the current user + socket from this room
+       roomLogic.removeUser(socket, function(err, room, user, cuntUserInRoom) {
+         if (err) throw err;
+
+         // Leave the room channel
+         socket.leave(room.id);
+
+         // Return the user id ONLY if the user was connected to the current room using one socket
+         // The user id will be then used to remove the user from users list on gameroom page
+         if (cuntUserInRoom === 1) {
+           if (room.currentRound >= room.rounds) {
+             // delist the quiz  or take score board
+             room.isOpen = false;
+             room.save();
+           } else {
+             // room availble for new palyer
+             room.isOpen = true;
+             room.save();
+           }
+           console.log('DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
+           console.log(user);
+           socket.broadcast.to(room.title).emit('removeUser', user);
+         }
+       });*/
+      /*    socket.on('updateUserList', (gameData) => {
+         console.log('SENDING UPDATE USER BACK TO SENDER');
+         User.findOne({email: gameData.email}).then( user => {
+           console.log('USER FOUND NOW SEND BROADCAST FOR ROOM ' + gameData.room);
+           socket.broadcast.to(gameData.room).emit('updateUsersList', user);
+         });
+       });*/
 
     /*
     // When a new answer arrsives
@@ -268,8 +314,8 @@ const ioEvents = function(io) {
   });
 };
 
-const removeUserFromGame = function(socket, room) {
-  console.log(socket.username);
+const removeUserFromGame = function(socket) {
+  console.log('REMOVE USER ' + socket.username);
   // Find the room to which the socket is connected to,
   // and remove the current user + socket from this room
   roomLogic.removeUser(socket, function(err, room, user, cuntUserInRoom) {
@@ -290,55 +336,13 @@ const removeUserFromGame = function(socket, room) {
         room.isOpen = true;
         room.save();
       }
-      console.log('DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
+      console.log('REMOVE/DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
       console.log(user);
       socket.broadcast.to(room.title).emit('removeUser', user);
     }
   });
 };
-/*var sendQuestion = function(socket, roomId) {
 
-  Room.findById(roomId).then(room => {
-    if (!room) {
-      socket.emit('updateUsersList', { error: 'Room doesnt exist.' });
-    } else {
-      if (room.currentRound >= room.rounds) {
-        // delist the quiz  or take score board
-        room.isOpen = false;
-        room.save();
-        socket.emit('endQuiz', room);
-        socket.broadcast.to(room.id).emit('endQuiz', room);
-      } else {
-        questionLogic.getQuestionNumber(room.currentRound, function(err, question) {
-          if (err) throw err;
-
-          socket.emit('newRoundData', question);
-          socket.broadcast.to(roomId).emit('newRoundData', question);
-          timer(socket, roomId);
-        });
-        // Room.incCurrentRound(room, function(err, newRoom) {});
-      }
-    }
-  }).catch(err => {
-    console.log('ERROR when retrieving Question Catalog!');
-  });
-};
-
-var timer = function(socket, roomId) {
-  setTimeout(function() {
-    Room.findById(roomId, function(err, room) {
-      if (err) throw err;
-      if (!room) {
-        socket.emit('updateUsersList', { error: 'Room doesnt exist.' });
-      } else {
-        Room.incCurrentRound(room, function(err, newRoom) {
-          if (err) throw err;
-          sendQuestion(socket, roomId);
-        });
-      }
-    });
-  }, TIME_INTERVAL); //10 sec timeout
-};*/
 /**
  * Initialize Socket.io
  * Uses Redis as Adapter for Socket.io
@@ -356,11 +360,6 @@ let init = function(app) {
   ioEvents(io);
   return server;
 
-
-  // Allow sockets to access session data
-  //  io.use((socket, next) => {
-  //    require('../session')(socket.request, {}, next);
-  //  });
 };
 
 

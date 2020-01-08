@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "downlevelIteration": true,
     "importHelpers": true,
     "outDir": "./dist/out-tsc",
@@ -14,9 +15,16 @@
       "node_modules/@types"
     ],
     "lib": [
-      "es2018", "dom", "dom.iterable"
+      "es2018",
+      "dom",
+      "dom.iterable",
+      "scripthost"
     ],
     "module": "esnext",
     "baseUrl": "./"
+  },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true
   }
 }
