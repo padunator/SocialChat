@@ -39,6 +39,86 @@ app-chat-form{
   display: block;
 }
 
+@font-face {
+  font-family: 'Halo3';
+  src: url('assets/fonts/Halo/Halo3.woff2') format('woff2'),
+  url('assets/fonts/Halo/Halo3.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CrackMan Front';
+  src: url('assets/fonts/CrackMan/Front/CrackManFront-Regular.woff2') format('woff2'),
+  url('assets/fonts/CrackMan/Front/CrackManFront-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iomanoid Back';
+  src: url('assets/fonts/Iomanoid/Back/IomanoidBack-Regular.woff2') format('woff2'),
+  url('assets/fonts/Iomanoid/Back/IomanoidBack-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Neuropol X Rg';
+  src: url('assets/fonts/Neuropol/NeuropolXRg-Regular.woff2') format('woff2'),
+  url('assets/fonts/Neuropol/NeuropolXRg-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iomanoid Shine';
+  src: url('assets/fonts/Iomanoid/Back/IomanoidBack-Regular.woff2') format('woff2'),
+  url('assets/fonts/Iomanoid/Back/IomanoidBack-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iomanoid Front';
+  src: url('assets/fonts/Iomanoid/Front/IomanoidFront-Regular.woff2') format('woff2'),
+  url('assets/fonts/Iomanoid/Front/IomanoidFront-Regular.woff2') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CrackMan Back';
+  src: url('assets/fonts/CrackMan/Back/CrackManBack-Regular.woff2') format('woff2'),
+  url('assets/fonts/CrackMan/Back/CrackManBack-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iomanoid';
+  src: url('assets/fonts/Iomanoid/Regular/Iomanoid-Regular.woff2') format('woff2'),
+  url('assets/fonts/Iomanoid/Regular/Iomanoid-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CrackMan';
+  src: url('assets/fonts/CrackMan/Regular/CrackMan-Regular.woff2') format('woff2'),
+  url('assets/fonts/CrackMan/Regular/CrackMan-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Perfect Dark (BRK)';
+  src: url('assets/fonts/PerfectDark/PerfectDarkBRK.woff2') format('woff2'),
+  url('assets/fonts/PerfectDark/PerfectDarkBRK.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif}
 

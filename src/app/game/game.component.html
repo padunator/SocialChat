@@ -3,22 +3,33 @@
 <mat-progress-bar mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100"></mat-progress-bar>
 
 <div class="wrapper">
-  <div class="titles">
-    <h1>{{gameService.questions[gameService.qnProgress].question}}</h1>
-    <h2>Choose your {{gameService.selectionString}} selection!</h2>
+  <div class="header">
     <div class="score">
       <p>Score: {{gameService.score}}</p>
     </div>
+    <div class="jokers">
+      <button id="_5050" type="submit" class="btn"
+              (click)="fitty()" type="submit">
+      </button>
+      <button id="new" type="submit" class="btn"
+              (click)="askOwnQuestion()" type="submit">
+      </button>
+    </div>
+  </div>
+
+  <div class="titles">
+    <h1 class="gradient gradient-box">{{gameService.questions[gameService.qnProgress].question}}</h1>
+    <h2 class="gradient border-gradient">Choose your {{gameService.selectionString}} selection!</h2>
   </div>
   <div class="answer-block">
     <div class="answer-column">
-      <div class="option">
+      <div class="option gradient">
         <strong>A</strong>
         <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
                   {{gameService.questions[gameService.qnProgress].options[0].text}}
                 </span>
       </div>
-      <div class="option">
+      <div class="option gradient">
         <strong>B</strong>
         <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
                   {{gameService.questions[gameService.qnProgress].options[1].text}}
@@ -26,13 +37,13 @@
       </div>
     </div>
     <div class="answer-column">
-      <div class="option">
+      <div class="option gradient">
         <strong>C</strong>
         <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
                   {{gameService.questions[gameService.qnProgress].options[2].text}}
                 </span>
       </div>
-      <div class="option">
+      <div class="option gradient">
         <strong>D</strong>
         <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
                   {{gameService.questions[gameService.qnProgress].options[3].text}}
@@ -41,18 +52,9 @@
     </div>
   </div>
   <div class="footer">
-    <h1>Jokers:</h1>
-    <button cmat-raised-button color="accent" type="submit" class="btn"
-           (click)="fitty()" type="submit">
-      Fitti
-    </button>
     <button mat-raised-button color="accent" type="submit" class="btn"
             (click)="backToChat()" type="submit" >
       Back
-    </button>
-    <button mat-raised-button color="accent" type="submit" class="btn"
-            (click)="askOwnQuestion()" type="submit">
-      Replace with own
     </button>
   </div>
 </div>
@@ -128,6 +130,7 @@
 </div>
 </div>-->
 
+
 <!--<div *ngIf=" this.gameService.questions">
   <div class="wrapper" >
     <span>Zeitfortschritt: {{gameService.displayTimeElapsed()}}</span>
@@ -160,4 +163,5 @@
     </mat-card>
   </div>
 </div>-->
+
 

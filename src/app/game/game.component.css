@@ -3,56 +3,186 @@
   padding: 0px;
 }
 
+h4 {
+  font-family: "Apple Color Emoji";
+}
 .wrapper{
   width: 90%;
   height: 90%;
   overflow: hidden;
   margin: 30px auto;
-  border:1px solid #ffffff;
-  border-radius: 20px;
+/*  border:1px solid #ffffff;
+  border-radius: 20px;*/
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.jokers{
+
+}
+
+.score{
+
+}
+
+.score p {
+  /*  height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    border:4px solid #121212;*/
+  text-align: center;
+  font-family: Halo3;
+  font-size: 100px;
+}
+
+#_5050 {
+  margin-right: 30px;
+  background:
+    linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.4)),
+    url('../../assets/img/5050.jpg') center center no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#_5050:hover, #_5050:active {
+  background:linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.1)),
+  url('../../assets/img/_5050_hover.png') center center no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#new {
+  background:
+    linear-gradient(45deg, rgba(255,125,60,0.2), rgba(0, 0, 0, 0.4)),
+    url('../../assets/img/newjoker.jpg') center center no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#new:hover, #new:active {
+  background:linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.1)),
+  url('../../assets/img/new_hover.png') center center no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 .titles {
   text-align: center;
   padding-top: 50px;
   font-family: "Gill Sans";
+  font: 26px Georgia, Serif;
+
 }
 
-.score{
-  float: right;
+h1 span {
+  font: 26px Monaco, MonoSpace;
+  height: 200px;
+  position: absolute;
+  width: 20px;
+  left: 0;
+  top: 0;
+  transform-origin: bottom center;
 }
+
+
+
 .titles h1 {
   font-size: 50px;
 }
 
+.gradient-box {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  margin: auto;
+  max-width: 22em;
+  position: relative;
+  padding: 30% 2em;
+  box-sizing: border-box;
+  color: #FFF;
+  background: #000;
+  background-clip: padding-box;
+  /* !importanté */
+  border: solid 4px;
+  /* !importanté */
+  border-radius: 40px;
+}
+.gradient-box:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -5px;
+  /* !importanté */
+  border-radius: inherit;
+  /* !importanté */
+  background: linear-gradient(to right, red, orange);
+}
+
 .titles h2 {
   font-size: 25px;
+  width: 60%;
+  margin: 0 auto;
+  border-radius: 20px;
+  border:4px solid #121212;
+  border-bottom-color:#aaa;
+  border-right-color:#aaa;
+  border-top-color:#ddd;
+  border-left-color:#ddd;
+
 }
 
 .answer-block {
   display: flex;
-  margin-top: 5%;
 }
 
 .answer-column {
-  width: 40%;
+  width: 47%;
   margin: 10px auto;
-  float: left;
 }
 
 .option {
-  height: 100px;
-  line-height: 100px;
+  /* height: 100px;
+   line-height: 100px; */
   margin-top: 20px;
-  border:1px solid #ffffff;
+  border:4px solid #121212;
+  border-bottom-color:#aaa;
+  border-right-color:#aaa;
+  border-top-color:#ddd;
+  border-left-color:#ddd;
   border-radius: 20px;
   font-size: 30px;
   text-align: center;
   vertical-align: middle;
 }
 
+.gradient {
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#1e5799+20,2989d8+50,1e5799+80&0+0,0.8+11,1+19,1+81,0.8+87,0+100 */
+  background: -moz-linear-gradient(45deg,  rgba(30,87,153,0) 0%, rgba(30,87,153,0.8) 11%, rgba(30,87,153,1) 19%, rgba(30,87,153,1) 20%, rgba(41,137,216,1) 50%, rgba(30,87,153,1) 80%, rgba(30,87,153,1) 81%, rgba(30,87,153,0.8) 87%, rgba(30,87,153,0) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(45deg,  rgba(30,87,153,0) 0%,rgba(30,87,153,0.8) 11%,rgba(30,87,153,1) 19%,rgba(30,87,153,1) 20%,rgba(41,137,216,1) 50%,rgba(30,87,153,1) 80%,rgba(30,87,153,1) 81%,rgba(30,87,153,0.8) 87%,rgba(30,87,153,0) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(45deg,  rgba(30,87,153,0) 0%,rgba(30,87,153,0.8) 11%,rgba(30,87,153,1) 19%,rgba(30,87,153,1) 20%,rgba(41,137,216,1) 50%,rgba(30,87,153,1) 80%,rgba(30,87,153,1) 81%,rgba(30,87,153,0.8) 87%,rgba(30,87,153,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#001e5799', endColorstr='#001e5799',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
 .option strong {
   text-align: left;
+  color: #ff972f;
+  font-family: Halo3;
 }
 
 .option:hover{
@@ -61,28 +191,53 @@
 
 .footer {
   display: flex;
-  align-items: flex-end;
-  background-color: red;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10%
 }
 
-.footer h1 {
-  margin-left: 5%;
-  order: 1;
-}
+
 .btn{
-  order:2;
-  height: 40px;
-  width: 20%;
-  margin: 100px 20px 20px 20px;
+  height: 100px;
+  width: 100px;
+
+  /*margin: 100px 20px 20px 20px;*/
   border: none;
+  border: none;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  border-radius: 50% !important;
+  /*
   color: white;
   text-align-all: center;
   text-decoration: none;
   font-size: 25px;
   vertical-align: middle;
+  */
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.17), 0 1px 2px rgba(0,0,0,0.24);
   transition: ease-in 0.2s;
+}
+
+.btn:hover {
+  background:linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.1)),
+  url('../../assets/img/noo_icon.png') center center no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.border-gradient {
+  border-radius: 40px;
+  border: 10px solid;
+  border-image-source: linear-gradient(45deg, rgb(0,143,104), rgb(250,224,66));
+  border-image-slice: 1;
 }
 
 .aq-vorhang{
@@ -262,7 +417,7 @@
 }
 
 .aq-footer {
-  padding: 10px;
+
 }
 
 .span7 {
@@ -271,16 +426,6 @@
   line-height: 30px;
 }
 
-.btn {
-  display: inline-block;
-  margin-bottom: 0;
-  line-height: 20px;
-  text-align: center;
-  vertical-align: middle;
-  cursor: pointer;
-  border: 1px solid #bbbbbb;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
-}
 
 .input-small {
   width: 90px
