@@ -4,15 +4,21 @@
 }
 
 h4 {
-  font-family: "Apple Color Emoji";
+  font-family: CrackMan;
 }
 .wrapper{
   width: 90%;
   height: 90%;
-  overflow: hidden;
+  overflow: auto;
   margin: 30px auto;
 /*  border:1px solid #ffffff;
   border-radius: 20px;*/
+}
+
+.waiter {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .header {
@@ -100,45 +106,21 @@ h1 span {
 
 .titles h1 {
   font-size: 50px;
+  margin: 0 auto;
+  border-radius: 50px;
+  border:4px solid #121212;
+  border-bottom-color: #4977aa;
+  border-right-color: #7fb0e4;
+  border-top-color: #6588dd;
+  border-left-color: #accbdd;
 }
 
-.gradient-box {
-  display: flex;
-  align-items: center;
-  width: 90%;
-  margin: auto;
-  max-width: 22em;
-  position: relative;
-  padding: 30% 2em;
-  box-sizing: border-box;
-  color: #FFF;
-  background: #000;
-  background-clip: padding-box;
-  /* !importanté */
-  border: solid 4px;
-  /* !importanté */
-  border-radius: 40px;
-}
-.gradient-box:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: -1;
-  margin: -5px;
-  /* !importanté */
-  border-radius: inherit;
-  /* !importanté */
-  background: linear-gradient(to right, red, orange);
-}
 
 .titles h2 {
   font-size: 25px;
   width: 60%;
   margin: 0 auto;
-  border-radius: 20px;
+  border-radius: 60px;
   border:4px solid #121212;
   border-bottom-color:#aaa;
   border-right-color:#aaa;
@@ -149,17 +131,38 @@ h1 span {
 
 .answer-block {
   display: flex;
+  flex-direction: column;
 }
 
 .answer-column {
-  width: 47%;
+  display: flex;
+  align-items: center;
   margin: 10px auto;
+  margin-top: 60px;
+  width: 100%;
+}
+
+hr {
+  width: 8%;
+  height: 5px;
+  border: 0 ;
+  border-top: 3px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+
+
+.connection_line {
+  display: flex;
+  flex-direction: column;
+  width: 8%;
+  margin-top: 8.5%;
 }
 
 .option {
   /* height: 100px;
    line-height: 100px; */
-  margin-top: 20px;
+
   border:4px solid #121212;
   border-bottom-color:#aaa;
   border-right-color:#aaa;
@@ -169,7 +172,10 @@ h1 span {
   font-size: 30px;
   text-align: center;
   vertical-align: middle;
+  width: 46%;
 }
+
+
 
 .gradient {
   /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#1e5799+20,2989d8+50,1e5799+80&0+0,0.8+11,1+19,1+81,0.8+87,0+100 */
@@ -191,9 +197,11 @@ h1 span {
 
 .footer {
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: center;
-  margin-top: 10%
+  position: absolute;
+  bottom: 2%
 }
 
 
@@ -212,13 +220,6 @@ h1 span {
   font-size: 16px;
   margin: 4px 2px;
   border-radius: 50% !important;
-  /*
-  color: white;
-  text-align-all: center;
-  text-decoration: none;
-  font-size: 25px;
-  vertical-align: middle;
-  */
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.17), 0 1px 2px rgba(0,0,0,0.24);
   transition: ease-in 0.2s;
@@ -233,6 +234,18 @@ h1 span {
   background-size: cover;
 }
 
+#back {
+  margin-right: 1%;
+}
+
+
+#create {
+  margin-left: 1%;
+}
+
+.display_none {
+  display: none;
+}
 .border-gradient {
   border-radius: 40px;
   border: 10px solid;
@@ -240,210 +253,10 @@ h1 span {
   border-image-slice: 1;
 }
 
-.aq-vorhang{
-  height:100%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  display:none;
-  -webkit-border-radius: 15px;
-  -moz-border-radius: 15px;
-  border-radius: 15px;
-}
-
-.span5{
-  width:380px;
-  margin-left: 5%;
-}
-.offset1{margin-left:100px;}
-
-.v1-aq-answer{
-  height:80px;
-  background-color:#005292;
-  color:#ffffff;
-  border:1px solid #ffffff;
-  white-space: normal;
-  cursor: pointer;
-  font-size:16px;
-  border-radius: 15px;
-  margin: 0px auto 20px auto;
-  text-shadow: 0 0 1px black;
-}
-
-.v1-aq-answer > div {
-  padding-top: 13px;
-  padding-left: 40px;
-}
-
-.v1-aq-answer > div > strong {
-  margin-right: 15px;
-  color: orange;
-}
-
-
-.v1-aq-wrong {
-  background-color:#f12f00;
-  -webkit-background-size: contain;
-  -moz-background-size: contain;
-  -o-background-size: contain;
-  background-size: contain;
-}
-.v1-aq-current,.v1-aq-hover {
-  background-color:#ff972f;
-  -webkit-background-size: contain;
-  -moz-background-size: contain;
-  -o-background-size: contain;
-  background-size: contain;
-}
-.v1-aq-right {
-  background-color:#5ecc00;
-  -webkit-background-size: contain;
-  -moz-background-size: contain;
-  -o-background-size: contain;
-  background-size: contain;
-}
-
-
-.v1-aq-dis {
-  opacity: 0.5;
-  filter: alpha(opacity=50);
-  cursor:not-allowed;
-}
-
-
-
-.wrap {
-  margin: 0px auto;
-  background: white;
-  max-width: border-box;
-  overflow: hidden;
-}
-
-.aq-table {
-  display: table;
-  position: relative;
-}
-
-.aq {
-  background:
-  linear-gradient(181deg, rgba(100,200,255,0.6), rgba(0, 0, 0, 0.9)),
-  url('../../assets/img/bg.jpg') center center no-repeat;
-  background-size: cover;
-  border-radius: 15px;
-  margin-bottom: 25px;
-  color: #FFFFFF;
-}
-
-
-.answer-fluid {
+.answers {
   display: flex;
-  align-items: center;
-}
-.row-fluid::before {
-  display: table;
-  content: "";
-  line-height: 0;
 }
 
-.row-fluid::after {
-  clear:both;
-  display: inline-block;
-}
-
-.show {
-  height: 180px;
-  overflow: auto;
-  width: 100%;
-  margin: 0px;
-  text-align: center;
-}
-
-.aq-title {
-  display: inline-block;
-  min-height: 150px;
-  vertical-align: middle;
-  padding: 30px;
-  font-size: 32px;
-  line-height: 130%;
-  color: white;
-  padding-bottom: 0;
-}
-
-.aq-subtitle {
-  display: inline-block;
-  vertical-align: middle;
-  padding-bottom: 0;
-}
-
-#1 {
-  cursor: pointer;
-  visibility: visible;
-}
-
-#2 {
-  cursor: pointer;
-  visibility: visible;
-}
-
-#3 {
-  cursor: pointer;
-  visibility: visible;
-}
-
-#4 {
-  cursor: pointer;
-  visibility: visible;
-}
-
-.v1-aq-answer {
-  height: 80px;
-  background-color: #005292;
-  color: white;
-  border: 1px solid #ffffff;
-  white-space: normal;
-  font-size: 16px;
-  border-radius: 15px;
-  margin: 0px auto 20px auto;
-  text-shadow: 0 0 1px black;
-}
-
-.v1-aq-answer:hover {
-  background-color: #ff972f;
-}
-
-.v1-aq-answer > div {
-  padding-top: 13px;
-  padding-left: 40px;
-}
-
-.aq-footer {
-
-}
-
-.span7 {
-  float: left;
-  padding-top: 0;
-  line-height: 30px;
-}
-
-
-.input-small {
-  width: 90px
-}
-
-
-.question-header {
-  margin: 0 auto;
-  width: 400px;
-  border: 1px solid #000;
-  border-radius: 40px;
-  text-align: center;
-}
-
-.answer-wrapper {
-  display: flex;
-  flex-direction: row;
-}
 
 mat-card-title-group {
   display: inline-block;

@@ -3,59 +3,69 @@
 <mat-progress-bar mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100"></mat-progress-bar>
 
 <div class="wrapper">
-  <div class="header">
-    <div class="score">
-      <p>Score: {{gameService.score}}</p>
+  <mat-spinner *ngIf="this.gameService.waitingForPlayer"></mat-spinner>
+  <div class="waiter" *ngIf="!this.gameService.waitingForPlayer">
+    <div  class="header">
+      <div class="score">
+        <p>Score: {{gameService.score}}</p>
+      </div>
+      <div class="jokers">
+        <button id="_5050" type="submit" class="btn"
+                (click)="fitty()" type="submit">
+        </button>
+        <button id="new" type="submit" class="btn"
+                (click)="askOwnQuestion()" type="submit">
+        </button>
+      </div>
     </div>
-    <div class="jokers">
-      <button id="_5050" type="submit" class="btn"
-              (click)="fitty()" type="submit">
-      </button>
-      <button id="new" type="submit" class="btn"
-              (click)="askOwnQuestion()" type="submit">
-      </button>
-    </div>
-  </div>
 
-  <div class="titles">
-    <h1 class="gradient gradient-box">{{gameService.questions[gameService.qnProgress].question}}</h1>
-    <h2 class="gradient border-gradient">Choose your {{gameService.selectionString}} selection!</h2>
-  </div>
-  <div class="answer-block">
-    <div class="answer-column">
-      <div class="option gradient">
-        <strong>A</strong>
-        <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
-                  {{gameService.questions[gameService.qnProgress].options[0].text}}
-                </span>
+    <div class="titles">
+      <h1 class="gradient gradient-box">{{gameService.questions[gameService.qnProgress].question}}</h1>
+      <h2 class="gradient border-gradient">Choose your {{gameService.selectionString}} selection!</h2>
+    </div>
+    <div class="answer-block">
+      <div class="answer-column">
+        <div class="option gradient">
+          <strong>A</strong>
+          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
+                    {{gameService.questions[gameService.qnProgress].options[0].text}}
+                  </span>
+        </div>
+        <hr/>
+        <div class="option gradient">
+          <strong>C</strong>
+          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
+                    {{gameService.questions[gameService.qnProgress].options[2].text}}
+          </span>
+        </div>
+
       </div>
-      <div class="option gradient">
-        <strong>B</strong>
-        <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
-                  {{gameService.questions[gameService.qnProgress].options[1].text}}
-                </span>
+      <div class="answer-column">
+        <div class="option gradient">
+          <strong>B</strong>
+          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
+                    {{gameService.questions[gameService.qnProgress].options[1].text}}
+                  </span>
+        </div>
+        <hr/>
+        <div class="option gradient">
+          <strong>D</strong>
+          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
+                    {{gameService.questions[gameService.qnProgress].options[3].text}}
+                  </span>
+        </div>
       </div>
     </div>
-    <div class="answer-column">
-      <div class="option gradient">
-        <strong>C</strong>
-        <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
-                  {{gameService.questions[gameService.qnProgress].options[2].text}}
-                </span>
-      </div>
-      <div class="option gradient">
-        <strong>D</strong>
-        <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
-                  {{gameService.questions[gameService.qnProgress].options[3].text}}
-                </span>
-      </div>
+    <div class="footer">
+      <button mat-raised-button color="accent" type="submit" class="btn" id="back"
+              (click)="backToChat()" type="submit" >
+        Back
+      </button>
+      <button mat-raised-button color="accent" type="submit" class="btn display_none" id="create"
+              (click)="createNewQn()" type="submit" >
+        Create
+      </button>
     </div>
-  </div>
-  <div class="footer">
-    <button mat-raised-button color="accent" type="submit" class="btn"
-            (click)="backToChat()" type="submit" >
-      Back
-    </button>
   </div>
 </div>
 <!--<div class="wrapper">

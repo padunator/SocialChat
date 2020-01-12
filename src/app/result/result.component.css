@@ -80,13 +80,28 @@ mat-spinner {
   margin-right: 1em;
 }
 
+.header {
+  display: flex;
+  flex-direction: row;
+}
 /* tell the container's children to float left: */
-.float-my-children > * {
-  float:left;
-  margin-top: 2em;
-  margin-right:2em;
+.complete_block {
+  display: flex;
+  width: 50%;
+  justify-content: space-between;
 }
 
+.complete_block img {
+  width: 40%;
+}
+
+.complete_block div {
+  width: 40%;
+}
+
+.highscore_table {
+ width: 50%;
+}
 /* this is called a clearfix. it makes sure that the container's children floats are cleared, without using extra markup */
 
 .clearfix {

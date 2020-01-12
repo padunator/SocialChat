@@ -6,8 +6,8 @@
         <mat-card-title>
           <h1 class="mat-display-1" id="complete">Completed !</h1>
         </mat-card-title>
-        <mat-card-content>
-          <div class="clearfix float-my-children">
+        <mat-card-content class="header">
+          <div class="clearfix complete_block">
             <img id="trophy" mat-card-image src="../../assets/img/trophy.png" style="width: 400px;height : 400px;">
             <div>
               <h1 class="mat-display-1">{{gameService.correctAnswerCount}}/{{this.gameService.questions.length}}</h1>
@@ -15,32 +15,44 @@
               <h2 class="mat-display-2">Time Elapsed : {{gameService.displayTimeElapsed()}}</h2>
             </div>
           </div>
+          <div class="highscore_table">
+               <table>
+                 <tr><td>Name</td><td>Date</td><td>Score</td></tr>
+           <!--      For schleife einfügen um die Daten aus der HighScore Tabelle - bzw. dem zwischengespeicherten -->
+           <!--      Array hier darzustellen -->
+           <!--      for (el : arrayelements) {-->
+           <!--       <tr><td></td></tr>                 -->
+           <!--      }-->
+               </table>
+          </div>
         </mat-card-content>
         <mat-card-actions align="start">
           <button mat-raised-button color="accent" type="submit" class="btn" id="btn-login">Back</button>
         </mat-card-actions>
       </mat-card>
-        <h1 class="mat-display-1" id="correct">Questions with correct answers</h1>
-      <mat-card *ngFor="let question of gameService.questions;let i=index">
-          <mat-card-title-group>
-            <mat-card-title>{{i+1}}</mat-card-title>
-            <mat-card-title>{{question.question}}</mat-card-title>
-          </mat-card-title-group>
-          <mat-card-content>
-            <mat-list>
-              <mat-list-item *ngFor="let option of question.options;let j = index">
-                {{option.text}}
-                <span class="right-badge" *ngIf="gameService.isCorrect(i, j)">
-                            <mat-icon>check_circle_outline</mat-icon>
-                </span>
-                <span class="wrong-badge" *ngIf="!gameService.isCorrect(i, j) &&
-                       gameService.mySelection(i, j)">
-                  <mat-icon>cancel</mat-icon>
-                </span>
-              </mat-list-item>
-            </mat-list>
-          </mat-card-content>
+        <h1 class="mat-display-1" id="correct">Questions with correct / false answers</h1>
+      <div class="answers">
+        <mat-card *ngFor="let question of gameService.questions;let i=index">
+            <mat-card-title-group>
+              <mat-card-title>{{i+1}}</mat-card-title>
+              <mat-card-title>{{question.question}}</mat-card-title>
+            </mat-card-title-group>
+            <mat-card-content>
+              <mat-list>
+                <mat-list-item *ngFor="let option of question.options;let j = index">
+                  {{option.text}}
+                  <span class="right-badge" *ngIf="gameService.isCorrect(i, j)">
+                              <mat-icon>check_circle_outline</mat-icon>
+                  </span>
+                  <span class="wrong-badge" *ngIf="!gameService.isCorrect(i, j) &&
+                         gameService.mySelection(i, j)">
+                    <mat-icon>cancel</mat-icon>
+                  </span>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
         </mat-card>
+      </div>
     </div>
   </div>
 </div>

@@ -137,7 +137,20 @@ export class GameComponent implements OnInit, OnDestroy {
 
   }
 
-  askOwnQuestion() {
+  createNewQn() {
 
+  }
+
+  askOwnQuestion() {
+    console.log('BEFORE FOR EACH LOOP');
+    // document.getElementById('answers').contentEditable = 'true';
+    const els = document.getElementsByClassName('answers');
+    console.log('AFTER ASSIGNMENT!');
+    Array.prototype.forEach.call(els, function (el) {
+      console.log('SETTING ELEMENT PROPERTY');
+      el.contentEditable = 'true';
+    });
+
+    document.getElementById('create').classList.remove('display_none');
   }
 }
