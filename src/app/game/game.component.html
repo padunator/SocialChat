@@ -6,15 +6,18 @@
   <mat-spinner *ngIf="this.gameService.waitingForPlayer"></mat-spinner>
   <div class="waiter" *ngIf="!this.gameService.waitingForPlayer">
     <div  class="header">
+      <div *ngIf="this.fiftyJokerIsPressed && gameService.ownSelection">
+        <h1>Choose your own selection before applying the joker</h1>
+      </div>
       <div class="score">
         <p>Score: {{gameService.score}}</p>
       </div>
       <div class="jokers">
-        <button id="_5050" type="submit" class="btn"
-                (click)="fitty()" type="submit">
+        <button id="_5050" type="submit" class="btn" [ngClass]= "{'selected': gameService.fiftyFiftyJokerSelected}"
+                (click)="!this.gameService.fiftyFiftyJokerSelected && fifty_fifty()" type="submit">
         </button>
-        <button id="new" type="submit" class="btn"
-                (click)="askOwnQuestion()" type="submit">
+        <button id="new" type="submit" class="btn"  [ngClass]= "{'selected': gameService.newQnSelected}"
+                (click)="!this.gameService.newQnSelected && askOwnQuestion()" type="submit">
         </button>
       </div>
     </div>
@@ -25,34 +28,33 @@
     </div>
     <div class="answer-block">
       <div class="answer-column">
-        <div class="option gradient">
+        <div class="option gradient" id="option0" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
           <strong>A</strong>
-          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
-                    {{gameService.questions[gameService.qnProgress].options[0].text}}
-                  </span>
-        </div>
-        <hr/>
-        <div class="option gradient">
-          <strong>C</strong>
-          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
-                    {{gameService.questions[gameService.qnProgress].options[2].text}}
+          <span class="answers">
+            {{gameService.questions[gameService.qnProgress].options[0].text}}
           </span>
         </div>
-
+        <hr/>
+        <div class="option gradient" id="option2" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
+          <strong>C</strong>
+          <span class="answers">
+            {{gameService.questions[gameService.qnProgress].options[2].text}}
+          </span>
+        </div>
       </div>
       <div class="answer-column">
-        <div class="option gradient">
+        <div class="option gradient" id="option1" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
           <strong>B</strong>
-          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
-                    {{gameService.questions[gameService.qnProgress].options[1].text}}
-                  </span>
+          <span class="answers">
+            {{gameService.questions[gameService.qnProgress].options[1].text}}
+          </span>
         </div>
         <hr/>
-        <div class="option gradient">
+        <div class="option gradient" id="option3" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
           <strong>D</strong>
-          <span class="answers" (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
-                    {{gameService.questions[gameService.qnProgress].options[3].text}}
-                  </span>
+          <span class="answers">
+            {{gameService.questions[gameService.qnProgress].options[3].text}}
+          </span>
         </div>
       </div>
     </div>

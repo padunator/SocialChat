@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterContentChecked, AfterViewInit, Component, OnChanges, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {GameSocket} from '../Sockets/GameSocket';
 import {Router} from '@angular/router';
 import {GameService} from '../services/game.service';
@@ -14,6 +14,8 @@ import {AuthService} from '../services/auth.service';
 export class GameComponent implements OnInit, OnDestroy {
   private questionSub: Subscription;
   private playerAnsweredSub: Subscription;
+  private fiftyJokerIsPressed: boolean;
+  private newQnJokerIsPress: boolean;
   questions: Question[] = [];
   initialized: boolean;
 
@@ -46,15 +48,20 @@ export class GameComponent implements OnInit, OnDestroy {
      });
 
      this.playerAnsweredSub = this.gameService.playerAnswered.subscribe((newAnswer: {email: String, own: String, guess: String}) => {
-       // Update answer array for specific  question
+       // Update answer array for specific  question (answers of the other player)
        const  currAnswer = this.gameService.getAnswer(newAnswer.email);
        currAnswer.own = newAnswer.own;
        currAnswer.guess = newAnswer.guess;
-        // Second time
-       if (this.gameService.waitingForPlayer) {
+        // Second time - if 50/50 has not been selected - got to the next question
+       if (this.gameService.waitingForPlayer && !this.fiftyJokerIsPressed) {
          this.getNextQuestion();
        } else { // first time
          this.gameService.opponentFinished = true;
+         // This code is executed if Waiting For Player has been set due to Fifty-Fifty Joker selection
+         if (this.fiftyJokerIsPressed) {
+           this.gameService.waitingForPlayer = false;
+           setTimeout(() => this.calculateExcludedOptions(), 400);
+         }
        }
      });
 
@@ -92,8 +99,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private getNextQuestion() {
     this.gameService.calculateScore();
+    console.log('GET NEXT QN: GET TO NEXT QN!');
     this.gameService.qnProgress++;
-    this.gameService.opponentFinished = this.gameService.waitingForPlayer = false;
+    // Reset the crossed Options if selected
+    if (this.fiftyJokerIsPressed) {
+      this.updateView();
+    }
+    this.gameService.opponentFinished = this.gameService.waitingForPlayer = this.fiftyJokerIsPressed = false;
+
     localStorage.setItem('questions', JSON.stringify(this.gameService.questions));
     if (this.gameService.qnProgress === this.gameService.questions.length) {
       clearInterval(this.gameService.timer);
@@ -114,6 +127,7 @@ export class GameComponent implements OnInit, OnDestroy {
   backToChat() {
     this.socket.emit('leaveGame');
     this.clearLocalGameStorage();
+    this.gameService.seconds = 0;
     this.router.navigate(['/chat']);
   }
 
@@ -131,26 +145,95 @@ export class GameComponent implements OnInit, OnDestroy {
       localStorage.removeItem('seconds');
       localStorage.removeItem('score');
       localStorage.removeItem('counter');
+      localStorage.removeItem('fiftyJoker');
+      localStorage.removeItem('newQnJoker');
   }
 
-  fitty() {
-
+  // Method for applying the 50 / 50 Joker
+  fifty_fifty() {
+    this.gameService.fiftyFiftyJokerSelected = true;
+    this.fiftyJokerIsPressed = true;
+    if (this.gameService.ownSelection) {
+      setTimeout(() => this.fiftyJokerIsPressed = false, 2000);
+    } else {
+      // If other player has already answered - cross 2 wrong answers directly
+      if (this.gameService.opponentFinished) {
+        this.calculateExcludedOptions();
+      } else { // Otherwise wait until the other player provides the right answer
+        this.gameService.waitingForPlayer = true;
+      }
+    }
   }
 
+  // Method for creating a custom answered Question
   createNewQn() {
 
   }
 
+  // Helper Method for setting the Answer/Option Fields to editable in order to be able to create custom answers
   askOwnQuestion() {
-    console.log('BEFORE FOR EACH LOOP');
-    // document.getElementById('answers').contentEditable = 'true';
+    this.newQnJokerIsPress = true;
     const els = document.getElementsByClassName('answers');
-    console.log('AFTER ASSIGNMENT!');
     Array.prototype.forEach.call(els, function (el) {
-      console.log('SETTING ELEMENT PROPERTY');
       el.contentEditable = 'true';
     });
 
+    // Display CREATE Button in the Page
     document.getElementById('create').classList.remove('display_none');
   }
+
+  private calculateExcludedOptions() {
+    console.log('IN CALCULATE EXCLUDED OPTIONS');
+   const optionArray = [0, 1, 2, 3];
+   const opponentAnswers = this.gameService.getAnswer(this.gameService.opponent);
+   const corrAnswer = +opponentAnswers.own;
+   optionArray.splice(corrAnswer, 1);
+   const optionPos = Math.floor(Math.random() * 3);
+   // The first option field to be crossed
+   const cross1 = optionArray[optionPos];
+   optionArray.splice(optionPos, 1);
+   let cross2 = Math.floor(Math.random() * 2);
+   // The second option field to be crossed
+   cross2 = optionArray[cross2];
+   // Go through the option fields and mark two wrong options
+    console.log('CROSSING OPTIONS : ' + cross1 + ' AND ' + cross2);
+   this.crossOptionsFields(cross1);
+   this.crossOptionsFields(cross2);
+  }
+
+  private crossOptionsFields(crossOption: number) {
+    // window.onload = function() {
+      switch (crossOption) {
+        case 0: {
+          document.getElementById('option0').classList.add('crossed');
+          break;
+        }
+        case 1: {
+          document.getElementById('option1').classList.add('crossed');
+          break;
+        }
+        case 2: {
+          document.getElementById('option2').classList.add('crossed');
+          break;
+        }
+        case 3: {
+          document.getElementById('option3').classList.add('crossed');
+          break;
+        }
+      }
+
+      // document.getElementById('_5050').classList.add('selected');
+      // document.getElementById('_5050').style.background = '#ff0000';
+      // document.getElementById('_5050').style.opacity = '0.3';
+    // };
+  }
+
+  private updateView() {
+    console.log('UPDATE VIEW');
+    document.getElementById('option1').classList.remove('crossed');
+    document.getElementById('option2').classList.remove('crossed');
+    document.getElementById('option3').classList.remove('crossed');
+    document.getElementById('option0').classList.remove('crossed');
+  }
+
 }

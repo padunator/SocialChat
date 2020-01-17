@@ -20,7 +20,7 @@ export class UserItemComponent implements OnInit {
   }
 
   invite(user: User) {
-    if (user.status && (user.email !==  this.authService.userMail))  {
+    if ( user.status && (user.email !==  this.authService.userMail) && this.gameService.seconds === 0)  {
       this.gameService.sendGameRequest(this.makeRandom(), user, this.authService.userMail);
     }
   }

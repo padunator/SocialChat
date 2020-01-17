@@ -65,6 +65,19 @@ h4 {
   background-size: cover;
 }
 
+.selected {
+  background:linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.1)),
+  url('../../assets/img/selected.png') center center no-repeat !important;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.crossed {
+ background-color: red !important;
+}
+
 #new {
   background:
     linear-gradient(45deg, rgba(255,125,60,0.2), rgba(0, 0, 0, 0.4)),
@@ -86,7 +99,7 @@ h4 {
 
 .titles {
   text-align: center;
-  padding-top: 50px;
+  padding-top: 10px;
   font-family: "Gill Sans";
   font: 26px Georgia, Serif;
 
@@ -246,6 +259,7 @@ hr {
 .display_none {
   display: none;
 }
+
 .border-gradient {
   border-radius: 40px;
   border: 10px solid;
@@ -254,7 +268,7 @@ hr {
 }
 
 .answers {
-  display: flex;
+  /*display: flex;*/
 }
 
 

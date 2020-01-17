@@ -17,7 +17,7 @@ export class GameService {
   private game: Room;
   private _questions: Question[] = [];
   private _opponent: string;
-  private _seconds: number;
+  private _seconds = 0;
   private _qnProgress: number;
   private _score: number;
   private _roomTitle: string;
@@ -28,6 +28,8 @@ export class GameService {
   private _waitingForPlayer: boolean;
   questionsLoaded: Promise<boolean>;
   questionsUpdated  = new Subject<Question[]>();
+  private _fiftyFiftyJokerSelected: boolean;
+  private _newQnSelected: boolean;
   private playersJoined = new Subject<User[]>();
   timer;
 
@@ -206,11 +208,12 @@ export class GameService {
     // console.log('BEFORE OWN SELECTION ' + this._ownSelection.toString());
     this._ownSelection = JSON.parse(localStorage.getItem('selection')) ===  null ||
       JSON.parse(localStorage.getItem('selection'));
-    console.log('OWN SELECTION ' + this._ownSelection.toString());
     this._questions = JSON.parse(localStorage.getItem('questions'));
     this._selectionString = localStorage.getItem('selectionString');
     this._roomTitle = localStorage.getItem('room');
     this._opponent = localStorage.getItem('opponent');
+    this._fiftyFiftyJokerSelected = JSON.parse(localStorage.getItem('fiftyJoker')) || false;
+    this._newQnSelected = JSON.parse(localStorage.getItem('newQnJoker')) || false;
   }
 
   set questions(value: Question[]) {
@@ -245,7 +248,6 @@ export class GameService {
 
   set ownSelection(value: boolean) {
     this._ownSelection = value;
-    console.log('SETTER SELECTION = ' + this._ownSelection.toString());
     localStorage.setItem('selection', JSON.stringify(this._ownSelection));
   }
 
@@ -268,6 +270,25 @@ export class GameService {
   set opponent(value: string) {
     this._opponent = value;
     localStorage.setItem('opponent', this._opponent);
+  }
+
+  set fiftyFiftyJokerSelected(value: boolean) {
+    this._fiftyFiftyJokerSelected = value;
+    localStorage.setItem('fiftyJoker', JSON.stringify(this.fiftyFiftyJokerSelected));
+  }
+
+  set newQnSelected(value: boolean) {
+    this._newQnSelected = value;
+    localStorage.setItem('newQnJoker', JSON.stringify(this.newQnSelected));
+  }
+
+  get fiftyFiftyJokerSelected(): boolean {
+    return this._fiftyFiftyJokerSelected;
+  }
+
+
+  get newQnSelected(): boolean {
+    return this._newQnSelected;
   }
 
   get questions(): Question[] {
@@ -316,6 +337,8 @@ export class GameService {
     return this._correctAnswerCount;
   }
 
+
+
   sendGameDecline() {
     this.gameSocket.emit('DeclineGame');
   }
@@ -354,4 +377,8 @@ export class GameService {
     });
   }
 
+  performFiftyFiftyJoker() {
+    console.log('Game Service : Performing 5050 Joker');
+    this.gameSocket.emit('fifty-fifty', this._roomTitle);
+  }
 }

@@ -210,6 +210,13 @@ const ioEvents = function(io) {
       });
     });
 
+    socket.on('fifty-fifty', (roomID) => {
+      socket.broadcast.to(roomID).emit('', {
+        email: obj.email,
+        own: own,
+        guess: guess
+      });
+    });
     // When a user leaves a running Game
     socket.on('leaveGame', () => {
       removeUserFromGame(socket)
