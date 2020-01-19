@@ -81,7 +81,7 @@ const ioEvents = function(io) {
   // gameroom namespace
   io.of('/game').on('connection', function(socket) {
     console.log('Game Socket connected on server');
-    // Create a new room
+    // Create a new room UPDATE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     socket.on('createRoom', (title) => {
       Room.findOne({title: title}).then(room => {
         if (room) {
@@ -109,7 +109,6 @@ const ioEvents = function(io) {
             // Push a new connection object(i.e. {userId + socketId})
             room.connections.push({userId: obj.userId, socketId: socket.id});
             room.save().then(room => {
-              console.log('JOINING TO ROOM AND PUSHING CONNECTION!');
               socket.join(room.title);
               socket.username = obj.userId;
 
@@ -117,7 +116,6 @@ const ioEvents = function(io) {
               if (room.noOfPlayers === room.connections.length) {
                 room.isOpen = false;
                 room.save().then(room => {
-                  console.log('ROOM SAVED  !');
                   Promise.all(
                     room.connections.map(connection => {
                       return Question.find({room: room.title}).then(questions => {
@@ -125,7 +123,6 @@ const ioEvents = function(io) {
                           questions.map(question => {
                             if (question.answers.length !== 2) {
                               question.answers.push({ email: connection.userId, own: "", guess: "" });
-                              console.log('SAVE ANSWER');
                               return question.save();
                             }
                           }),
@@ -133,7 +130,6 @@ const ioEvents = function(io) {
                       });
                     })
                   ).then(() => {
-                    console.log('SENDING GAME READY TO BOTH!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
                     io.of("/game")
                       .in(room.title)
                       .emit("GameReady", true);
@@ -210,11 +206,20 @@ const ioEvents = function(io) {
       });
     });
 
-    socket.on('fifty-fifty', (roomID) => {
-      socket.broadcast.to(roomID).emit('', {
-        email: obj.email,
-        own: own,
-        guess: guess
+    // Inform the opponent of the updated question
+    socket.on('update-question', (question) => {
+      console.log('UPDATE QUESTION AFTER JOKER SELECTION');
+      console.log(question.question);
+      const newQuestion = new Question ({
+        question : question.question.question,
+        options: question.question.options,
+        room: question.question.room,
+        answers: question.question.answers,
+        createdAt: question.question.createdAt
+      });
+      newQuestion.save().then((qn) => {
+        console.log('QUESTION HAS BEEN ADDED - NOW SEND BACK TO OTHER CLIENT');
+        socket.broadcast.to(question.roomID).emit('joker-selected', question);
       });
     });
     // When a user leaves a running Game

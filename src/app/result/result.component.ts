@@ -37,4 +37,9 @@ export class ResultComponent implements OnInit {
     this.router.navigate(['/game']);
   }
 
+  backToChat() {
+    this.gameService.clearLocalGameStorage();
+    this.gameService.seconds = 0;
+    this.router.navigate(['/chat']);
+  }
 }

@@ -23,36 +23,38 @@
     </div>
 
     <div class="titles">
-      <h1 class="gradient gradient-box">{{gameService.questions[gameService.qnProgress].question}}</h1>
+      <h1 class="gradient gradient-box" id="question" [contentEditable]="newQnJokerIsPressed">
+        {{gameService.questions[gameService.qnProgress].question}}
+      </h1>
       <h2 class="gradient border-gradient">Choose your {{gameService.selectionString}} selection!</h2>
     </div>
     <div class="answer-block">
       <div class="answer-column">
-        <div class="option gradient" id="option0" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
+        <div class="option gradient" id="option0" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
           <strong>A</strong>
-          <span class="answers">
+          <span class="answers" id="text0" [contentEditable]="newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[0].text}}
           </span>
         </div>
         <hr/>
-        <div class="option gradient" id="option2" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
+        <div class="option gradient" id="option2" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
           <strong>C</strong>
-          <span class="answers">
+          <span class="answers" id="text2" [contentEditable]="newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[2].text}}
           </span>
         </div>
       </div>
       <div class="answer-column">
-        <div class="option gradient" id="option1" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
+        <div class="option gradient" id="option1" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
           <strong>B</strong>
-          <span class="answers">
+          <span class="answers" id="text1" [contentEditable]="newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[1].text}}
           </span>
         </div>
         <hr/>
-        <div class="option gradient" id="option3" (click)="!newQnJokerIsPress && registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
+        <div class="option gradient" id="option3" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
           <strong>D</strong>
-          <span class="answers">
+          <span class="answers" id="text3" [contentEditable]="newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[3].text}}
           </span>
         </div>

@@ -10,7 +10,7 @@ import {
   MatExpansionModule, MatIconModule,
   MatInputModule, MatListModule,
   MatProgressBarModule, MatProgressSpinnerModule,
-  MatToolbarModule
+  MatToolbarModule, MatSnackBarModule
 } from '@angular/material';
 import { IconsModule } from './icons/icons.module';
 import { AppComponent } from './app.component';
@@ -41,6 +41,7 @@ import {AutosizeModule} from 'ngx-autosize';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
+import { JokerSelectedComponent } from './joker-selected/joker-selected.component';
 // const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {} };
 
 
@@ -61,6 +62,7 @@ import { ServerErrorComponent } from './error-pages/server-error/server-error.co
     ResultComponent,
     NotFoundComponent,
     ServerErrorComponent,
+    JokerSelectedComponent,
   ],
   imports: [
     BrowserModule,
@@ -77,6 +79,7 @@ import { ServerErrorComponent } from './error-pages/server-error/server-error.co
     MatButtonModule,
     MatToolbarModule,
     MatExpansionModule,
+    MatSnackBarModule,
     SocketIoModule,
     MatProgressBarModule,
     MatListModule,

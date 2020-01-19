@@ -40,6 +40,7 @@ export class GameService {
   movedEvent = this.gameSocket.fromEvent<any>('playerMoved');
   // userReconnected = this.gameSocket.fromEvent<User>('updateUsersList');
   userDisconnected = this.gameSocket.fromEvent<User>('removeUser');
+  jokerSelected = this.gameSocket.fromEvent<any>('joker-selected');
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
   private users: User[] = [];
 
@@ -179,13 +180,22 @@ export class GameService {
     return this.questionsUpdated.asObservable();
   }
 
-  updateQuestionCatalog(question: Question) {
+  // When user responded to one question - the corresponding Question is being updated with his selections
+  updateQuestionCatalog() {
     this.gameSocket.emit('new-game-response', {
-      question: question,
+      question: this._questions[this._qnProgress],
       roomID: this._roomTitle,
       email: this.authService.userMail
     });
-    // localStorage.setItem('questions', JSON.stringify(this._questions));
+  }
+  // When user selected the corresponding Joker an existing Question is replaced with the users
+  // input [Question + Answers]
+  executeQuestionUpdate() {
+    this.gameSocket.emit('update-question', {
+      roomID: this._roomTitle,
+      qnProgress: this._qnProgress,
+      question: this._questions[this._qnProgress]
+    });
   }
 
   isCorrect(qnNo: number, optNo: number) {
@@ -205,7 +215,6 @@ export class GameService {
     this._correctAnswerCount = parseInt(localStorage.getItem('counter'), 10) || 0;
     this._waitingForPlayer = JSON.parse(localStorage.getItem('waiting')) || false;
     this._opponentFinished = JSON.parse(localStorage.getItem('opponentFinished')) || false;
-    // console.log('BEFORE OWN SELECTION ' + this._ownSelection.toString());
     this._ownSelection = JSON.parse(localStorage.getItem('selection')) ===  null ||
       JSON.parse(localStorage.getItem('selection'));
     this._questions = JSON.parse(localStorage.getItem('questions'));
@@ -377,8 +386,21 @@ export class GameService {
     });
   }
 
-  performFiftyFiftyJoker() {
-    console.log('Game Service : Performing 5050 Joker');
-    this.gameSocket.emit('fifty-fifty', this._roomTitle);
+  clearLocalGameStorage() {
+    clearInterval(this.timer);
+    localStorage.removeItem('room');
+    localStorage.removeItem('opponent');
+    localStorage.removeItem('seconds');
+    localStorage.removeItem('questions');
+    localStorage.removeItem('qnProgress');
+    localStorage.removeItem('selection');
+    localStorage.removeItem('selectionString');
+    localStorage.removeItem('opponentFinished');
+    localStorage.removeItem('waiting');
+    localStorage.removeItem('seconds');
+    localStorage.removeItem('score');
+    localStorage.removeItem('counter');
+    localStorage.removeItem('fiftyJoker');
+    localStorage.removeItem('newQnJoker');
   }
 }

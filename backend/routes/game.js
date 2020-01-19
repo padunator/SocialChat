@@ -65,7 +65,6 @@ router.post('/createRoom', checkAuth, (req, res, next) => {
     });
     Question.remove({}).then(callback => {
       Question.insertMany(questionLogic.questionPool).then(inserted => {
-        console.log('New gameroom with title ' + req.body.room.title + ' created!');
         res.status(201).json({
           message: 'New Room created!',
           result: newRoom
