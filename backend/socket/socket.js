@@ -7,6 +7,7 @@ const Room = require('../models/Room');
 const Question = require('../models/Question');
 const User = require('../models/User');
 const roomLogic = require('../modelLogic/room');
+const sentimentModel = require('../models/Sentiment');
 const Sentiment = require('sentiment');
 const sentiment = new Sentiment();
 
@@ -24,8 +25,19 @@ const ioEvents = function(io) {
 
     socket.on('new-message', (message) => {
       let result = sentiment.analyze(message.message);
-      console.dir(result);
-      io.of('/chat').emit("ChatMessage", message);
+      const newSentiment = new sentimentModel({
+        score: result.score,
+        comparative: result.comparative,
+        calculation: result.calculation,
+        tokens: result.tokens,
+        words: result.words,
+        positive: result.positive,
+        negative: result.negative
+      });
+      newSentiment.save().then(() => {
+        console.dir(result);
+        io.of('/chat').emit("ChatMessage", message);
+      });
     });
 
     socket.on('changeStatus', status => {

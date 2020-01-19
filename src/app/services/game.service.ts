@@ -403,4 +403,14 @@ export class GameService {
     localStorage.removeItem('fiftyJoker');
     localStorage.removeItem('newQnJoker');
   }
+
+  insertHighScore() {
+    this.http.post<{message: string}>('http://localhost:3000/api/game/createHighScore', {
+      score: this.score,
+      user: this.authService.userMail
+    })
+    .subscribe(response => {
+        console.log(response);
+    });
+  }
 }

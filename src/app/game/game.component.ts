@@ -161,6 +161,7 @@ export class GameComponent implements OnInit, OnDestroy {
     if (this.gameService.qnProgress === this.gameService.questions.length) {
       console.log('GO TO RESULT PAGE!!');
       clearInterval(this.gameService.timer);
+      this.gameService.insertHighScore();
       this.router.navigate(['/result']);
     }
   }

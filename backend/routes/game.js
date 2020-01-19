@@ -3,6 +3,7 @@ const checkAuth = require('../middleware/check-auth');
 const router = express.Router();
 const Room = require('../models/Room');
 const Question = require('../models/Question');
+const HighScore = require('../models/HighScore');
 const questionLogic = require('../modelLogic/question');
 // Game Room
 router.get('/:id', checkAuth, (req, res, next) => {
@@ -87,6 +88,20 @@ router.post('/addUser/:id', checkAuth, (req, res, next) => {
     res.status(201).json({
       message: 'Room added!',
       roomId: newRoom._id
+    });
+  });
+});
+
+router.post('/createHighScore', checkAuth, (req, res, next) => {
+  const newHighScore = new HighScore ({
+    user: req.body.user,
+    score: req.body.score,
+  });
+  newHighScore.save().then((rec) => {
+    HighScore.find({}).sort({score: 1}).exec().then(() => {
+      res.status(201).json({
+        message: 'High Score saved!'
+      });
     });
   });
 });
