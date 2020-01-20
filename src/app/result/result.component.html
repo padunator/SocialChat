@@ -15,15 +15,31 @@
               <h2 class="mat-display-2">Time Elapsed : {{gameService.displayTimeElapsed()}}</h2>
             </div>
           </div>
-          <div class="highscore_table">
-               <table>
-                 <tr><td>Name</td><td>Date</td><td>Score</td></tr>
-           <!--      For schleife einfügen um die Daten aus der HighScore Tabelle - bzw. dem zwischengespeicherten -->
-           <!--      Array hier darzustellen -->
-           <!--      for (el : arrayelements) {-->
-           <!--       <tr><td></td></tr>                 -->
-           <!--      }-->
+          <div class="highscore_table mat-elevation-z8">
+              <h1>Highscores</h1>
+               <table mat-table [dataSource]="dataSource">
+                 <!-- Name Column -->
+                 <ng-container matColumnDef="User">
+                   <th mat-header-cell *matHeaderCellDef>User</th>
+                   <td mat-cell *matCellDef="let element"> {{element.user}} </td>
+                 </ng-container>
+
+                 <!-- Weight Column -->
+                 <ng-container matColumnDef="Score">
+                   <th mat-header-cell *matHeaderCellDef>Score</th>
+                   <td mat-cell *matCellDef="let element"> {{element.score}} </td>
+                 </ng-container>
+
+                 <!-- Weight Column -->
+                 <ng-container matColumnDef="Date">
+                   <th mat-header-cell *matHeaderCellDef>Date</th>
+                   <td mat-cell *matCellDef="let element"> {{element.createdAt}} </td>
+                 </ng-container>
+
+                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                </table>
+            <mat-paginator [pageSizeOptions]="[10, 20, 30]" showFirstLastButtons></mat-paginator>
           </div>
         </mat-card-content>
         <mat-card-actions align="start">

@@ -4,13 +4,14 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MatBadgeModule,
+  MatBadgeModule, MatTableModule,
   MatButtonModule,
   MatCardModule, MatCheckboxModule,
   MatExpansionModule, MatIconModule,
   MatInputModule, MatListModule,
   MatProgressBarModule, MatProgressSpinnerModule,
-  MatToolbarModule, MatSnackBarModule
+  MatToolbarModule, MatSnackBarModule,  MatPaginatorModule,
+  MatSortModule
 } from '@angular/material';
 import { IconsModule } from './icons/icons.module';
 import { AppComponent } from './app.component';
@@ -80,6 +81,9 @@ import { JokerSelectedComponent } from './joker-selected/joker-selected.componen
     MatToolbarModule,
     MatExpansionModule,
     MatSnackBarModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
     SocketIoModule,
     MatProgressBarModule,
     MatListModule,

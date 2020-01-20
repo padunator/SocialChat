@@ -2,6 +2,9 @@
   height: 100%;
 }
 
+h1 {
+  font-family: CrackMan;
+}
 .wrapper{
   background-color: #fff;
   background:
@@ -99,8 +102,12 @@ mat-spinner {
   width: 40%;
 }
 
+table {
+ width: 100%;
+}
+
 .highscore_table {
- width: 50%;
+  width: 50%;
 }
 /* this is called a clearfix. it makes sure that the container's children floats are cleared, without using extra markup */
 

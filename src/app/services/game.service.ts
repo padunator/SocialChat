@@ -9,6 +9,7 @@ import {map} from 'rxjs/operators';
 import {AuthService} from './auth.service';
 import {Question} from '../interfaces/question.model';
 import {Subject} from 'rxjs/internal/Subject';
+import {HighScore} from '../interfaces/high_score';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,7 @@ export class GameService {
   private _waitingForPlayer: boolean;
   questionsLoaded: Promise<boolean>;
   questionsUpdated  = new Subject<Question[]>();
+  highScoreLoaded  = new Subject<HighScore[]>();
   private _fiftyFiftyJokerSelected: boolean;
   private _newQnSelected: boolean;
   private playersJoined = new Subject<User[]>();
@@ -43,6 +45,7 @@ export class GameService {
   jokerSelected = this.gameSocket.fromEvent<any>('joker-selected');
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
   private users: User[] = [];
+  private _scoreTable: HighScore[] = [];
 
   // Event emitter erstellen - alle Clients & Componenten können an diesen
   // Alle lokalen - spielrelevanten variablen werden durch events an die entsprechenden Komponenten gesendet und entsprechend
@@ -178,6 +181,10 @@ export class GameService {
 
   getQuestionUpdatedListener() {
     return this.questionsUpdated.asObservable();
+  }
+
+  getHighScoreLoadedListener() {
+    return this.highScoreLoaded.asObservable();
   }
 
   // When user responded to one question - the corresponding Question is being updated with his selections
@@ -347,6 +354,9 @@ export class GameService {
   }
 
 
+  get scoreTable(): HighScore[] {
+    return this._scoreTable;
+  }
 
   sendGameDecline() {
     this.gameSocket.emit('DeclineGame');
@@ -357,7 +367,6 @@ export class GameService {
   }
 
   getUsersInRoom() {
-    console.log('GET USERS - CLIENT SIDE');
     this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsersInRoom/' + this._roomTitle)
       .pipe(map(postData => {
         return postData.user.map(user => {
@@ -379,7 +388,6 @@ export class GameService {
   }
 
   updateUserList() {
-    console.log('NOW UPDATE USER LIST');
     this.gameSocket.emit('updateUserList', {
       email: this.authService.userMail,
       room: this._roomTitle
@@ -405,12 +413,18 @@ export class GameService {
   }
 
   insertHighScore() {
-    this.http.post<{message: string}>('http://localhost:3000/api/game/createHighScore', {
+    this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
       score: this.score,
       user: this.authService.userMail
     })
     .subscribe(response => {
-        console.log(response);
+        console.log(response.scores);
+        this._scoreTable = response.scores;
+        this.highScoreLoaded.next([...this._scoreTable]);
     });
+  }
+
+  getHighScores() {
+    return this.http.get<{scores: HighScore []}>('http://localhost:3000/api/game/getHighScores');
   }
 }
