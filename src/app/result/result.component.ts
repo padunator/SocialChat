@@ -15,8 +15,8 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedColumns = ['User', 'Score', 'Date'];
   private highScoreSub: Subscription;
   private highScoreTable: HighScore[] = [];
-  // private dataSource = new MatTableDataSource<any>(this.highScoreTable);
-  dataSource = new MatTableDataSource([]);
+  private dataSource = new MatTableDataSource<any>(this.highScoreTable);
+  // dataSource = new MatTableDataSource(this.highScoreTable);
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
 
   constructor(private gameService: GameService, private router: Router) { }
@@ -28,13 +28,13 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
     if (parseInt(localStorage.getItem('qnProgress'), 10) !== this.gameService.questions.length) {
       this.router.navigate(['/game']);
     }
-    this.highScoreTable = JSON.parse(localStorage.getItem('table'));
+    this.highScoreTable = JSON.parse(localStorage.getItem('table')) || '';
     if (this.highScoreTable.length !== 0) {
       this.dataSource.data = this.highScoreTable;
-      this.dataSource.paginator = this.paginator;
     }
 
     this.highScoreSub = this.gameService.getHighScoreLoadedListener().subscribe((table: HighScore[]) => {
+      console.log('UPDATING DATA SOURCE!');
       this.highScoreTable = table;
       this.dataSource.data = this.highScoreTable;
       localStorage.setItem('table', JSON.stringify(this.highScoreTable));
@@ -68,7 +68,7 @@ export class ResultComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // this.highScoreSub.unsubscribe();
+    this.highScoreSub.unsubscribe();
   }
 
   private loadData() {

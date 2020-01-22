@@ -3,14 +3,23 @@
 <mat-progress-bar mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100"></mat-progress-bar>
 
 <div class="wrapper">
-  <mat-spinner *ngIf="this.gameService.waitingForPlayer"></mat-spinner>
-  <div class="waiter" *ngIf="!this.gameService.waitingForPlayer">
+  <div class="waitingDiv" *ngIf="this.gameService.waitingForPlayer">
+    <h1>Waiting for the other guy!</h1>
+    <img src="../../assets/img/waiting.gif">
+    <mat-spinner ></mat-spinner>
+  </div>
+  <div class="image" *ngIf=false>
+    <img src="../../assets/img/waiting.gif"/>
+    <div class="spin spinner"></div>
+  </div>
+
+  <div class="game" *ngIf="!this.gameService.waitingForPlayer">
     <div  class="header">
       <div *ngIf="this.fiftyJokerIsPressed && gameService.ownSelection">
         <h1>Choose your own selection before applying the joker</h1>
       </div>
       <div class="score">
-        <p>Score: {{gameService.score}}</p>
+        <p>Score: {{gameService.score}} to {{gameService.opScore}}</p>
       </div>
       <div class="jokers">
         <button id="_5050" type="submit" class="btn" [ngClass]= "{'selected': gameService.fiftyFiftyJokerSelected}"

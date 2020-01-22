@@ -6,15 +6,7 @@ import {Question} from '../interfaces/question.model';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {AuthService} from '../services/auth.service';
 import { slideInAnimation } from '../Animations/animations';
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition
-} from '@angular/animations';
 import {MatSnackBar} from '@angular/material';
-import {JokerSelectedComponent} from '../joker-selected/joker-selected.component';
 
 
 @Component({
@@ -65,17 +57,16 @@ export class GameComponent implements OnInit, OnDestroy {
      });
 
      // Subscription which gets called when the player receives the answers of the opponent
-     this.playerAnsweredSub = this.gameService.playerAnswered.subscribe((newAnswer: {email: String, own: String, guess: String}) => {
+     this.playerAnsweredSub = this.gameService.playerAnswered.subscribe(
+       (newAnswer: {email: String, own: String, guess: String, score: number}) => {
        // Update answer array for specific  question (answers of the other player)
        const  currAnswer = this.gameService.getAnswer(newAnswer.email);
        currAnswer.own = newAnswer.own;
        currAnswer.guess = newAnswer.guess;
         // Second time - if 50/50 has not been selected - got to the next question
        if (this.gameService.waitingForPlayer && !this.fiftyJokerIsPressed) {
-         console.log('NEW ANSWER SUB: GETTING NEXT QUESTION');
          this.getNextQuestion();
        } else { // first time
-         console.log('NEW ANSWER SUB: SETTING OPPONENT FINISHED');
          this.gameService.opponentFinished = true;
          // This code is executed if Waiting For Player has been set due to Fifty-Fifty Joker selection
          if (this.fiftyJokerIsPressed) {
@@ -89,8 +80,6 @@ export class GameComponent implements OnInit, OnDestroy {
      // the corresponding JOKER
      this.jokerSelectedSub = this.gameService.jokerSelected.subscribe(
        (question: {roomID: String, qnProgress: number, question: Question}) => {
-        console.log('QUESTION UPDATE NOW ON OTHER SIDE!');
-        console.log(question.question);
         this.gameService.questions[this.gameService.qnProgress] = question.question;
         this.resetQuestionData();
      });
@@ -149,20 +138,17 @@ export class GameComponent implements OnInit, OnDestroy {
   private getNextQuestion() {
     this.gameService.calculateScore();
     this.gameService.qnProgress++;
-    console.log('GET NEXT QN : DETECT CHANGES');
     // this.ref.detectChanges();
     // Reset the crossed Options if selected
     if (this.fiftyJokerIsPressed) {
       this.updateView();
     }
-    console.log('GET NEXT QN: REINIT VARIABLES');
     this.gameService.opponentFinished = this.gameService.waitingForPlayer = this.fiftyJokerIsPressed = false;
     localStorage.setItem('questions', JSON.stringify(this.gameService.questions));
     if (this.gameService.qnProgress === this.gameService.questions.length) {
-      console.log('GO TO RESULT PAGE!!');
       clearInterval(this.gameService.timer);
-      this.gameService.insertHighScore();
       this.router.navigate(['/result']);
+      this.gameService.insertHighScore();
     }
   }
 

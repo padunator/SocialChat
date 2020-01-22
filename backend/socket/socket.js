@@ -171,7 +171,6 @@ const ioEvents = function(io) {
                   });*/
                 });
               } else {
-                console.log('PLAYER 1 SENDING BACK FROM JOINING ROOM !!!!!!!!!!!!!!!');
                 ack(true);
                 return Promise.resolve();
               }
@@ -220,8 +219,6 @@ const ioEvents = function(io) {
 
     // Inform the opponent of the updated question
     socket.on('update-question', (question) => {
-      console.log('UPDATE QUESTION AFTER JOKER SELECTION');
-      console.log(question.question);
       const newQuestion = new Question ({
         question : question.question.question,
         options: question.question.options,
@@ -230,7 +227,6 @@ const ioEvents = function(io) {
         createdAt: question.question.createdAt
       });
       newQuestion.save().then((qn) => {
-        console.log('QUESTION HAS BEEN ADDED - NOW SEND BACK TO OTHER CLIENT');
         socket.broadcast.to(question.roomID).emit('joker-selected', question);
       });
     });

@@ -15,10 +15,105 @@ h4 {
   border-radius: 20px;*/
 }
 
-.waiter {
+.game {
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+.waitingDiv {
+  width: 100%;
+  margin: auto;
+}
+
+.waitingDiv img {
+  width: 80%;
+  display: block;
+  margin: 0 auto;
+  position: relative;
+  border-radius: 50%;
+}
+
+mat-spinner {
+  position: absolute;
+  margin: 0 auto;
+}
+.waitingDiv h1 {
+  text-align: center;
+  font-family: CrackMan;
+}
+
+.image {
+  position: absolute;
+  width: 100%;
+}
+
+.image img {
+  position: absolute;
+  margin: 0 auto;
+  top: 25%;
+  left: 26%;
+}
+
+.spin {
+  position: relative;
+  display: inline-block;
+  width: 350px;
+  height: 350px;
+  border: 2px solid #34495e;
+  border-radius: 100%;
+  animation: spin 0.75s infinite linear;
+}
+
+.spin::before,
+.spin::after {
+  left: -2px;
+  top: -2px;
+  display: none;
+  position: absolute;
+  content: '';
+  width: inherit;
+  height: inherit;
+  border: inherit;
+  border-radius: inherit;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner,
+.spinner::before,
+.spinner::after {
+  display: inline-block;
+  border-color: transparent;
+  border-top-color: red;
+  animation-duration: 1.2s;
+}
+
+.spinner::before {
+  transform: rotate(120deg);
+}
+
+.spinner::after {
+  transform: rotate(240deg);
+}
+
+@media (max-width:480px) {
+  .spin {
+    width: 270px;
+    height: 270px;
+  }
+  .image img {
+    position: absolute;
+    top: 19%;
+    left: 21%;
+  }
 }
 
 .header {

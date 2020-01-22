@@ -2,9 +2,6 @@
   height: 100%;
 }
 
-h1 {
-  font-family: CrackMan;
-}
 .wrapper{
   background-color: #fff;
   background:
@@ -15,6 +12,77 @@ h1 {
   overflow-y: auto;
 }
 
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+
+#complete {
+  font-size: 60px;
+  margin-bottom: 1em;
+  margin-top: auto;
+  margin-right: 1em;
+}
+
+.complete_block {
+  display: flex;
+  width: 50%;
+  justify-content: space-evenly;
+  align-items: flex-end;
+}
+
+.complete_left {
+  width: 48%;
+  flex-basis: 50%;
+}
+
+.complete_block img {
+  width: 40%;
+}
+
+.complete_block div {
+  width: 40%;
+}
+
+table {
+  width: 100%;
+}
+
+.highscore_table {
+  width: 50%;
+}
+
+mat-card-title-group{
+  display: compact !important;
+  margin-top: 3em;
+  text-align: left;
+  margin-bottom: 2em;
+}
+
+h1 {
+  font-family: CrackMan;
+}
+
+.answers {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.answers>mat-card {
+  flex: 0 48%;
+  box-sizing: border-box;
+}
+
+.answers_titles {
+  height: auto !important;
+  margin-bottom: 3em;
+}
+.answer-card {
+  width: 50%;
+}
+
 mat-card{
   display: block;
   border: 4px solid #000;
@@ -22,42 +90,28 @@ mat-card{
   background-color: rgba(255,255,255,0.85);
   width: auto;
   height: auto;
-  margin: 3em 3em 3em 3em;
+  margin: 1em 1em 1em 1em;
   text-align: left;
   vertical-align: auto;
-  padding: 80px 30px;
+  padding: 40px 30px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.17), 0 1px 2px rgba(0,0,0,0.24);
   overflow: auto;
-}
-
-mat-card-title-group{
-  margin-top: 3em;
-  text-align: left;
-  margin-bottom: 2em;
 }
 
 mat-card-content{
   max-width: border-box;
   overflow: hidden;
   margin-bottom: 1em;
+  display: contents;
 }
 
-mat-list-item{
-  font-size: xx-large;
-}
-ul {
-  display: block;
-  list-style-type: circle;
-  margin-top: 1em;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 40px;
+mat-list {
+  display: contents;
 }
 
-::ng-deep.mat-pseudo-checkbox{
-  display: none !important;
+.answer_options {
+  font-family: "Apple Color Emoji";
 }
-
 mat-spinner {
   left: 28.5%;
   top: 38%;
@@ -76,44 +130,6 @@ mat-spinner {
   color: white;
 }
 
-#complete {
-  font-size: 60px;
-  margin-bottom: 1em;
-  margin-top: auto;
-  margin-right: 1em;
-}
-
-.header {
-  display: flex;
-  flex-direction: row;
-}
-/* tell the container's children to float left: */
-.complete_block {
-  display: flex;
-  width: 50%;
-  justify-content: space-between;
-}
-
-.complete_block img {
-  width: 40%;
-}
-
-.complete_block div {
-  width: 40%;
-}
-
-table {
- width: 100%;
-}
-
-.highscore_table {
-  width: 50%;
-}
-/* this is called a clearfix. it makes sure that the container's children floats are cleared, without using extra markup */
-
-.clearfix {
-  *zoom:1 /* for IE */
-}
 
 .right-badge {
   color: #00FFAA;
@@ -134,6 +150,6 @@ table {
   font-size: 20px;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.17), 0 1px 2px rgba(0,0,0,0.24);
-  transition: ease-in 0.2s;
+  transqition: ease-in 0.2s;
 }
 

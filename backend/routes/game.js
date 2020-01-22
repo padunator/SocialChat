@@ -4,6 +4,7 @@ const router = express.Router();
 const Room = require('../models/Room');
 const Question = require('../models/Question');
 const HighScore = require('../models/HighScore');
+const Sentiment = require('../models/Sentiment');
 const questionLogic = require('../modelLogic/question');
 
 //Create new Room
@@ -80,9 +81,18 @@ router.post('/addUser/:id', checkAuth, (req, res, next) => {
 });
 
 router.post('/createHighScore', checkAuth, (req, res, next) => {
+  let totalScore, tokenCount, totalComparative;
+  Sentiment.find({}).then((sentiments) => {
+    sentiments.forEach().then(sentiment => {
+      tokenCount += sentiment.tokens.length;
+      totalScore += sentiment.score;
+    });
+  });
+
   const newHighScore = new HighScore ({
     user: req.body.user,
     score: req.body.score,
+    duration: req.body.duration
   });
   newHighScore.save().then((rec) => {
     HighScore.find({}).sort({score: -1}).exec().then((scores) => {

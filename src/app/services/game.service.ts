@@ -21,6 +21,7 @@ export class GameService {
   private _seconds = 0;
   private _qnProgress: number;
   private _score: number;
+  private _opScore = 0;
   private _roomTitle: string;
   private _correctAnswerCount: number;
   private _selectionString = 'own';
@@ -137,12 +138,19 @@ export class GameService {
     const oppAnswer = this.getAnswer(this._opponent);
     const rightAnswer = ownAnswer.guess === oppAnswer.own;
     const sameAnswer = ownAnswer.own === oppAnswer.own;
+    const opRightAnswer = oppAnswer.guess === ownAnswer.own;
     if (rightAnswer && sameAnswer) {
       this.score += 15;
       this.correctAnswerCount++;
     } else if (rightAnswer) {
       this.score += 10;
       this.correctAnswerCount++;
+    }
+
+    if (opRightAnswer && sameAnswer) {
+      this.opScore += 15;
+    } else if (opRightAnswer) {
+      this.opScore += 10;
     }
   }
 
@@ -232,6 +240,11 @@ export class GameService {
     this._newQnSelected = JSON.parse(localStorage.getItem('newQnJoker')) || false;
   }
 
+
+  set opScore(value: number) {
+    this._opScore = value;
+  }
+
   set questions(value: Question[]) {
     this._questions = value;
     localStorage.setItem('questions', JSON.stringify(this._questions));
@@ -296,6 +309,10 @@ export class GameService {
   set newQnSelected(value: boolean) {
     this._newQnSelected = value;
     localStorage.setItem('newQnJoker', JSON.stringify(this.newQnSelected));
+  }
+
+  get opScore(): number {
+    return this._opScore;
   }
 
   get fiftyFiftyJokerSelected(): boolean {
@@ -415,10 +432,10 @@ export class GameService {
   insertHighScore() {
     this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
       score: this.score,
-      user: this.authService.userMail
+      user: this.authService.userMail,
+      duration: this.timer,
     })
     .subscribe(response => {
-        console.log(response.scores);
         this._scoreTable = response.scores;
         this.highScoreLoaded.next([...this._scoreTable]);
     });
