@@ -9,7 +9,3 @@
     display: flex;
     flex-direction: column;
 }
-
-router-outlet {
-    height:0;
-}

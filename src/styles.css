@@ -19,13 +19,13 @@ body {
 }
 
 app-chatroom, app-gameroom, app-result, app-login-form, app-signup-form {
-    height: 100%; /*replaced height with the one set in * */
+/*    height: 100%; !*replaced height with the one set in * *!
     display: flex;
-    flex-direction: column;
+    flex-direction: column;*/
 }
 
 router-outlet {
-  height: 100%;
+  /*height: 100%;*/
 }
 
 app-chat-form{
