@@ -6,6 +6,7 @@ const Question = require('../models/Question');
 const HighScore = require('../models/HighScore');
 const Sentiment = require('../models/Sentiment');
 const questionLogic = require('../modelLogic/question');
+const roomLogic = require('../modelLogic/room');
 
 //Create new Room
 router.post('/new', checkAuth, (req, res, next) => {
@@ -47,11 +48,10 @@ router.post('/createRoom', checkAuth, (req, res, next) => {
   room.save().then(newRoom => {
     console.log('Room ' + req.body.room.title + ' created!');
     // Inserting new Question Pool after new room has been created
-    console.log('Before for Each of question pool!');
     questionLogic.questionPool.forEach(question => {
-       console.log('Pushing email into the question array ' + req.body.email);
        question.room = req.body.room.title;
     });
+    // The following should be removed for Multi-Question Functionality (at the moment every new game deletes the old questions
     Question.remove({}).then(callback => {
       Question.insertMany(questionLogic.questionPool).then(inserted => {
         res.status(201).json({
@@ -67,8 +67,8 @@ router.post('/createRoom', checkAuth, (req, res, next) => {
   });
 });
 
-router.post('/addUser/:id', checkAuth, (req, res, next) => {
-  const room = Room.findById(id);
+/*router.post('/addUser/:id', checkAuth, (req, res, next) => {
+  const room = Room.findById(req.param.id);
   var conn = { userId: userId, socketId: socket.id };
   room.connections.push(conn);
   // const connection =
@@ -78,14 +78,51 @@ router.post('/addUser/:id', checkAuth, (req, res, next) => {
       roomId: newRoom._id
     });
   });
-});
+});*/
 
 router.post('/createHighScore', checkAuth, (req, res, next) => {
-  let totalScore, tokenCount, totalComparative;
-  Sentiment.find({}).then((sentiments) => {
-    sentiments.forEach().then(sentiment => {
+  let totalScore = 0;
+  let tokenCount = 0;
+  let totalComparative = 0;
+/*  Sentiment.aggregate(
+    [
+      {"$match": {
+        "connections.userId": req.body.user
+        }},
+      {"$unwind": "$connections"},
+      {"$match": {
+          "connections.userId": req.body.user
+        }},
+      {"$group": {
+        "_id": null,
+          totalScore: {"$sum": "$connections.score"},
+          tokenCount: {"$sum": "$connections.tokens"}
+        }}
+
+    ]
+  ).then(result => {});*/
+
+  Sentiment.find({user: req.body.user}).then((sentiments) => {
+    console.log(sentiments);
+    sentiments.forEach(sentiment => {
       tokenCount += sentiment.tokens.length;
       totalScore += sentiment.score;
+    });
+    totalComparative = totalScore / tokenCount;
+    roomLogic.updateConnections({
+      roomID: req.body.roomID,
+      email: req.body.user,
+      round: req.body.round,
+      duration: req.body.duration,
+      score: req.body.score,
+      words: tokenCount,
+      comparative: totalComparative
+    }, function(err, passed) {
+        if(passed) {
+          console.log('PASSED!')
+        } else {
+          console.log('ERROR ' + err);
+        }
     });
   });
 

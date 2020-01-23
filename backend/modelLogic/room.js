@@ -6,10 +6,25 @@ const User = require('../models/User');
  * Get all users in a room
  *
  */
-// var getUsers = function(room, socket, userId, callback) {
+const updateConnections = async function(obj, callback) {
+  // Update Room-Connections with Game-Related Data of current running game
+  Room.updateOne({title: obj.roomID,'connections.userId': obj.email}, {'$set': {
+      'connections.$.round': obj.round,
+      'connections.$.duration': obj.duration,
+      'connections.$.score': obj.score,
+      'connections.$.words': obj.words,
+      'connections.$.comparative': obj.comparative
+    }}, {new: true}).then(updatedConn => {
+    console.log('Connection updated!');
+    return Promise.resolve();
+  }).catch(err => {
+    console.log('Error while updating connections for running game ' + err);
+    return Promise.reject();
+  });
+};
+
 const  getUsers = function(room, callback) {
-  console.log('In getUsers');
-  var users = [], vis = {}, count = 0;
+  let users = [], vis = {}, count = 0;
 
 
   room.connections.forEach(function(conn) {
@@ -79,5 +94,6 @@ const removeUser = function(socket, callback) {
 
 module.exports = {
   getUsers,
-  removeUser
+  removeUser,
+  updateConnections
 };

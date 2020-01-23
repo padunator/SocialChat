@@ -1,10 +1,10 @@
 'use strict';
 const Question = require('../models/Question');
 
-  var insertQuestions = function(room) {
+  let insertQuestions = function(room) {
 
 
-    var p = Promise.resolve(); // Q() in q
+    let p = Promise.resolve();
 
     // Update Question catalog for specific room
     room.connections.forEach(connection => {

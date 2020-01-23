@@ -200,7 +200,10 @@ export class GameService {
     this.gameSocket.emit('new-game-response', {
       question: this._questions[this._qnProgress],
       roomID: this._roomTitle,
-      email: this.authService.userMail
+      email: this.authService.userMail,
+      round: (this._qnProgress + 1),
+      duration: this.timer,
+      score: this._score
     });
   }
   // When user selected the corresponding Joker an existing Question is replaced with the users
@@ -431,9 +434,11 @@ export class GameService {
 
   insertHighScore() {
     this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
-      score: this.score,
+      roomID: this._roomTitle,
       user: this.authService.userMail,
+      round: this._qnProgress,
       duration: this.timer,
+      score: this._score
     })
     .subscribe(response => {
         this._scoreTable = response.scores;

@@ -26,6 +26,7 @@ const ioEvents = function(io) {
     socket.on('new-message', (message) => {
       let result = sentiment.analyze(message.message);
       const newSentiment = new sentimentModel({
+        user: message.email,
         score: result.score,
         comparative: result.comparative,
         calculation: result.calculation,
@@ -65,10 +66,8 @@ const ioEvents = function(io) {
 
     // Send game request for creating new room
     socket.on('sendGameRequest', (req) => {
-      console.log('SENDING GAME REQUEST LOOK FOR SOCKET!');
       Sockets.findOne({email: req.to}).then(foundSocket => {
         // socket.broadcast.to(foundSocket.socket).emit("ConfirmGame", req.message);
-        console.log('SENDING GAME REQUEST  TO OTHER SOCKET ' + foundSocket.socket);
         io.of('/chat').to(foundSocket.socket).emit("ConfirmGame", req);
       });
     });
@@ -119,7 +118,7 @@ const ioEvents = function(io) {
             socket.emit('updateUsersList', { error: 'Room is Full. Try again later' });
           } else {
             // Push a new connection object(i.e. {userId + socketId})
-            room.connections.push({userId: obj.userId, socketId: socket.id});
+            room.connections.push({userId: obj.userId, socketId: socket.id, round: 0, duration: 0, score: 0, words: 0, comparative: 0});
             room.save().then(room => {
               socket.join(room.title);
               socket.username = obj.userId;
@@ -182,27 +181,18 @@ const ioEvents = function(io) {
       });
     });
 
-    // Joining the Spacecraft Game - Build with Phaser Game Engine
-    socket.on('joinGame', (data) => {
-      // create a new player and add it to our players object
-      Room.findOne({title: data.title}).then(room => {
-        room.players.push({
-          rotation: 0,
-          x: Math.floor(Math.random() * 700) + 50,
-          y: Math.floor(Math.random() * 500) + 50,
-          playerId: socket.id,
-          team: (Math.floor(Math.random() * 2) == 0) ? 'red' : 'blue'
-        });
-        room.save().then(room => {
-          // send the players object to the new player
-          socket.emit('currentPlayers', room.players);
-          // update all other players of the new player
-          socket.broadcast.emit('newPlayer', room.players[socket.id]);
-        });
-      });
-    });
     // Registering new Question response
     socket.on('new-game-response', (obj) => {
+      // Update Room-Connections with Game-Related Data of current running game
+      Room.updateOne({title: obj.roomID,'connections.userId': obj.email}, {'$set': {
+        'connections.$.round': obj.round,
+        'connections.$.duration': obj.duration,
+        'connections.$.score': obj.score
+      }}, {new: true}).then(updatedConn => {
+        console.log('Connection updated!');
+      }).catch(err => console.log('Error while updating connections for running game ' + err));
+
+      // Update Question Collection with Game-Related answers of current running game
        const own = obj.question.answers.find(s => s.email===obj.email).own;
        const guess = obj.question.answers.find(s => s.email===obj.email).guess;
       Question.updateOne({_id: obj.question._id, 'answers.email': obj.email}, {'$set': {

@@ -11,7 +11,8 @@ var DEFAULT_PLAYERS = 2;
  */
 var RoomSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  connections: { type: [{ userId: String, socketId: String }] },
+  connections: { type: [{ userId: String, socketId: String, round: Number, duration: Number,
+      score: Number, words: Number, comparative: Number, _id: { id: false } }] },
   // players: { type: [{ rotation: String, x: String, y: String, playerId: String, team: String }] },
   isOpen: { type: Boolean, default: true },
   owner: { type: { userId: String, socketId: String } },
@@ -19,7 +20,7 @@ var RoomSchema = new mongoose.Schema({
   currentRound: { type: Number, default: 0 },
   noOfPlayers: { type: Number, default: DEFAULT_PLAYERS },
   createdAt: { type: Date, default: Date.now },
-  answers: { type: [{ email: String, round: Number, duration: Number, score: String, words: String, comparative: Number,  _id: { id: false } }] },
+  // answers: { type: [{ email: String, round: Number, duration: Number, score: String, words: String, comparative: Number,  _id: { id: false } }] },
 
   /*  // questions: { type: Array }
     score: {

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const sentimentSchema = mongoose.Schema({
+  user: {type: String, required: true},
   score: {type: Number, required: true},
   comparative: {type: Number, required: true},
   calculation: {type: [Map], _id: { id: false }, required: true},
