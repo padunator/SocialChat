@@ -8,6 +8,7 @@ const chatRoutes = require('./routes/messages');
 const userRoutes = require('./routes/user');
 const gameRoutes = require( './routes/game');
 
+
 //Establish database connection ?retryWrites=true&w=majority
 mongoose.connect(
   "mongodb+srv://stefanpadi:z1n%3B%21F1GkTZq@clearn-zrafl.mongodb.net/clearn-chatapp",
@@ -38,6 +39,6 @@ app.use("/api/chat", chatRoutes);
 //Routing for User related API
 app.use("/api/user", userRoutes);
 // Routing for Game related API
-app.use("/api/game", gameRoutes)
+app.use("/api/game", gameRoutes);
 
 module.exports = app;

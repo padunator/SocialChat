@@ -1,7 +1,7 @@
 const app = require("./backend/app");
 const debug = require("debug")("node-angular");
 const server  = require('./backend/socket/socket')(app);
-
+// const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./dist/server/main.bundle');
 const normalizePort = val => {
   var port = parseInt(val, 10);
 

@@ -1,12 +1,12 @@
 <h4>Zeitfortschritt: {{gameService.displayTimeElapsed()}}</h4>
 <h4> Du bist bei Frage {{this.gameService.qnProgress}} von {{this.gameService.questions.length}} </h4>
-<mat-progress-bar mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100"></mat-progress-bar>
+<mat-progress-bar *ngIf="!this.gameService.waitingForPlayer" mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100"></mat-progress-bar>
+<mat-progress-bar *ngIf="this.gameService.waitingForPlayer" mode="indeterminate"></mat-progress-bar>
 
 <div class="wrapper">
   <div class="waitingDiv" *ngIf="this.gameService.waitingForPlayer">
     <h1>Waiting for the other guy!</h1>
     <img src="../../assets/img/waiting.gif">
-    <mat-spinner ></mat-spinner>
   </div>
   <div class="image" *ngIf=false>
     <img src="../../assets/img/waiting.gif"/>

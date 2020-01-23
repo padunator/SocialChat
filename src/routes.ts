@@ -14,12 +14,12 @@ export const appRoutes: Routes = [
     { path: 'signup', component: SignupFormComponent },
     { path: 'login', component: LoginFormComponent },
     { path: 'chat', component: ChatroomComponent, canActivate: [AuthGuard]},
-  //   {path: 'quiz', component: QuizGameComponent, canActivate: [AuthGuard]},
     {path: 'game', component: GameroomComponent, canActivate: [AuthGuard]},
     {path: 'result', component: ResultComponent, canActivate: [AuthGuard]},
     { path: '', redirectTo: '/login', pathMatch: 'full'},
-    { path: '404', component: NotFoundComponent},
-    { path: '500', component: ServerErrorComponent },
+  { path: '500', component: ServerErrorComponent },
+  { path: '404', component: NotFoundComponent},
+  {path: '**', component: NotFoundComponent},
 ];
 
 @NgModule({
