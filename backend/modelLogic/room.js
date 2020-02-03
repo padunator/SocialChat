@@ -6,9 +6,18 @@ const User = require('../models/User');
  * Get all users in a room
  *
  */
-const updateConnections = async function(obj, callback) {
+const updateConnections = async function(obj) {
   // Update Room-Connections with Game-Related Data of current running game
-  Room.updateOne({title: obj.roomID,'connections.userId': obj.email}, {'$set': {
+  await Room.updateOne({title: obj.roomID,'connections.userId': obj.email}, {'$set': {
+      'connections.$.round': obj.round,
+      'connections.$.duration': obj.duration,
+      'connections.$.score': obj.score,
+      'connections.$.words': obj.words,
+      'connections.$.comparative': obj.comparative
+    }}, {new: true});
+  return 'Connection updated';
+
+/*  Room.updateOne({title: obj.roomID,'connections.userId': obj.email}, {'$set': {
       'connections.$.round': obj.round,
       'connections.$.duration': obj.duration,
       'connections.$.score': obj.score,
@@ -20,7 +29,7 @@ const updateConnections = async function(obj, callback) {
   }).catch(err => {
     console.log('Error while updating connections for running game ' + err);
     return Promise.reject();
-  });
+  });*/
 };
 
 const  getUsers = function(room, callback) {
@@ -50,16 +59,19 @@ const  getUsers = function(room, callback) {
  * Remove a user along with the corresponding socket from a room
  *
  */
-const removeUser = function(socket, callback) {
+const removeUser =  function(socket, callback) {
 
   // Get current user's id
   let userId = socket.username;
-  console.log('REMOVE USER NAMED ' + userId);
+
+
   Room.find({}).then( rooms => {
     // For every room,
     // 1. Count the number of connections of the current user(using one or more sockets).
+
+
     rooms.map(room => {
-      room.connections.forEach(function(connection, i) {
+      room.connections.forEach(async function(connection, i) {
         let pass = true,
           cunt = 0,
           target = 0;
@@ -73,12 +85,11 @@ const removeUser = function(socket, callback) {
         // 2. Check if the current room has the disconnected socket,
         // If so, then, remove the current connection object, and terminate the loop.
         if (!pass) {
-          room.connections.id(room.connections[target]._id).remove();
-          room.save().then(() => {
+
+          await room.connections.id(room.connections[target]._id).remove();
+          room.save().then((room) => {
             User.findOne({email: userId})
               .then(user => {
-                console.log('REMOVE USER: NOW GETTING BACK TO SOCKET WITH REMOVED USER = ');
-                console.log(user);
               callback(null, room, user, cunt);
             })
               .catch(err => {

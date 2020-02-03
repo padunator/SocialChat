@@ -103,7 +103,6 @@ router.post('/createHighScore', checkAuth, (req, res, next) => {
   ).then(result => {});*/
 
   Sentiment.find({user: req.body.user}).then((sentiments) => {
-    console.log(sentiments);
     sentiments.forEach(sentiment => {
       tokenCount += sentiment.tokens.length;
       totalScore += sentiment.score;
@@ -117,13 +116,23 @@ router.post('/createHighScore', checkAuth, (req, res, next) => {
       score: req.body.score,
       words: tokenCount,
       comparative: totalComparative
+    }).then(msg => {console.log(msg)})
+      .catch(err => {console.error(err)});
+  /*  roomLogic.updateConnections({
+      roomID: req.body.roomID,
+      email: req.body.user,
+      round: req.body.round,
+      duration: req.body.duration,
+      score: req.body.score,
+      words: tokenCount,
+      comparative: totalComparative
     }, function(err, passed) {
         if(passed) {
           console.log('PASSED!')
         } else {
           console.log('ERROR ' + err);
         }
-    });
+    });*/
   });
 
   const newHighScore = new HighScore ({

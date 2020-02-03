@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewChecked, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from './services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {GameService} from './services/game.service';
@@ -51,5 +51,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngAfterViewChecked(): void {
     microlink('.link-preview');
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    // microlink(this.card.nativeElement, this.options);
   }
 }

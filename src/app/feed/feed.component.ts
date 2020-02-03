@@ -1,4 +1,4 @@
-import {Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, AfterViewChecked} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef} from '@angular/core';
 import { ChatService } from '../services/chat.service';
 import { ChatMessage} from '../interfaces/chatMessage.model';
 import {Subscription} from 'rxjs/internal/Subscription';

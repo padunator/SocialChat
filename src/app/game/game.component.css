@@ -4,7 +4,7 @@
 }
 
 h4 {
-  font-family: CrackMan;
+  font-family: "Neuropol X Rg";
 }
 .wrapper{
   width: 90%;
@@ -35,7 +35,13 @@ mat-spinner {
 }
 .waitingDiv h1 {
   text-align: center;
-  font-family: CrackMan;
+  font-family: "Neuropol X Rg";
+}
+
+.waitingDiv h2 {
+  text-align: center;
+  text-align: center;
+  font-family: "Neuropol X Rg";
 }
 
 .image {
@@ -66,7 +72,7 @@ mat-spinner {
 
 .score p {
   text-align: center;
-  font-family: Halo3;
+  font-family: "Neuropol X Rg";
   font-size: 50px;
 }
 
@@ -342,12 +348,21 @@ mat-card-content{
   overflow: hidden;
 }
 
+.joker_warning {
+  font-family: "Neuropol X Rg";
+  color: red;
+}
 ::ng-deep.mat-pseudo-checkbox{
   display: none !important;
 }
 
 .answer-wrapper {
   display: inline;
+}
+
+.joker-snackbar{
+  background-color: rgb(153, 50, 50);
+  color:lightgoldenrodyellow;
 }
 
 mat-selection-list {

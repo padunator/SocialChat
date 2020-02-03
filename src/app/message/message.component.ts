@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, AfterViewChecked} from '@angular/core';
+import {Component, OnInit, Input, AfterViewChecked, ViewChild, ElementRef} from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ChatMessage} from '../interfaces/chatMessage.model';
 
@@ -7,7 +7,7 @@ import { ChatMessage} from '../interfaces/chatMessage.model';
   templateUrl: './message.component.html',
   styleUrls: ['./message.component.css']
 })
-export class MessageComponent implements OnInit {
+export class MessageComponent implements OnInit, AfterViewChecked {
 
   @Input() chatMessage: ChatMessage;
   userEmail: string;
@@ -17,6 +17,11 @@ export class MessageComponent implements OnInit {
   isOwnMessage: boolean;
   url_matches: any;
 
+  // Needed for Microlink Preview
+/*  @Input() url: string;
+  @Input() options: object;
+  @Input() style: object;
+  @ViewChild('card', { static: false }) card: ElementRef;*/
   constructor(private authService: AuthService) {}
 
   ngOnInit(chatMessage = this.chatMessage) {
@@ -27,6 +32,12 @@ export class MessageComponent implements OnInit {
     this.userName = chatMessage.username;
     this.isOwnMessage = chatMessage.email === this.authService.userMail;
     this.url_matches = chatMessage.url_matches;
+  }
+
+  ngAfterViewChecked(): void {
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    // microlink(this.card.nativeElement, this.options);
   }
 
 }

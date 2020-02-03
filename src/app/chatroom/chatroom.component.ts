@@ -15,8 +15,7 @@ export class ChatroomComponent implements OnInit, AfterViewChecked {
   constructor(private chatService: ChatService) { }
 
   ngOnInit() {
-    console.log('ON INIT CHATROOM');
-    this.chatService.getUsers();
+     this.chatService.getUsers();
   }
 
   scrollToBottom(): void {

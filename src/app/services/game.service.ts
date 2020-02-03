@@ -28,6 +28,9 @@ export class GameService {
   private _ownSelection: boolean;
   private _opponentFinished: boolean;
   private _waitingForPlayer: boolean;
+  private _fiftyJokerIsPressed: boolean;
+  private _newQnJokerIsPressed: boolean;
+  private _jokerUsed: boolean;
   questionsLoaded: Promise<boolean>;
   questionsUpdated  = new Subject<Question[]>();
   highScoreLoaded  = new Subject<HighScore[]>();
@@ -44,6 +47,7 @@ export class GameService {
   // userReconnected = this.gameSocket.fromEvent<User>('updateUsersList');
   userDisconnected = this.gameSocket.fromEvent<User>('removeUser');
   jokerSelected = this.gameSocket.fromEvent<any>('joker-selected');
+  jokerInformer = this.gameSocket.fromEvent<any>('notifyOpponent');
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
   private users: User[] = [];
   private _scoreTable: HighScore[] = [];
@@ -77,9 +81,13 @@ export class GameService {
 
   joinGame(req: any) {
     this.roomTitle = req.title;
+    console.log('JOIN GAME');
     this.gameSocket.emit('join', {
       title: req.title,
-      userId: this.authService.userMail
+      userId: this.authService.userMail,
+      round: this._qnProgress,
+      duration: this.timer,
+      score: this._score
     },  (response) => {
       if (response) { // Player which gets Confirm Dialog creates game and gets into this part (First Player)
         console.log('FIRST PLAYER SEND JOIN GAME REQUEST TO SECOND PLAYER');
@@ -232,6 +240,9 @@ export class GameService {
     this._score = parseInt(localStorage.getItem('score'), 10) || 0;
     this._correctAnswerCount = parseInt(localStorage.getItem('counter'), 10) || 0;
     this._waitingForPlayer = JSON.parse(localStorage.getItem('waiting')) || false;
+    this._jokerUsed = JSON.parse(localStorage.getItem('jokerUsed')) || false;
+    this._newQnJokerIsPressed = JSON.parse(localStorage.getItem('newQnJokerPressed')) || false;
+    this._fiftyJokerIsPressed = JSON.parse(localStorage.getItem('fiftyJokerPressed')) || false;
     this._opponentFinished = JSON.parse(localStorage.getItem('opponentFinished')) || false;
     this._ownSelection = JSON.parse(localStorage.getItem('selection')) ===  null ||
       JSON.parse(localStorage.getItem('selection'));
@@ -268,7 +279,6 @@ export class GameService {
   }
 
   set roomTitle(value: string) {
-    console.log('SET ROOM TITLE TO ' + value);
     this._roomTitle = value;
     localStorage.setItem('room', this._roomTitle);
   }
@@ -312,6 +322,34 @@ export class GameService {
   set newQnSelected(value: boolean) {
     this._newQnSelected = value;
     localStorage.setItem('newQnJoker', JSON.stringify(this.newQnSelected));
+  }
+
+  set fiftyJokerIsPressed(value: boolean) {
+    this._fiftyJokerIsPressed = value;
+    localStorage.setItem('fiftyJokerPressed', JSON.stringify(value));
+  }
+
+  set newQnJokerIsPressed(value: boolean) {
+    this._newQnJokerIsPressed = value;
+    localStorage.setItem('newQnJokerPressed', JSON.stringify(value));
+  }
+
+  set jokerUsed(value: boolean) {
+    this._jokerUsed = value;
+    localStorage.setItem('jokerUsed', JSON.stringify(value));
+  }
+
+
+  get fiftyJokerIsPressed(): boolean {
+    return this._fiftyJokerIsPressed;
+  }
+
+  get newQnJokerIsPressed(): boolean {
+    return this._newQnJokerIsPressed;
+  }
+
+  get jokerUsed(): boolean {
+    return this._jokerUsed;
   }
 
   get opScore(): number {
@@ -430,6 +468,9 @@ export class GameService {
     localStorage.removeItem('counter');
     localStorage.removeItem('fiftyJoker');
     localStorage.removeItem('newQnJoker');
+    localStorage.removeItem('newQnJokerPressed');
+    localStorage.removeItem('fiftyJokerPressed');
+    localStorage.removeItem('jokerUsed');
   }
 
   insertHighScore() {
@@ -448,5 +489,12 @@ export class GameService {
 
   getHighScores() {
     return this.http.get<{scores: HighScore []}>('http://localhost:3000/api/game/getHighScores');
+  }
+
+  informOpponent() {
+    this.gameSocket.emit('informOpponent', {
+      roomID: this._roomTitle,
+      selected: true
+    });
   }
 }

@@ -5,7 +5,10 @@
 
 <div class="wrapper">
   <div class="waitingDiv" *ngIf="this.gameService.waitingForPlayer">
-    <h1>Waiting for the other guy!</h1>
+    <h1 *ngIf="!this.gameService.jokerUsed">Waiting for the other guy!</h1>
+    <h2 *ngIf="this.gameService.jokerUsed" class="joker_warning">
+      Please wait until your opponent creates his custom Question!
+    </h2>
     <img src="../../assets/img/waiting.gif">
   </div>
   <div class="image" *ngIf=false>
@@ -15,9 +18,6 @@
 
   <div class="game" *ngIf="!this.gameService.waitingForPlayer">
     <div  class="header">
-      <div *ngIf="this.fiftyJokerIsPressed && gameService.ownSelection">
-        <h1>Choose your own selection before applying the joker</h1>
-      </div>
       <div class="score">
         <p>Score: {{gameService.score}} to {{gameService.opScore}}</p>
       </div>
@@ -32,42 +32,45 @@
     </div>
 
     <div class="titles">
-      <h1 class="gradient gradient-box" id="question" [contentEditable]="newQnJokerIsPressed">
+      <h1 class="gradient gradient-box" id="question" [contentEditable]="gameService.newQnJokerIsPressed">
         {{gameService.questions[gameService.qnProgress].question}}
       </h1>
       <h2 class="gradient border-gradient">Choose your {{gameService.selectionString}} selection!</h2>
     </div>
     <div class="answer-block">
       <div class="answer-column">
-        <div class="option gradient" id="option0" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
+        <div class="option gradient" id="option0" (click)="!gameService.newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
           <strong>A</strong>
-          <span class="answers" id="text0" [contentEditable]="newQnJokerIsPressed">
+          <span class="answers" id="text0" [contentEditable]="gameService.newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[0].text}}
           </span>
         </div>
         <hr/>
-        <div class="option gradient" id="option2" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
+        <div class="option gradient" id="option2" (click)="!gameService.newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
           <strong>C</strong>
-          <span class="answers" id="text2" [contentEditable]="newQnJokerIsPressed">
+          <span class="answers" id="text2" [contentEditable]="gameService.newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[2].text}}
           </span>
         </div>
       </div>
       <div class="answer-column">
-        <div class="option gradient" id="option1" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
+        <div class="option gradient" id="option1" (click)="!gameService.newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
           <strong>B</strong>
-          <span class="answers" id="text1" [contentEditable]="newQnJokerIsPressed">
+          <span class="answers" id="text1" [contentEditable]="gameService.newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[1].text}}
           </span>
         </div>
         <hr/>
-        <div class="option gradient" id="option3" (click)="!newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
+        <div class="option gradient" id="option3" (click)="!gameService.newQnJokerIsPressed && registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
           <strong>D</strong>
-          <span class="answers" id="text3" [contentEditable]="newQnJokerIsPressed">
+          <span class="answers" id="text3" [contentEditable]="gameService.newQnJokerIsPressed">
             {{gameService.questions[gameService.qnProgress].options[3].text}}
           </span>
         </div>
       </div>
+    </div>
+    <div *ngIf="this.gameService.fiftyJokerIsPressed && gameService.ownSelection">
+      <h1 class="joker_warning">Choose your own selection before applying the joker</h1>
     </div>
     <div class="footer">
       <button mat-raised-button color="accent" type="submit" class="btn" id="back"
@@ -75,12 +78,15 @@
         Back
       </button>
       <button mat-raised-button color="accent" type="submit" class="btn display_none" id="create"
+              [ngClass]= "{'display_none': !this.gameService.newQnJokerIsPressed}"
               (click)="createNewQn()" type="submit" >
         Create
       </button>
     </div>
   </div>
 </div>
+
+
 <!--<div class="wrapper">
 <div class="aq-table">
   <div>

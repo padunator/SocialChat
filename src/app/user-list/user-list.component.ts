@@ -10,7 +10,7 @@ import {GameService} from '../services/game.service';
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit, OnDestroy {
-  users: User[];
+  private users: User[] = [];
   private loggingSub: Subscription;
   private joiningSub: Subscription;
   private logEventSub: Subscription;
@@ -25,12 +25,15 @@ export class UserListComponent implements OnInit, OnDestroy {
     });
 
     this.joiningSub = this.gameService.getPlayersJoinedListener().subscribe((users: User[]) => {
-      console.log('GET USERS IN GAME ROOM');
       this.users = users;
     });
 
     this.logEventSub = this.chatService.newUser.subscribe(user => {
+       if (this.users.length === 0) {
+         this.chatService.getUsers();
+       } else {
         this.users.find(eachUser => eachUser.email === user.email).status = user.status;
+      }
     });
 
 /*    this.userReconnectedSub = this.gameService.userReconnected.subscribe( (user: User) => {
@@ -41,7 +44,9 @@ export class UserListComponent implements OnInit, OnDestroy {
     });*/
 
     this.userDisconnectedSub = this.gameService.userDisconnected.subscribe( (user: User) => {
+      console.log('DISCONNECT / DELETE USER FROM USER LIST - SUBSCRIPTION!');
       console.log(this.users);
+      console.log(user);
       const pos = this.users.map(eachUser => eachUser.email).indexOf(user.email);
       this.users.splice(pos, 1);
     });

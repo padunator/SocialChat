@@ -82,7 +82,7 @@ export class AuthService {
       this.setUserStatus(false).then(() => {
         this._isAuthenticated = false;
         this._token = null;
-        this.userLoggedListener.next(null); // For chatform  - not really used init was currUser
+        // this.userLoggedListener.next(null); // For chatform  - not really used init was currUser
         this.authStatusListener.next(false); // For Nav-Bar
         this._userMail = '';
         clearTimeout(this.tokenTimer);
@@ -174,10 +174,11 @@ export class AuthService {
       // Add user related Information for User-List
       this._userMail = email;
       this.getUser();
-      this.userLoggedListener.next(this._currUser);
+      // this.userLoggedListener.next(this._currUser);
       this._isAuthenticated = true;
       this.authStatusListener.next(true);
       this.setUserStatus(this._isAuthenticated);
+      // Update the Socket Entry for persistent communication after page refresh
       this.socket.emit('login', email);
   }
 }

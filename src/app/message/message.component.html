@@ -3,9 +3,9 @@
     <div class="messageContent"
         [ngClass]="{'isOwnMessageContent':isOwnMessage}">
       <span [innerHTML]="messageContent"></span>
-      <a  *ngFor="let link of url_matches" href="{{ link }}"
-         >{{link}}
-      </a>
+      <!--      Link Preview - Code reference at https://morioh.com/p/b683020160b4-->
+<!--      <a *ngFor="let link of url_matches" href="{{link}}" class="link-preview">
+        {{link}}</a>-->
     </div>
   <div class="messageData"
        [ngClass]="{'isOwnMessageData':isOwnMessage}">

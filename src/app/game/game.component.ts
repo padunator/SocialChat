@@ -22,8 +22,8 @@ export class GameComponent implements OnInit, OnDestroy {
   private questionSub: Subscription;
   private playerAnsweredSub: Subscription;
   private jokerSelectedSub: Subscription;
-  private fiftyJokerIsPressed: boolean;
-  private newQnJokerIsPressed: boolean;
+  private jokerInformerSub: Subscription;
+
   questions: Question[] = [];
   initialized: boolean;
 
@@ -33,6 +33,7 @@ export class GameComponent implements OnInit, OnDestroy {
    ngOnInit() {
      // If Game page gets reloaded while in game - rejoin to room
      if (this.gameService.seconds > 0) {
+       console.log('REJOINING GAME');
        this.gameService.joinGame({
          to: this.gameService.opponent,
          from: this.authService.userMail,
@@ -64,12 +65,12 @@ export class GameComponent implements OnInit, OnDestroy {
        currAnswer.own = newAnswer.own;
        currAnswer.guess = newAnswer.guess;
         // Second time - if 50/50 has not been selected - got to the next question
-       if (this.gameService.waitingForPlayer && !this.fiftyJokerIsPressed) {
+       if (this.gameService.waitingForPlayer && !this.gameService.fiftyJokerIsPressed) {
          this.getNextQuestion();
        } else { // first time
          this.gameService.opponentFinished = true;
          // This code is executed if Waiting For Player has been set due to Fifty-Fifty Joker selection
-         if (this.fiftyJokerIsPressed) {
+         if (this.gameService.fiftyJokerIsPressed) {
            this.gameService.waitingForPlayer = false;
            setTimeout(() => this.calculateExcludedOptions(), 400);
          }
@@ -84,6 +85,15 @@ export class GameComponent implements OnInit, OnDestroy {
         this.resetQuestionData();
      });
 
+     // This subscription is used to inform the player that the "Customer Question" Joker has been selected
+     // by the opponent. It should prevent that both players are using this joker for the same question and therefor
+     // overwrite the question of the other
+     this.jokerInformerSub = this.gameService.jokerInformer.subscribe(
+       (selected) => {
+         this.gameService.jokerUsed = selected;
+         this.gameService.waitingForPlayer = true;
+       });
+
 
      // Start Quiz-Game Timer
      this.startTimer();
@@ -91,16 +101,17 @@ export class GameComponent implements OnInit, OnDestroy {
 
   openSnackBar(message) {
     this._snackBar.open(message, 'dismiss' , {
-      duration: 3000
-    });
-/*    this._snackBar.openFromComponent(JokerSelectedComponent, {
       duration: 3000,
-    });*/
+      verticalPosition: 'top',
+      panelClass: ['joker-snackbar']
+    });
   }
 
+  // Restore Data for current question to initial state if "New Qn Joker" was used
   private resetQuestionData() {
     this.gameService.waitingForPlayer = true;
     this.gameService.opponentFinished = false;
+    this.gameService.jokerUsed = false;
     this.gameService.waitingForPlayer = false;
     this.gameService.ownSelection = true;
     this.gameService.selectionString = 'own';
@@ -115,6 +126,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  // Register a new answer for current question (own / guess)
   registerAnswer(qID, choice) {
     const result = this.gameService.getAnswer(this.authService.userMail);
     if (this.gameService.ownSelection) {
@@ -127,6 +139,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.changeSelectionString();
   }
 
+  // Decide wether to wait (other player did not answer yet) or proceed to next question
   private waitOrProceed() {
     if (this.gameService.opponentFinished) {
       this.getNextQuestion();
@@ -140,10 +153,10 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.qnProgress++;
     // this.ref.detectChanges();
     // Reset the crossed Options if selected
-    if (this.fiftyJokerIsPressed) {
+    if (this.gameService.fiftyJokerIsPressed) {
       this.updateView();
     }
-    this.gameService.opponentFinished = this.gameService.waitingForPlayer = this.fiftyJokerIsPressed = false;
+    this.gameService.opponentFinished = this.gameService.waitingForPlayer = this.gameService.fiftyJokerIsPressed = false;
     localStorage.setItem('questions', JSON.stringify(this.gameService.questions));
     if (this.gameService.qnProgress === this.gameService.questions.length) {
       clearInterval(this.gameService.timer);
@@ -152,6 +165,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Change the String under the Question Dialog  "Choose (own / opponents) question"
   private changeSelectionString() {
     this.gameService.ownSelection = !this.gameService.ownSelection ;
     this.gameService.selectionString = this.gameService.ownSelection ? 'own' : 'opponents';
@@ -163,6 +177,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.jokerSelectedSub.unsubscribe();
   }
 
+  // Go back to Chat Room and clear game related data
   backToChat() {
     this.socket.emit('leaveGame');
     this.gameService.clearLocalGameStorage();
@@ -170,13 +185,11 @@ export class GameComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chat']);
   }
 
-
-
   // Method for applying the 50 / 50 Joker
   fifty_fifty() {
-    this.fiftyJokerIsPressed = true;
+    this.gameService.fiftyJokerIsPressed = true;
     if (this.gameService.ownSelection) {
-      setTimeout(() => this.fiftyJokerIsPressed = false, 2000);
+      setTimeout(() => this.gameService.fiftyJokerIsPressed = false, 2000);
     } else {
       this.gameService.fiftyFiftyJokerSelected = true;
       // If other player has already answered - cross 2 wrong answers directly
@@ -205,35 +218,18 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.executeQuestionUpdate();
     this.resetQuestionData();
     this.gameService.newQnSelected = true;
-    this.newQnJokerIsPressed = false;
+    this.gameService.newQnJokerIsPressed = false;
     document.getElementById('create').classList.add('display_none');
     this.ref.detectChanges();
     // this.ref.markForCheck();
 
   }
 
-/*  const oldQn = this.gameService.questions[this.gameService.qnProgress];
-
-  const newQn: Question = ({
-    question: document.getElementById('question').innerText,
-    options: oldQn.options,
-    room: this.gameService.roomTitle,
-    answers: oldQn.answers,
-    createdAt: oldQn.createdAt
-  });
-  this.gameService.questions[this.gameService.qnProgress] = newQn;
-  console.log(newQn);*/
   // Helper Method for setting the Answer/Option Fields to editable in order to be able to create custom answers
   askOwnQuestion() {
-    this.newQnJokerIsPressed = true;
-/*    this.newQnJokerIsPressed = true;
-    const els = document.getElementsByClassName('answers');
-    Array.prototype.forEach.call(els, function (el) {
-     // el.contentEditable = 'true';
-    });
-    document.getElementById('question').contentEditable = 'true';
-    // Display CREATE Button in the Page*/
+    this.gameService.newQnJokerIsPressed = true;
     document.getElementById('create').classList.remove('display_none');
+    this.gameService.informOpponent();
   }
 
   private calculateExcludedOptions() {
