@@ -1,22 +1,20 @@
-import {AfterContentChecked, AfterViewInit, ChangeDetectorRef, Component, OnChanges, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component,  OnDestroy, OnInit} from '@angular/core';
 import {GameSocket} from '../Sockets/GameSocket';
 import {Router} from '@angular/router';
 import {GameService} from '../services/game.service';
 import {Question} from '../interfaces/question.model';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {AuthService} from '../services/auth.service';
-import { slideInAnimation } from '../Animations/animations';
 import {MatSnackBar} from '@angular/material';
-
+import {
+  setInterval,
+  clearInterval
+} from 'timers';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css'],
-  animations: [
-    slideInAnimation
-    // animation triggers go here
-  ]
+  styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit, OnDestroy {
   private questionSub: Subscription;
@@ -24,8 +22,9 @@ export class GameComponent implements OnInit, OnDestroy {
   private jokerSelectedSub: Subscription;
   private jokerInformerSub: Subscription;
 
-  questions: Question[] = [];
-  initialized: boolean;
+  private questions: Question[] = [];
+  private questionsLoaded: Promise<boolean>;
+
 
   constructor(private gameService: GameService, private  router: Router, private socket: GameSocket,
               private  authService: AuthService, private ref: ChangeDetectorRef, private _snackBar: MatSnackBar) {}
@@ -33,14 +32,12 @@ export class GameComponent implements OnInit, OnDestroy {
    ngOnInit() {
      // If Game page gets reloaded while in game - rejoin to room
      if (this.gameService.seconds > 0) {
-       console.log('REJOINING GAME');
        this.gameService.joinGame({
          to: this.gameService.opponent,
          from: this.authService.userMail,
          message: 'Rejoining room',
          title: this.gameService.roomTitle
        });
-      // this.gameService.updateUserList();
      }
 
      // Load Question Catalog
@@ -51,7 +48,7 @@ export class GameComponent implements OnInit, OnDestroy {
      // Get question Catalog at startup
      this.questionSub = this.gameService.getQuestionUpdatedListener().
      subscribe((questions: Question[]) => {
-       // this.questions = this.gameService.questions;
+       this.questionsLoaded = Promise.resolve(true);
        if (questions.length !== 0 && this.gameService.qnProgress === questions.length) {
           this.router.navigate(['/result']);
        }
@@ -94,9 +91,8 @@ export class GameComponent implements OnInit, OnDestroy {
          this.gameService.waitingForPlayer = true;
        });
 
-
      // Start Quiz-Game Timer
-     this.startTimer();
+     this.gameService.startTimer();
   }
 
   openSnackBar(message) {
@@ -112,19 +108,12 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.waitingForPlayer = true;
     this.gameService.opponentFinished = false;
     this.gameService.jokerUsed = false;
-    this.gameService.waitingForPlayer = false;
     this.gameService.ownSelection = true;
     this.gameService.selectionString = 'own';
-    this.gameService.waitingForPlayer = false;
+    setTimeout(() => this.gameService.waitingForPlayer = false, 250);
     this.openSnackBar('Custom-Joker Used: The current Question has been replaced !');
   }
 
-  startTimer() {
-    this.gameService.timer = setInterval(() => {
-      this.gameService.seconds++;
-      localStorage.setItem('seconds', this.gameService.seconds.toString());
-    }, 1000);
-  }
 
   // Register a new answer for current question (own / guess)
   registerAnswer(qID, choice) {
@@ -139,27 +128,29 @@ export class GameComponent implements OnInit, OnDestroy {
     this.changeSelectionString();
   }
 
-  // Decide wether to wait (other player did not answer yet) or proceed to next question
+  // Decide whether to wait (other player did not answer yet) or proceed to next question
   private waitOrProceed() {
     if (this.gameService.opponentFinished) {
       this.getNextQuestion();
     } else {
+      this.gameService.stopTimer();
       this.gameService.waitingForPlayer = true;
     }
   }
 
   private getNextQuestion() {
     this.gameService.calculateScore();
+    this.gameService.startTimer();
     this.gameService.qnProgress++;
-    // this.ref.detectChanges();
     // Reset the crossed Options if selected
     if (this.gameService.fiftyJokerIsPressed) {
       this.updateView();
     }
     this.gameService.opponentFinished = this.gameService.waitingForPlayer = this.gameService.fiftyJokerIsPressed = false;
     localStorage.setItem('questions', JSON.stringify(this.gameService.questions));
+    // If game is finished - calculate the Highscores, save them and route to the result page
     if (this.gameService.qnProgress === this.gameService.questions.length) {
-      clearInterval(this.gameService.timer);
+      this.gameService.stopTimer();
       this.router.navigate(['/result']);
       this.gameService.insertHighScore();
     }
@@ -175,12 +166,13 @@ export class GameComponent implements OnInit, OnDestroy {
     this.playerAnsweredSub.unsubscribe();
     this.questionSub.unsubscribe();
     this.jokerSelectedSub.unsubscribe();
+    this.jokerInformerSub.unsubscribe();
   }
 
   // Go back to Chat Room and clear game related data
   backToChat() {
-    this.socket.emit('leaveGame');
     this.gameService.clearLocalGameStorage();
+    this.gameService.leaveGame();
     this.gameService.seconds = 0;
     this.router.navigate(['/chat']);
   }
@@ -212,17 +204,16 @@ export class GameComponent implements OnInit, OnDestroy {
     for (const qn of this.gameService.questions[this.gameService.qnProgress].options) {
       const el = 'text' + i;
       qn.text =  document.getElementById(el).innerText;
-      i = i + 1;
+      i++;
     }
 
     this.gameService.executeQuestionUpdate();
     this.resetQuestionData();
     this.gameService.newQnSelected = true;
     this.gameService.newQnJokerIsPressed = false;
-    document.getElementById('create').classList.add('display_none');
+    // document.getElementById('create').classList.add('display_none');
     this.ref.detectChanges();
     // this.ref.markForCheck();
-
   }
 
   // Helper Method for setting the Answer/Option Fields to editable in order to be able to create custom answers

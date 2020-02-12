@@ -1,9 +1,13 @@
 <h4>Zeitfortschritt: {{gameService.displayTimeElapsed()}}</h4>
-<h4> Du bist bei Frage {{this.gameService.qnProgress}} von {{this.gameService.questions.length}} </h4>
-<mat-progress-bar *ngIf="!this.gameService.waitingForPlayer" mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100"></mat-progress-bar>
+<h4 *ngIf="(this.questionsLoaded | async)">
+  Du bist bei Frage {{this.gameService.qnProgress+1}} von {{this.gameService.questions.length}}
+</h4>
+<mat-progress-bar *ngIf="!this.gameService.waitingForPlayer && (this.questionsLoaded | async) "
+ mode="determinate" [value]="[1/this.gameService.questions.length]*(gameService.qnProgress+1)*100" >
+</mat-progress-bar>
 <mat-progress-bar *ngIf="this.gameService.waitingForPlayer" mode="indeterminate"></mat-progress-bar>
 
-<div class="wrapper">
+<div class="wrapper" *ngIf="this.questionsLoaded | async">
   <div class="waitingDiv" *ngIf="this.gameService.waitingForPlayer">
     <h1 *ngIf="!this.gameService.jokerUsed">Waiting for the other guy!</h1>
     <h2 *ngIf="this.gameService.jokerUsed" class="joker_warning">
@@ -11,11 +15,6 @@
     </h2>
     <img src="../../assets/img/waiting.gif">
   </div>
-  <div class="image" *ngIf=false>
-    <img src="../../assets/img/waiting.gif"/>
-    <div class="spin spinner"></div>
-  </div>
-
   <div class="game" *ngIf="!this.gameService.waitingForPlayer">
     <div  class="header">
       <div class="score">
@@ -85,112 +84,3 @@
     </div>
   </div>
 </div>
-
-
-<!--<div class="wrapper">
-<div class="aq-table">
-  <div>
-    <div class="row-fluid">
-      <div class="main-part">
-        <div class="row-fluid">
-          <div class="show">
-            <span class="aq-title">{{gameService.questions[gameService.qnProgress].question}}</span>
-            <span class="aq-subtitle">Choose your {{gameService.selectionString}} selection! </span>
-          </div>
-        </div>
-        <div class="answer-fluid">
-          <div class="span5 offset-1">
-            <div id="1" class="v1-aq-answer">
-              <div>
-                <strong>A</strong>
-                <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,0)">
-                  {{gameService.questions[gameService.qnProgress].options[0].text}}
-                </span>
-              </div>
-            </div>
-            <div id="2" class="v1-aq-answer">
-              <div>
-                <strong>B</strong>
-                <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,1)">
-                  {{gameService.questions[gameService.qnProgress].options[1].text}}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="span5">
-            <div id="3" class="v1-aq-answer">
-              <div>
-                <strong>C</strong>
-                <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,2)">
-                  {{gameService.questions[gameService.qnProgress].options[2].text}}
-                </span>
-              </div>
-            </div>
-            <div id="4" class="v1-aq-answer">
-              <div>
-                <strong>D</strong>
-                <span (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,3)">
-                  {{gameService.questions[gameService.qnProgress].options[3].text}}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-      <div class="aq-footer">
-        <div class="aq-flagge span2 offset1">
-           Seite 1/15
-        </div>
-        <div id="help-btn" class="span7">
-          Joker:
-          <button class="btn input-small"(click)="fitty()" type="submit" class="btn" id="btn_50/50">
-            50/50
-          </button>
-          <button class="btn input-small" (click)="backToChat()" type="submit" class="btn" id="btn-back">
-            Back
-          </button>
-          <button class="btn input-small" (click)="askOwnQuestion()" type="submit" class="btn" id="own_question">
-            Replace with own
-          </button>
-        </div>
-      </div>
-  </div>
-</div>
-</div>-->
-
-
-<!--<div *ngIf=" this.gameService.questions">
-  <div class="wrapper" >
-    <span>Zeitfortschritt: {{gameService.displayTimeElapsed()}}</span>
-    <mat-progress-bar mode="determinate" [value]="gameService.qnProgress+1*this.gameService.questions.length"></mat-progress-bar>
-    <mat-spinner *ngIf="this.gameService.waitingForPlayer"></mat-spinner>
-    <mat-card *ngIf="!this.gameService.waitingForPlayer">
-      <mat-card-title id="score">Current Score:  {{gameService.score}}</mat-card-title>
-      <div class="question-header">
-        <mat-card-title-group>
-          <mat-card-title>{{gameService.qnProgress+1}}</mat-card-title>
-          <mat-card-title>{{gameService.questions[gameService.qnProgress].question}}</mat-card-title>
-          <mat-card-subtitle>Choose your {{gameService.selectionString}} selection! </mat-card-subtitle>
-        </mat-card-title-group>
-      </div>
-      <div class="answer-wrapper">
-      <mat-card-content>
-        <mat-selection-list>
-          <mat-list-option *ngFor="let option of  gameService.questions[gameService.qnProgress].options;let i = index"
-                           (click)="registerAnswer(gameService.questions[gameService.qnProgress]._id,i)">
-            {{option.text}}
-          </mat-list-option>
-        </mat-selection-list>
-      </mat-card-content>
-      </div>
-      <mat-card-actions align="start">
-        <button mat-raised-button color="accent"(click)="backToChat()" type="submit" class="btn" id="btn-back">
-          Back
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-</div>-->
-
-

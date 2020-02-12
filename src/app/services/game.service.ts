@@ -10,6 +10,10 @@ import {AuthService} from './auth.service';
 import {Question} from '../interfaces/question.model';
 import {Subject} from 'rxjs/internal/Subject';
 import {HighScore} from '../interfaces/high_score';
+import {
+  setInterval,
+  clearInterval
+} from 'timers';
 
 @Injectable({
   providedIn: 'root'
@@ -31,9 +35,8 @@ export class GameService {
   private _fiftyJokerIsPressed: boolean;
   private _newQnJokerIsPressed: boolean;
   private _jokerUsed: boolean;
-  questionsLoaded: Promise<boolean>;
-  questionsUpdated  = new Subject<Question[]>();
-  highScoreLoaded  = new Subject<HighScore[]>();
+  questionsUpdated = new Subject<Question[]>();
+  highScoreLoaded = new Subject<HighScore[]>();
   private _fiftyFiftyJokerSelected: boolean;
   private _newQnSelected: boolean;
   private playersJoined = new Subject<User[]>();
@@ -43,8 +46,6 @@ export class GameService {
   gameRequest = this.socket.fromEvent<any>('ConfirmGame');
   joinRequest = this.socket.fromEvent<any>('JoinGame');
   gameReady = this.gameSocket.fromEvent<any>('GameReady');
-  movedEvent = this.gameSocket.fromEvent<any>('playerMoved');
-  // userReconnected = this.gameSocket.fromEvent<User>('updateUsersList');
   userDisconnected = this.gameSocket.fromEvent<User>('removeUser');
   jokerSelected = this.gameSocket.fromEvent<any>('joker-selected');
   jokerInformer = this.gameSocket.fromEvent<any>('notifyOpponent');
@@ -57,22 +58,23 @@ export class GameService {
   // aktualisiert. In den Templates werden ausschließlich die lokalen variablen angesprochen.
 
   constructor(private http: HttpClient, private  router: Router, private authService: AuthService,
-              private socket: ChatSocket,  private gameSocket: GameSocket) { }
+              private socket: ChatSocket, private gameSocket: GameSocket) {
+  }
 
 
   createNewRoom(req: any) {
     const room: Room = ({title: req.title});
-    this.http.post<{roomId: string, message: string}>('http://localhost:3000/api/game/createRoom', {
+    this.http.post<{ roomId: string, message: string }>('http://localhost:3000/api/game/createRoom', {
       room: room,
       email: this.authService.userMail
     }).subscribe(response => {
-          this.joinGame(req);
-      });
+      this.joinGame(req);
+    });
   }
 
   getGameRoom(title: string) {
     this.game = ({title: title});
-    this.http.get<{room: Room}>('http://localhost:3000/api/game/createRoom' + title)
+    this.http.get<{ room: Room }>('http://localhost:3000/api/game/createRoom' + title)
       .subscribe(room => {
         // this.game.title = room.title;
         this.router.navigate(['/game']);
@@ -81,20 +83,17 @@ export class GameService {
 
   joinGame(req: any) {
     this.roomTitle = req.title;
-    console.log('JOIN GAME');
     this.gameSocket.emit('join', {
       title: req.title,
       userId: this.authService.userMail,
       round: this._qnProgress,
-      duration: this.timer,
+      duration: this.displayTimeElapsed(),
       score: this._score
-    },  (response) => {
+    }, (response) => {
       if (response) { // Player which gets Confirm Dialog creates game and gets into this part (First Player)
-        console.log('FIRST PLAYER SEND JOIN GAME REQUEST TO SECOND PLAYER');
         this.socket.emit('joinGameRequest', req);
         this.opponent = req.from;
       } else { // Player which sent the game request joins second and gets into this part (Second Player)
-        console.log('SECOND PLAYER FINISHED JOINING ');
         this.opponent = req.to;
       }
     });
@@ -102,6 +101,21 @@ export class GameService {
 
   createRoom(title: string) {
     this.gameSocket.emit('createRoom', title);
+  }
+
+  startTimer() {
+    console.log('START / RESTART TIMER');
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    this.timer = setInterval(() => {
+      this.seconds++;
+    }, 1000);
+  }
+
+  stopTimer() {
+    console.log('CLEAR INTERVAL!');
+    clearInterval(this.timer);
   }
 
   displayTimeElapsed() {
@@ -118,7 +132,7 @@ export class GameService {
   }
 
   getRoom() {
-    this.http.get<{room: any}>('http://localhost:3000/api/getRoom')
+    this.http.get<{ room: any }>('http://localhost:3000/api/getRoom')
       .pipe(map(postData => {
         return postData.room.map(room => {
           return {
@@ -163,8 +177,7 @@ export class GameService {
   }
 
   getAnswer(email, qnProgress = this._qnProgress) {
-    return this.questions[qnProgress].answers.
-    find(answer => answer.email === email);
+    return this.questions[qnProgress].answers.find(answer => answer.email === email);
   }
 
   getParticipantName() {
@@ -172,27 +185,23 @@ export class GameService {
   }
 
   getQuestions() {
-      this.http.get<{message: string, questions: Question[]}>('http://localhost:3000/api/game/getQuestions/' + this._roomTitle)
-        .pipe(map(data => {
-          return data.questions.map(result => {
-            return {
-              _id: result._id,
-              question: result.question,
-              room: result.room,
-              answers: result.answers,
-              options: result.options,
-              createdAt: result.createdAt
-            };
-          });
-        })).subscribe(mappedQuestions => {
-          console.log('Questions loaded now!');
-          console.log(mappedQuestions);
-        this._questions = mappedQuestions;
-        // this.initialized = true;
-        this.questionsUpdated.next([...this._questions]);
-        // this.questionsLoaded = Promise.resolve(true);
-      });
-   // });
+    this.http.get<{ message: string, questions: Question[] }>('http://localhost:3000/api/game/getQuestions/' + this._roomTitle)
+      .pipe(map(data => {
+        return data.questions.map(result => {
+          return {
+            _id: result._id,
+            question: result.question,
+            room: result.room,
+            answers: result.answers,
+            options: result.options,
+            createdAt: result.createdAt
+          };
+        });
+      })).subscribe(mappedQuestions => {
+      console.log(mappedQuestions);
+      this._questions = mappedQuestions;
+      this.questionsUpdated.next([...this._questions]);
+    });
   }
 
   getQuestionUpdatedListener() {
@@ -210,10 +219,11 @@ export class GameService {
       roomID: this._roomTitle,
       email: this.authService.userMail,
       round: (this._qnProgress + 1),
-      duration: this.timer,
+      duration: this.displayTimeElapsed(),
       score: this._score
     });
   }
+
   // When user selected the corresponding Joker an existing Question is replaced with the users
   // input [Question + Answers]
   executeQuestionUpdate() {
@@ -234,17 +244,81 @@ export class GameService {
     return (parseInt(ownAnswer.guess.toString(), 10) === optNo);
   }
 
+  sendGameDecline() {
+    this.gameSocket.emit('DeclineGame');
+  }
+
+  getPlayersJoinedListener() {
+    return this.playersJoined.asObservable();
+  }
+
+  getUsersInRoom() {
+    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsersInRoom/' + this._roomTitle)
+      .pipe(map(postData => {
+        return postData.user.map(user => {
+          return {
+            _id: user._id,
+            email: user.email,
+            password: user.password,
+            username: user.username,
+            status: user.status
+          };
+        });
+      }))
+      .subscribe(mappedResult => {
+        this.users = mappedResult;
+        this.playersJoined.next([...this.users]);
+      });
+  }
+
+  updateUserList() {
+    this.gameSocket.emit('updateUserList', {
+      email: this.authService.userMail,
+      room: this._roomTitle
+    });
+  }
+
+  insertHighScore() {
+    this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
+      roomID: this._roomTitle,
+      user: this.authService.userMail,
+      round: this._qnProgress,
+      duration: this.displayTimeElapsed(),
+      score: this._score
+    })
+      .subscribe(response => {
+        this._scoreTable = response.scores;
+        this.highScoreLoaded.next([...this._scoreTable]);
+      });
+  }
+
+  getHighScores() {
+    return this.http.get<{scores: HighScore []}>('http://localhost:3000/api/game/getHighScores');
+  }
+
+  informOpponent() {
+    this.gameSocket.emit('informOpponent', {
+      roomID: this._roomTitle,
+      selected: true
+    });
+  }
+
+  leaveGame() {
+    this.gameSocket.emit('leaveGame', this._roomTitle);
+  }
+
   restoreGameDate() {
     this._seconds = parseInt(localStorage.getItem('seconds'), 10) || 0;
     this._qnProgress = parseInt(localStorage.getItem('qnProgress'), 10) || 0;
     this._score = parseInt(localStorage.getItem('score'), 10) || 0;
+    this._opScore = parseInt(localStorage.getItem('opScore'), 10) || 0;
     this._correctAnswerCount = parseInt(localStorage.getItem('counter'), 10) || 0;
     this._waitingForPlayer = JSON.parse(localStorage.getItem('waiting')) || false;
     this._jokerUsed = JSON.parse(localStorage.getItem('jokerUsed')) || false;
     this._newQnJokerIsPressed = JSON.parse(localStorage.getItem('newQnJokerPressed')) || false;
     this._fiftyJokerIsPressed = JSON.parse(localStorage.getItem('fiftyJokerPressed')) || false;
     this._opponentFinished = JSON.parse(localStorage.getItem('opponentFinished')) || false;
-    this._ownSelection = JSON.parse(localStorage.getItem('selection')) ===  null ||
+    this._ownSelection = JSON.parse(localStorage.getItem('selection')) === null ||
       JSON.parse(localStorage.getItem('selection'));
     this._questions = JSON.parse(localStorage.getItem('questions'));
     this._selectionString = localStorage.getItem('selectionString');
@@ -254,9 +328,30 @@ export class GameService {
     this._newQnSelected = JSON.parse(localStorage.getItem('newQnJoker')) || false;
   }
 
+  clearLocalGameStorage() {
+    this.stopTimer();
+    localStorage.removeItem('room');
+    localStorage.removeItem('opponent');
+    localStorage.removeItem('questions');
+    localStorage.removeItem('qnProgress');
+    localStorage.removeItem('selection');
+    localStorage.removeItem('selectionString');
+    localStorage.removeItem('opponentFinished');
+    localStorage.removeItem('waiting');
+    localStorage.removeItem('score');
+    localStorage.removeItem('opScore');
+    localStorage.removeItem('counter');
+    localStorage.removeItem('fiftyJoker');
+    localStorage.removeItem('newQnJoker');
+    localStorage.removeItem('newQnJokerPressed');
+    localStorage.removeItem('fiftyJokerPressed');
+    localStorage.removeItem('jokerUsed');
+    localStorage.removeItem('seconds');
+  }
 
   set opScore(value: number) {
     this._opScore = value;
+    localStorage.setItem('opScore', this._opScore.toString());
   }
 
   set questions(value: Question[]) {
@@ -266,6 +361,7 @@ export class GameService {
 
   set seconds(value: number) {
     this._seconds = value;
+    localStorage.setItem('seconds', this._seconds.toString());
   }
 
   set qnProgress(value: number) {
@@ -414,87 +510,5 @@ export class GameService {
 
   get scoreTable(): HighScore[] {
     return this._scoreTable;
-  }
-
-  sendGameDecline() {
-    this.gameSocket.emit('DeclineGame');
-  }
-
-  getPlayersJoinedListener() {
-    return this.playersJoined.asObservable();
-  }
-
-  getUsersInRoom() {
-    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsersInRoom/' + this._roomTitle)
-      .pipe(map(postData => {
-        return postData.user.map(user => {
-          return {
-            _id: user._id,
-            email: user.email,
-            password: user.password,
-            username: user.username,
-            status: user.status
-          };
-        });
-      }))
-      .subscribe(mappedResult => {
-        console.log('getUsersInRoom Subscription: sending to subscription by next following user ');
-        console.log(mappedResult);
-        this.users = mappedResult;
-        this.playersJoined.next([...this.users]);
-      });
-  }
-
-  updateUserList() {
-    this.gameSocket.emit('updateUserList', {
-      email: this.authService.userMail,
-      room: this._roomTitle
-    });
-  }
-
-  clearLocalGameStorage() {
-    clearInterval(this.timer);
-    localStorage.removeItem('room');
-    localStorage.removeItem('opponent');
-    localStorage.removeItem('seconds');
-    localStorage.removeItem('questions');
-    localStorage.removeItem('qnProgress');
-    localStorage.removeItem('selection');
-    localStorage.removeItem('selectionString');
-    localStorage.removeItem('opponentFinished');
-    localStorage.removeItem('waiting');
-    localStorage.removeItem('seconds');
-    localStorage.removeItem('score');
-    localStorage.removeItem('counter');
-    localStorage.removeItem('fiftyJoker');
-    localStorage.removeItem('newQnJoker');
-    localStorage.removeItem('newQnJokerPressed');
-    localStorage.removeItem('fiftyJokerPressed');
-    localStorage.removeItem('jokerUsed');
-  }
-
-  insertHighScore() {
-    this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
-      roomID: this._roomTitle,
-      user: this.authService.userMail,
-      round: this._qnProgress,
-      duration: this.timer,
-      score: this._score
-    })
-    .subscribe(response => {
-        this._scoreTable = response.scores;
-        this.highScoreLoaded.next([...this._scoreTable]);
-    });
-  }
-
-  getHighScores() {
-    return this.http.get<{scores: HighScore []}>('http://localhost:3000/api/game/getHighScores');
-  }
-
-  informOpponent() {
-    this.gameSocket.emit('informOpponent', {
-      roomID: this._roomTitle,
-      selected: true
-    });
   }
 }

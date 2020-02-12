@@ -1,9 +1,14 @@
 .container{
   overflow: auto;
   height: 100%;
+  max-width: 100%;
   background:
-    linear-gradient(45deg, rgba(0,103, 255, 0.3), rgba(0, 150, 80, 0.9)),
-    url('../../../assets/img/login-3.png') center center no-repeat;;
+    linear-gradient(45deg, rgba(255,103,0,0.3), rgba(0, 0, 80, 0.9)),
+    url('../../../assets/img/univie_login.png') center center no-repeat;;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 .signUpCard{

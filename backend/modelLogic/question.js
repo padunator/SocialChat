@@ -1,63 +1,25 @@
 'use strict';
+
 const Question = require('../models/Question');
 
-  let insertQuestions = function(room) {
+  const insertQuestions = async function(room) {
 
-
-    let p = Promise.resolve();
-
-    // Update Question catalog for specific room
-    room.connections.forEach(connection => {
-      Question.find({room: room.title}).then(questions => {
-        questions.forEach(question => {
-          if (question.answers.length !== 2) {
-            question.answers.push({email: connection.userId, own: "", guess: ""});
-            p = p.then(() => question.save());
-          }
-        });
-          return p;
-        });
-      });
+    const promises =  room.connections.map(connection => {
+      let questions = Question.find({room: room.title});
+        return Promise.all(
+          questions.map(question => {
+            if (question.answers.length !== 2) {
+              question.answers.push({ email: connection.userId, own: "", guess: "" });
+              return question.save();
+            }
+          })
+        )
+    });
+    return Promise.all(promises);
   };
 
-  /*Question.find({}).then( rooms => {
-    // For every room,
-    // 1. Count the number of connections of the current user(using one or more sockets).
-    rooms.map(room => {
-      room.connections.forEach(function(connection, i) {
-        let pass = true,
-          cunt = 0,
-          target = 0;
-        if (connection.userId === userId) {
-          cunt++;
-        }
-        if (connection.socketId === socket.id) {
-          pass = false, target = i;
-        }
-
-        // 2. Check if the current room has the disconnected socket,
-        // If so, then, remove the current connection object, and terminate the loop.
-        if (!pass) {
-          room.connections.id(room.connections[target]._id).remove();
-          room.save(function(err) {
-            callback(err, room, userId, cunt);
-          });
-        }
-
-        return pass;
-      });
-    });
-  });
-
-*/
-module.exports = {
-
-};
-
-// var questionModel = require('../database').models.question;
-
-var questionPool = [{
-  question: "What is this One?",
+const questionPool = [{
+  question: "Würdest du persönliche Nachteile auf dich nehmen um einem Freund zu helfen?",
   // answers: [{email: "", own: "", guess:""}],
   options: [{ val: "A", text: "option A" },
     { val: "B", text: "option B" },
@@ -98,13 +60,16 @@ var questionPool = [{
   ]
 }];
 
-var getQuestionNumber = function(num, callback) {
+/*
+
+
+const getQuestionNumber = function(num, callback) {
   num = num % questionPool.length;
   return callback(null, questionPool[num]);
-}
+};
+*/
 
 module.exports = {
   insertQuestions,
-  getQuestionNumber,
   questionPool
 };

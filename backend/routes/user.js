@@ -7,7 +7,6 @@ const roomLogic = require('../modelLogic/room');
 const router = express.Router();
 
 router.post("/signup", (req, res, next) => {
-    console.log('Inside de signup method - server side');
     bcrypt.hash(req.body.password, 10).then(hash => {
       const user = new User({
         email: req.body.email,
@@ -15,7 +14,6 @@ router.post("/signup", (req, res, next) => {
         password: hash,
         status: false
       });
-      console.log(user);
       user.save().then(result => {
         res.status(201).json({
           message: 'New user created!',
@@ -69,7 +67,6 @@ router.post("/login", (req, res, next) => {
 router.put("/changeStatus/:email", (req, res, next) => {
   User.updateOne({email: req.params.email}, {status: req.body.status})
     .then(result => {
-      console.log('STATUS CHANGED ON DB');
       res.status(200).json({email: req.params.email});
     });
 });
@@ -98,17 +95,13 @@ router.get("/getUsers",  (req, res, next) => {
 });
 
 router.get("/getUsersInRoom/:room",  (req, res, next) => {
-  console.log('GET USERS IN ROOM FROM SERVER for room ! ' + req.params.room);
   Room.findOne({title: req.params.room}).then(room => {
     roomLogic.getUsers(room, function (err, users, cuntUserInRoom) {
       if (err) {
-        console.log('ERROR!!!!!!!!!!!!!!!!!!!!!!');
         return res.status(500).json({
         error: 'No users connected to room!'
         })
       } else {
-        console.log('SENDING FOLLOWING USERS BACK TO CLIENT');
-        console.log(users);
         return res.status(200).json({
           user: users
         })

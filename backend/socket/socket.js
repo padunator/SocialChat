@@ -4,17 +4,18 @@ const http = require("http");
 const socketIO = require('socket.io');
 const Sockets = require('../models/UserSockets');
 const Room = require('../models/Room');
+const QuestionArchive = require('../models/QuestionArchive');
 const Question = require('../models/Question');
 const User = require('../models/User');
 const roomLogic = require('../modelLogic/room');
 const sentimentModel = require('../models/Sentiment');
 const Sentiment = require('sentiment');
 const sentiment = new Sentiment();
-
+const util = require('util');
 
 /**
- * Encapsulates all code for emitting and listening to socket events
- *
+ * Centralize all receiving / emitting socket connections
+ * Implement corresponding logic for any event
  */
 
 const ioEvents = function(io) {
@@ -36,46 +37,33 @@ const ioEvents = function(io) {
         negative: result.negative
       });
       newSentiment.save().then(() => {
-        console.dir(result);
         io.of('/chat').emit("ChatMessage", message);
       });
     });
 
     socket.on('changeStatus', status => {
-      console.log('CHANGE STATUS EMIT: SENDING BACK TO CLIENTS FROM ' + status.email);
       io.of('/chat').emit('userLogged',  {email: status.email, status: status.status});
-      // io.emit('userLogged', {email: status.email, status: status.status});
-      // io.broadcast.emit('userLogger', {email: status.email, status: status.status});
     });
 
     socket.on('login', (email) => {
-      const userSocket = new Sockets({
-        socket: socket.id,
-        email: email
-      });
-      Sockets.updateOne({email: email}, {socket: socket.id}, { upsert: true }).then(result => {
-        console.log('SOCKET LOGIN: SOCKET UPDATED FOR ' + email);
-      });
+      Sockets.updateOne({email: email}, {socket: socket.id}, { upsert: true })
+        .catch(err => {console.error('Socket Login: Error when updating socket connection ' + err);});
     });
 
     socket.on('logout', (user) => {
-      Sockets.deleteOne({email: user.email}).then( () => {
-      }).catch(err => {
-        console.log('ERROR WHEN DELETING SOCKET CONNECTION  ' + err);
-      });
+      Sockets.deleteOne({email: user.email})
+        .catch(err => {console.error('Socket Logout: Error when deleting socket connection  ' + err);});
     });
 
     // Send game request for creating new room
     socket.on('sendGameRequest', (req) => {
       Sockets.findOne({email: req.to}).then(foundSocket => {
-        // socket.broadcast.to(foundSocket.socket).emit("ConfirmGame", req.message);
         io.of('/chat').to(foundSocket.socket).emit("ConfirmGame", req);
       });
     });
 
     // Send game request for creating new room
     socket.on('joinGameRequest', (req) => {
-      console.log('--------------ERROR !! SENDING JOIN GAME REQUEST -------------------')
       Sockets.findOne({email: req.from}).then(foundSocket => {
         // socket.broadcast.to(foundSocket.socket).emit("ConfirmGame", req.message);
         io.of('/chat').to(foundSocket.socket).emit("JoinGame", req);
@@ -87,94 +75,75 @@ const ioEvents = function(io) {
       Sockets.findOne({socket: socket.id}).then(user => {
         User.updateOne({email: user.email}, {status: false})
             .then( () => io.of('/chat').emit('userLogged',  {email: user.email, status: false}));
-      }).catch(err => console.log('Disconnect: Socket not found at disconnect!'));
+      }).catch(err => console.error('Disconnect: Socket not found at disconnect!'));
     });
   });
 
-  // gameroom namespace
+  // Game namespace
   io.of('/game').on('connection', function(socket) {
     console.log('Game Socket connected on server');
     // Create a new room UPDATE
-    socket.on('createRoom', (title) => {
-      Room.findOne({title: title}).then(room => {
-        if (room) {
-          socket.emit('updateRoomsList', { error: 'Room title already exists.' });
-        }else {
-          const room = new Room({title: title});
-          room.save().then(newRoom => {
-            // send to current socket
-            // socket.emit('updateRoomsList', newRoom);
-            // send to all other sockets
-            // socket.broadcast.emit('updateRoomsList', newRoom);
-          }).catch(err => console.log(err));
-        }
-      }).catch(err => {
-        console.log('Error in room creation '  + err);
-      });
+    socket.on('createRoom', async (title) => {
+      let room = await Room.findOne({title: title});
+
+      if (room) {
+        socket.emit('updateRoomsList', { error: 'Room title already exists.' });
+      }else {
+        const room = new Room({title: title});
+        room.save().catch(err => console.error(err));
+      }
     });
 
-    // Join a gameroom
+    // Join a Gameroom
     socket.on('join', async function(obj,ack){
       // let room = await Room.findOne({title: obj.title});
+      let room = await  Room.findOne({title: obj.title});
+        // Push a new connection object(i.e. {userId + socketId})
+      if (room.noOfPlayers > room.connections.length) {
+        room.connections.push({
+          userId: obj.userId,
+          socketId: socket.id,
+          round: obj.round,
+          duration: obj.duration,
+          score: obj.score,
+          words: 0,
+          comparative: 0
+        });
+      }
 
-      Room.findOne({title: obj.title}).then(room => {
-          if (room.noOfPlayers <= room.connections.length) {
-            socket.emit('updateUsersList', { error: 'Room is Full. Try again later' });
-          } else {
-            // Push a new connection object(i.e. {userId + socketId})
-            console.log('SOCKET_JOIN: PUSH NEW CONNECTIONS = ' +obj.userId);
-            console.log(room);
-            room.connections.push({
-              userId: obj.userId,
-              socketId: socket.id,
-              round: obj.round,
-              duration: obj.duration,
-              score: obj.score,
-              words: 0,
-              comparative: 0
-            });
+        room = await room.save();
+        socket.join(room.title);
+        socket.username = obj.userId;
 
-            room.save().then(room => {
-              socket.join(room.title);
-              socket.username = obj.userId;
+        // Join the room channel
+        if (room.noOfPlayers === room.connections.length) {
+          room.isOpen = false;
+          room = await room.save();
 
-              // Join the room channel
-              console.log('JOIN: AFTER PUSH CONNECTIONS LENGTH = ' + room.connections.length);
-              console.log(room.connections);
-              if (room.noOfPlayers === room.connections.length) {
-                room.isOpen = false;
-                room.save().then(room => {
-                  Promise.all(
-                    room.connections.map(connection => {
-                      return Question.find({room: room.title}).then(questions => {
-                         return Promise.all(
-                          questions.map(question => {
-                            if (question.answers.length !== 2) {
-                              question.answers.push({ email: connection.userId, own: "", guess: "" });
-                              return question.save();
-                            }
-                          }),
-                        )
-                      });
-                    })
-                  ).then(() => {
-                    console.log('JOIN: SENDING GAME READY TO SUBSCRIPTION');
-                    io.of("/game")
-                      .in(room.title)
-                      .emit("GameReady", true);
-                    ack(false);
+          Promise.all(
+            room.connections.map(connection => {
+              return Question.find({room: room.title}).then(questions => {
+                 return Promise.all(
+                  questions.map(question => {
+                    if (question.answers.length !== 2) {
+                      question.answers.push({ email: connection.userId, own: "", guess: "" });
+                      return question.save();
+                    }
                   })
-                });
-              } else {
-                ack(true);
-                return Promise.resolve();
-              }
-            });
-          }
-      }).
-      catch(err => {
-          socket.emit('updateUsersList', { error: err });
-      });
+                )
+              });
+            })
+          ).then(() => {
+            io.of("/game")
+              .in(room.title)
+              .emit("GameReady", true);
+            ack(false);
+          })
+        } else {
+          ack(true);
+          return Promise.resolve();
+        }
+      // }
     });
 
     // Registering new Question response
@@ -186,30 +155,30 @@ const ioEvents = function(io) {
         'connections.$.score': obj.score
       }}, {new: true}).then(updatedConn => {
         console.log('Connection updated!');
-      }).catch(err => console.log('Error while updating connections for running game ' + err));
+      }).catch(err => console.error('Error while updating connections for running game ' + err));
 
       // Update Question Collection with Game-Related answers of current running game
        const own = obj.question.answers.find(s => s.email===obj.email).own;
        const guess = obj.question.answers.find(s => s.email===obj.email).guess;
-      Question.updateOne({_id: obj.question._id, 'answers.email': obj.email}, {'$set': {
+       Question.updateOne({_id: obj.question._id, 'answers.email': obj.email}, {'$set': {
           'answers.$.own': own,
           'answers.$.guess': guess
-        }}, { new: true }).then(updatedAnswer=> {
-        socket.broadcast.to(obj.roomID).emit('PlayerAnswered', {
+        }}, { new: true })
+         .then(updatedAnswer=> {
+           socket.broadcast.to(obj.roomID).emit('PlayerAnswered', {
           email: obj.email,
           own: own,
           guess: guess
         });
-      });
+       });
     });
 
     // Inform the opponent of the updated question
     socket.on('update-question', (question) => {
-      const newQuestion = new Question ({
+      const newQuestion = new QuestionArchive ({
         question : question.question.question,
         options: question.question.options,
         room: question.question.room,
-        answers: question.question.answers,
         createdAt: question.question.createdAt
       });
       newQuestion.save().then((qn) => {
@@ -217,69 +186,46 @@ const ioEvents = function(io) {
       });
     });
 
-    // Inform the opponent about the Joker selection to prevent simultaneaous usage
+    // Inform the opponent about the Joker selection to prevent simultaneous usage
     socket.on('informOpponent', (joker) => {
-      console.log('Now informing Opponent of room ' + joker.roomID);
       socket.broadcast.to(joker.roomID).emit('notifyOpponent', joker.selected);
     });
 
     // When a user leaves a running Game
-    socket.on('leaveGame', () => {
-      console.log('LEAVE GAME: NOW REMOVE USER');
-      removeUserFromGame(socket)
+    socket.on('leaveGame', (room) => {
+      removeUserFromGame(socket, room)
     });
 
     // When a socket exits or refreshes the Page
-    socket.on('disconnect', function() {
-      console.log('DISCONNECT: NOW REMOVE USER');
-      removeUserFromGame(socket);
+    socket.on('disconnect', () => {
+      console.log('Disconnecting game socket...')
+      // removeUserFromGame(socket);
     });
   });
 };
 
-const removeUserFromGame = function(socket) {
-  console.log('REMOVE USER ' + socket.username);
-  // Find the room to which the socket is connected to,
-  // and remove the current user + socket from this room
-  roomLogic.removeUser(socket, function(err, room, user, cuntUserInRoom) {
-    if (err) throw err;
-
-    // Leave the room channel
-    socket.leave(room.id);
-
-    // Return the user id ONLY if the user was connected to the current room using one socket
-    // The user id will be then used to remove the user from users list on gameroom page
-    if (cuntUserInRoom === 1) {
-      if (room.currentRound >= room.rounds) {
-        // delist the quiz  or take score board
-        room.isOpen = false;
-        room.save();
-      } else {
-        // room availble for new palyer
-        room.isOpen = true;
-        room.save();
-      }
-      console.log('REMOVE/DISCONNECT: REMOVING FOLLOWING USER FROM LIST  ');
-      console.log(user);
-      socket.broadcast.to(room.title).emit('removeUser', user);
-    }
-  });
+const removeUserFromGame = (socket, room) => {
+  roomLogic.removeUser(socket, room)
+    .then((response) =>{
+    socket.leave(response.room.title);
+      response.room.isOpen = true;
+      response.room.save();
+    socket.broadcast.to(response.room.title).emit('removeUser', response.user);
+  })
+    .catch(err => { console.error(err)});
 };
 
 /**
- * Initialize Socket.io
- * Uses Redis as Adapter for Socket.io
+ * Initialize socket connection and server
  *
  */
 let init = function(app) {
-
+  // Create server
   const server = http.createServer(app);
-  const io = socketIO(server, {
-    // transports: ['websocket']
-  });
+  // Initialize sockets on server
+  const io = socketIO(server);
 
-  console.log('Calling IOEvents');
-  // Define all Events
+  // Call events
   ioEvents(io);
   return server;
 

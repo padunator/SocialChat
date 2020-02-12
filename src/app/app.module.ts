@@ -42,7 +42,7 @@ import {AutosizeModule} from 'ngx-autosize';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
-import { JokerSelectedComponent } from './joker-selected/joker-selected.component';
+
 // const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {} };
 
 
@@ -62,8 +62,7 @@ import { JokerSelectedComponent } from './joker-selected/joker-selected.componen
     GameroomComponent,
     ResultComponent,
     NotFoundComponent,
-    ServerErrorComponent,
-    JokerSelectedComponent,
+    ServerErrorComponent
   ],
   imports: [
     BrowserModule,

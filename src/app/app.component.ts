@@ -3,7 +3,6 @@ import {AuthService} from './services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {GameService} from './services/game.service';
 import {Router} from '@angular/router';
-declare const microlink: any;
 
 @Component({
   selector: 'app-root',
@@ -50,9 +49,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    microlink('.link-preview');
+/*    microlink('.link-preview');
     // @ts-ignore
     // eslint-disable-next-line no-undef
-    // microlink(this.card.nativeElement, this.options);
+    // microlink(this.card.nativeElement, this.options);*/
   }
 }

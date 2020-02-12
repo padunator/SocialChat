@@ -7,11 +7,9 @@ const Schema = mongoose.Schema;
  * Each connection object composed of {userId + socketId}. Both of them together are unique.
  *
  */
-var QuestionSchema = new mongoose.Schema({
+const QuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },
   room: {type: String},
-  // ownAnswer: { type: String },
-  // guessAnswer: {type: String},
   answers: { type: [{ email: String, own: String, guess: String, _id: { id: false } }] },
   options: { type: [{ val: String, text: String, _id: { id: false } }]   },
   createdAt: { type: Date, default: Date.now }
@@ -21,8 +19,8 @@ var QuestionSchema = new mongoose.Schema({
 module.exports = mongoose.model('question', QuestionSchema);
 
 // --------------Add sample questions-------------------
-var add_que = function() {
-  var sample = [{
+const add_que = function() {
+  const sample = [{
     question: "Question 3 ?",
     answer: "C",
     options: [{ val: "A", text: "option A" },
@@ -54,11 +52,14 @@ var add_que = function() {
       { val: "C", text: "option C" },
       { val: "D", text: "option D" }
     ]
+  }, {
+    question: "What opinion do you have about drug use",
+    options: { A: "I would never try it", B: "It's ok for recreational use", C: "I would tolerate just weak drugs", D: "No problem at all" }
   }];
 
-  questionModel.create(sample, function(err, response) {
+  QuestionSchema.create(sample, function(err, response) {
     console.log("Create :  ", err, response);
   });
-}
+};
 
 // add_que();
