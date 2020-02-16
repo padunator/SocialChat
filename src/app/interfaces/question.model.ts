@@ -1,3 +1,7 @@
+/**
+ * This Interface represents the data model of the questions which are sent between Client and Server
+ */
+
 export interface Question {
   _id?: string;
   question: string;

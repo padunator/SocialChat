@@ -15,10 +15,17 @@ import {
   clearInterval
 } from 'timers';
 
+/**
+ * This Service serves as an endpoint interface for Backend Communication, as well as Game Related Variables!
+ * Taking into account that Game & Result Components both need the game related variables, I have decided to hold them in this
+ * service, instead of saving them in any component separately which would cause an overhead but would actually be state of the art
+*/
+
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
+  // Game related data (used in game and result component
   private game: Room;
   private _questions: Question[] = [];
   private _opponent: string;
@@ -34,13 +41,15 @@ export class GameService {
   private _waitingForPlayer: boolean;
   private _fiftyJokerIsPressed: boolean;
   private _newQnJokerIsPressed: boolean;
-  private _jokerUsed: boolean;
-  questionsUpdated = new Subject<Question[]>();
-  highScoreLoaded = new Subject<HighScore[]>();
   private _fiftyFiftyJokerSelected: boolean;
   private _newQnSelected: boolean;
   private playersJoined = new Subject<User[]>();
+  private _jokerUsed: boolean;
   timer;
+  // Subjects for Observables
+  questionsUpdated = new Subject<Question[]>();
+  highScoreLoaded = new Subject<HighScore[]>();
+
 
   // Socket listeners
   gameRequest = this.socket.fromEvent<any>('ConfirmGame');
@@ -53,18 +62,27 @@ export class GameService {
   private users: User[] = [];
   private _scoreTable: HighScore[] = [];
 
-  // Event emitter erstellen - alle Clients & Componenten können an diesen
-  // Alle lokalen - spielrelevanten variablen werden durch events an die entsprechenden Komponenten gesendet und entsprechend
-  // aktualisiert. In den Templates werden ausschließlich die lokalen variablen angesprochen.
-
   constructor(private http: HttpClient, private  router: Router, private authService: AuthService,
               private socket: ChatSocket, private gameSocket: GameSocket) {
   }
 
+  // Event listeners
+  getQuestionUpdatedListener() {
+    return this.questionsUpdated.asObservable();
+  }
 
+  getHighScoreLoadedListener() {
+    return this.highScoreLoaded.asObservable();
+  }
+
+  getPlayersJoinedListener() {
+    return this.playersJoined.asObservable();
+  }
+
+  // Rest API call for creating a new room and executing game initialization logic
   createNewRoom(req: any) {
     const room: Room = ({title: req.title});
-    this.http.post<{ roomId: string, message: string }>('http://localhost:3000/api/game/createRoom', {
+    this.http.post<{ roomId: string, message: string }>('http://192.168.0.164:3000/api/game/createRoom', {
       room: room,
       email: this.authService.userMail
     }).subscribe(response => {
@@ -72,15 +90,17 @@ export class GameService {
     });
   }
 
+  // Rest API call for getting specific room (not used at the moment)
   getGameRoom(title: string) {
     this.game = ({title: title});
-    this.http.get<{ room: Room }>('http://localhost:3000/api/game/createRoom' + title)
+    this.http.get<{ room: Room }>('http://192.168.0.164:3000/api/game/createRoom' + title)
       .subscribe(room => {
         // this.game.title = room.title;
         this.router.navigate(['/game']);
       });
   }
 
+  // Joining the room via socket connection
   joinGame(req: any) {
     this.roomTitle = req.title;
     this.gameSocket.emit('join', {
@@ -99,12 +119,13 @@ export class GameService {
     });
   }
 
+  // Create room via socket connection (not used the moment)
   createRoom(title: string) {
     this.gameSocket.emit('createRoom', title);
   }
 
+  // Start game timer during quiz
   startTimer() {
-    console.log('START / RESTART TIMER');
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -113,15 +134,17 @@ export class GameService {
     }, 1000);
   }
 
+  // Stop game timer while user is waiting for opponent or if game is finished
   stopTimer() {
-    console.log('CLEAR INTERVAL!');
     clearInterval(this.timer);
   }
 
+  // Display the elapsed time in the game page
   displayTimeElapsed() {
     return Math.floor(this._seconds / 3600) + ':' + Math.floor(this._seconds / 60) + ':' + Math.floor(this._seconds % 60);
   }
 
+  // Send game request to the selected user via socket connection
   sendGameRequest(title: string, user: User, userMail: String) {
     this.socket.emit('sendGameRequest', {
       to: user.email,
@@ -131,8 +154,9 @@ export class GameService {
     });
   }
 
+  // Rest API call for getting a specific room
   getRoom() {
-    this.http.get<{ room: any }>('http://localhost:3000/api/getRoom')
+    this.http.get<{ room: any }>('http://192.168.0.164:3000/api/getRoom')
       .pipe(map(postData => {
         return postData.room.map(room => {
           return {
@@ -154,7 +178,8 @@ export class GameService {
       });
   }
 
-
+  // Calculate actual score by comparing the answers of both players
+  // Right answer = 10 Points - Right answer & same answer = 15 points
   calculateScore() {
     const ownAnswer = this.getAnswer(this.authService.userMail);
     const oppAnswer = this.getAnswer(this._opponent);
@@ -176,16 +201,14 @@ export class GameService {
     }
   }
 
+  // Get the answer for a specific question and user from the local loaded question array
   getAnswer(email, qnProgress = this._qnProgress) {
     return this.questions[qnProgress].answers.find(answer => answer.email === email);
   }
 
-  getParticipantName() {
-    return this.authService.currUser.username;
-  }
-
+  // Rest API call for getting all questions of the current game room the user is in
   getQuestions() {
-    this.http.get<{ message: string, questions: Question[] }>('http://localhost:3000/api/game/getQuestions/' + this._roomTitle)
+    this.http.get<{ message: string, questions: Question[] }>('http://192.168.0.164:3000/api/game/getQuestions/' + this._roomTitle)
       .pipe(map(data => {
         return data.questions.map(result => {
           return {
@@ -204,14 +227,6 @@ export class GameService {
     });
   }
 
-  getQuestionUpdatedListener() {
-    return this.questionsUpdated.asObservable();
-  }
-
-  getHighScoreLoadedListener() {
-    return this.highScoreLoaded.asObservable();
-  }
-
   // When user responded to one question - the corresponding Question is being updated with his selections
   updateQuestionCatalog() {
     this.gameSocket.emit('new-game-response', {
@@ -224,8 +239,7 @@ export class GameService {
     });
   }
 
-  // When user selected the corresponding Joker an existing Question is replaced with the users
-  // input [Question + Answers]
+  // When user selected the new Qn Joker this questions is being saved in the question pool for future games
   executeQuestionUpdate() {
     this.gameSocket.emit('update-question', {
       roomID: this._roomTitle,
@@ -234,26 +248,26 @@ export class GameService {
     });
   }
 
+  // Helper method for calculating score
   isCorrect(qnNo: number, optNo: number) {
     const oppAnswer = this.getAnswer(this._opponent, qnNo);
     return (parseInt(oppAnswer.own.toString(), 10) === optNo);
   }
 
+  // Helper method for result page (show correct / wrong answers)
   mySelection(qnNo: number, optNo: number) {
     const ownAnswer = this.getAnswer(this.authService.userMail, qnNo);
     return (parseInt(ownAnswer.guess.toString(), 10) === optNo);
   }
 
+  // Inform opponent if game is declined
   sendGameDecline() {
     this.gameSocket.emit('DeclineGame');
   }
 
-  getPlayersJoinedListener() {
-    return this.playersJoined.asObservable();
-  }
-
+  // Get current users in current room
   getUsersInRoom() {
-    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsersInRoom/' + this._roomTitle)
+    this.http.get<{ user: User[] }>('http://192.168.0.164:3000/api/user/getUsersInRoom/' + this._roomTitle)
       .pipe(map(postData => {
         return postData.user.map(user => {
           return {
@@ -278,8 +292,9 @@ export class GameService {
     });
   }
 
+  // Rest API call for posting new high score into the related collecion
   insertHighScore() {
-    this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
+    this.http.post<{message: string, scores: HighScore []}>('http://192.168.0.164:3000/api/game/createHighScore', {
       roomID: this._roomTitle,
       user: this.authService.userMail,
       round: this._qnProgress,
@@ -292,10 +307,12 @@ export class GameService {
       });
   }
 
+  // Rest API call for getting all the high scores
   getHighScores() {
-    return this.http.get<{scores: HighScore []}>('http://localhost:3000/api/game/getHighScores');
+    return this.http.get<{scores: HighScore []}>('http://192.168.0.164:3000/api/game/getHighScores');
   }
 
+  // Inform opponent over the active socket connection that joker has been selected
   informOpponent() {
     this.gameSocket.emit('informOpponent', {
       roomID: this._roomTitle,
@@ -303,10 +320,12 @@ export class GameService {
     });
   }
 
+  // Leave the current game
   leaveGame() {
     this.gameSocket.emit('leaveGame', this._roomTitle);
   }
 
+  // Restore temp data from local storage if page has been reloaded to have a persistent connection
   restoreGameDate() {
     this._seconds = parseInt(localStorage.getItem('seconds'), 10) || 0;
     this._qnProgress = parseInt(localStorage.getItem('qnProgress'), 10) || 0;
@@ -328,6 +347,7 @@ export class GameService {
     this._newQnSelected = JSON.parse(localStorage.getItem('newQnJoker')) || false;
   }
 
+  // Clear temp data from local storage if player leaves game
   clearLocalGameStorage() {
     this.stopTimer();
     localStorage.removeItem('room');
@@ -349,6 +369,7 @@ export class GameService {
     localStorage.removeItem('seconds');
   }
 
+  // Setters
   set opScore(value: number) {
     this._opScore = value;
     localStorage.setItem('opScore', this._opScore.toString());
@@ -435,7 +456,7 @@ export class GameService {
     localStorage.setItem('jokerUsed', JSON.stringify(value));
   }
 
-
+  // Getters
   get fiftyJokerIsPressed(): boolean {
     return this._fiftyJokerIsPressed;
   }

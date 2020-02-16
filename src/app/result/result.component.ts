@@ -6,6 +6,10 @@ import {HighScore} from '../interfaces/high_score';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 
+/**
+ * This code serves as logic, view & style related component fpr the result page of the Quiz Game
+ */
+
 @Component({
   selector: 'app-result',
   templateUrl: './result.component.html',

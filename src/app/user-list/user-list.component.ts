@@ -4,6 +4,11 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {ChatService} from '../services/chat.service';
 import {GameService} from '../services/game.service';
 
+/**
+ * This code serves as logic, view & style related component and represents the list of registered users within the application.
+ * Additionally it holds the single User components of the mentioned users
+ */
+
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',

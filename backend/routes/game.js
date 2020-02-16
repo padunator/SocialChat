@@ -8,7 +8,9 @@ const HighScore = require('../models/HighScore');
 const Sentiment = require('../models/Sentiment');
 const questionData = require('../data/questions_live');
 const roomLogic = require('../modelLogic/room');
-
+/**
+ * Middleware for the game route which handle game related REST Api calls
+ */
 //Create new Room
 router.post('/new', checkAuth, (req, res, next) => {
   const newRoom = new Room({
@@ -24,6 +26,7 @@ router.post('/new', checkAuth, (req, res, next) => {
   });
 });
 
+// Get list of rooms
 router.get('/rooms', checkAuth, (req, res, next) => {
   Room.find().then( rooms => {
     res.status(200).json({
@@ -33,6 +36,7 @@ router.get('/rooms', checkAuth, (req, res, next) => {
   })
 });
 
+// Get current questions for a specific room
 router.get("/getQuestions/:title",  (req, res, next) => {
   Question.find({room: req.params.title}).then( fetchedQuestions => {
     res.status(200).json({
@@ -44,6 +48,7 @@ router.get("/getQuestions/:title",  (req, res, next) => {
   });
 });
 
+// Create a new room and load 20 randomized questions from the question pool
 router.post('/createRoom', checkAuth, async (req, res, next) => {
   const room = new Room({title: req.body.room.title});
   const newRoom = await room.save();
@@ -62,6 +67,7 @@ router.post('/createRoom', checkAuth, async (req, res, next) => {
   });
 });
 
+// Calculate final High Score and semantic score per user and save it in the related connection of the room
 router.post('/createHighScore', checkAuth, (req, res, next) => {
   let totalScore = 0;
   let tokenCount = 0;
@@ -92,7 +98,6 @@ router.post('/createHighScore', checkAuth, (req, res, next) => {
   });
   newHighScore.save().then((rec) => {
     HighScore.find({}).sort({score: -1}).exec().then((scores) => {
-      console.log(scores);
       res.status(201).json({
         message: 'High Score saved!',
         scores: scores
@@ -101,6 +106,7 @@ router.post('/createHighScore', checkAuth, (req, res, next) => {
   });
 });
 
+// Get list of all high scores
 router.get('/getHighScores', checkAuth, (req, res, next) => {
   HighScore.find({}).then((scores) => {
     res.status(201).json({
@@ -109,17 +115,14 @@ router.get('/getHighScores', checkAuth, (req, res, next) => {
   });
 });
 
-// Game Room
+// Get specific room
 router.get('/:id', checkAuth, (req, res, next) => {
   const roomId = req.params.id;
   Room.findById(roomId).then(room => {
-    if (!room) {
-      return next();
-    }
     res.status(200).json({
       room: room
     });
-  }).catch(err => console.log('Room not found ! ' + err));
+  }).catch(err => console.error('Room not found ! ' + err));
 });
 
 module.exports = router;

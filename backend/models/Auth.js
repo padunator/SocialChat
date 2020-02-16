@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+ * This is the Server Side model for the authentication data MongoDB - collection
+ */
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const uniqueValidator = require ("mongoose-unique-validator");

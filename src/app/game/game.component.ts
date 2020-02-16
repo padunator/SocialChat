@@ -6,10 +6,6 @@ import {Question} from '../interfaces/question.model';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {AuthService} from '../services/auth.service';
 import {MatSnackBar} from '@angular/material';
-import {
-  setInterval,
-  clearInterval
-} from 'timers';
 
 @Component({
   selector: 'app-game',
@@ -57,14 +53,17 @@ export class GameComponent implements OnInit, OnDestroy {
      // Subscription which gets called when the player receives the answers of the opponent
      this.playerAnsweredSub = this.gameService.playerAnswered.subscribe(
        (newAnswer: {email: String, own: String, guess: String, score: number}) => {
+         console.log('NEW GAME RESPONSE');
        // Update answer array for specific  question (answers of the other player)
        const  currAnswer = this.gameService.getAnswer(newAnswer.email);
        currAnswer.own = newAnswer.own;
        currAnswer.guess = newAnswer.guess;
         // Second time - if 50/50 has not been selected - got to the next question
        if (this.gameService.waitingForPlayer && !this.gameService.fiftyJokerIsPressed) {
+         console.log('NEXT QUESTION');
          this.getNextQuestion();
        } else { // first time
+         console.log('OPPONENT FINISHED');
          this.gameService.opponentFinished = true;
          // This code is executed if Waiting For Player has been set due to Fifty-Fifty Joker selection
          if (this.gameService.fiftyJokerIsPressed) {

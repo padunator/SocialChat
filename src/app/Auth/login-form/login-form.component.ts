@@ -4,6 +4,10 @@ import {NgForm} from '@angular/forms';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {Router} from '@angular/router';
 
+/**
+ * This code serves as logic, view & style related component for the initial login
+ */
+
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',

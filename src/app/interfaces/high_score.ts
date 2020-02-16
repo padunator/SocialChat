@@ -1,7 +1,8 @@
-import {Component} from '@angular/core';
+/**
+ * This Interface represents the data model of the High Score data which is sent between Client and Server
+ */
 
 export interface HighScore {
-  // position: number;
   user: string;
   score: number;
   duration: number;

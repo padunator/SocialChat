@@ -3,6 +3,10 @@ import { AuthService } from '../services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {GameService} from '../services/game.service';
 
+/**
+ * This code serves as logic, view & style related component fpr the Navbar which is shown on any page within
+ * the application
+ */
 
 @Component({
   selector: 'app-navbar',

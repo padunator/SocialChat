@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * This is a Logic Class which contains all methods to performing modifications on the question data collection
+ * @type {Model<Document>}
+ */
 const Question = require('../models/Question');
 
   const insertQuestions = async function(room) {

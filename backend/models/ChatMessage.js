@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+ * This is the Server Side model for the Chat Message MongoDB - collection
+ */
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

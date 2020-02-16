@@ -1,7 +1,12 @@
+/**
+ * This is the acutal server which is being instantiated and usually listening on port 3000
+ * @type {Express}
+ */
+
 const app = require("./backend/app");
 const debug = require("debug")("node-angular");
 const server  = require('./backend/socket/socket')(app);
-// const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./dist/server/main.bundle');
+
 const normalizePort = val => {
   var port = parseInt(val, 10);
 
@@ -50,6 +55,6 @@ server.on("error", onError);
 server.on("listening", onListening);
 
 server.listen(port, () => {
-  console.log('Listening on port ' + port);
+   console.log('Listening on port ' + port);
 });
 

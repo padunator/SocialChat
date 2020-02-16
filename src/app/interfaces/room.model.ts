@@ -1,3 +1,7 @@
+/**
+ * This Interface represents the data model of the created room data which is sent between Client and Server
+ */
+
 export interface Room {
   _id?: string;
   title: string;

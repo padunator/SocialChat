@@ -3,6 +3,10 @@ import {Observable} from 'rxjs/internal/Observable';
 import {Injectable} from '@angular/core';
 import {AuthService} from '../services/auth.service';
 
+/**
+ * The given Class is responsible for forbidding access to certain components, without a valid authentication token
+ */
+
 @Injectable()
 export class AuthGuard implements CanActivate {
 

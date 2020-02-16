@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * This is the quesiton pool for the Quiz Game. This is loaded once at the first game and is then managed and
+ * extended regularly during the games if the "Custom-Question" Joker is used
+ * @type {({question: string, options: [{val: string, text: string}, {val: string, text: string}, {val: string, text: string}, {val: string, text: string}]}|{question: string, options: [{val: string, text: string}, {val: string, text: string}, {val: string, text: string}, {val: string, text: string}]}|{question: string, options: [{val: string, text: string}, {val: string, text: string}, {val: string, text: string}, {val: string, text: string}]}|{question: string, options: [{val: string, text: string}, {val: string, text: string}, {val: string, text: string}, {val: string, text: string}]}|{question: string, options: [{val: string, text: string}, {val: string, text: string}, {val: string, text: string}, {val: string, text: string}]})[]}
+ */
 
 const questionPool = [{
   question: "How long would you like your next relationship to last",
@@ -337,10 +342,10 @@ const questionPool = [{
   }, {
     question: "How many good friends do you have?",
     options: [
-      { val: "A", text: "option A" },
-      { val: "B", text: "option B" },
-      { val: "C", text: "option C" },
-      { val: "D", text: "option D" }
+      { val: "A", text: "1-2" },
+      { val: "B", text: "3-4" },
+      { val: "C", text: "5-6" },
+      { val: "D", text: "above 6" }
     ]
   }, {
     question: "Would you deceive (hintergehen) a friend for a personal benefit",

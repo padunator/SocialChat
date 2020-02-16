@@ -4,7 +4,9 @@ const router = express.Router();
 const ChatMessage = require("../models/ChatMessage");
 const checkAuth = require('../middleware/check-auth');
 const sentiment = new Sentiment();
-
+/**
+ * Middleware for the chat route which handle chat related REST Api calls
+ */
 // POST request
 // Protect API by using checkAuth middleware as a parameter to run as reference
 router.post("", checkAuth, (req,res,next)=> {
@@ -24,7 +26,7 @@ router.post("", checkAuth, (req,res,next)=> {
   });
 });
 
-//GET Request
+// Get whole chat feed
 router.get("", checkAuth, (req,res,next)=>{
   ChatMessage.find().then(feed => {
     res.status(200).json({
@@ -34,7 +36,7 @@ router.get("", checkAuth, (req,res,next)=>{
   });
 });   //add a new middleware
 
-//DELETE Request
+// Delete a single chat message - Not used at the moment but could be used if user wants to delete a message
 router.delete("/:id", checkAuth, (req,res,next)=>{
   ChatMessage.deleteOne({_id: req.params.id}).then( (result) => {
     console.log("Message " + req.params.id + " deleted!")

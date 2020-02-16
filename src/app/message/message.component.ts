@@ -2,6 +2,10 @@ import {Component, OnInit, Input, AfterViewChecked, ViewChild, ElementRef} from 
 import { AuthService } from '../services/auth.service';
 import { ChatMessage} from '../interfaces/chatMessage.model';
 
+/**
+ * This code serves as logic, view & style related component, exclusively for the message box inside the chat-feed
+ */
+
 @Component({
   selector: 'app-message',
   templateUrl: './message.component.html',

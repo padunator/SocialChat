@@ -2,15 +2,14 @@
 
 const mongoose = require('mongoose');
 
-var DEFAULT_ROUNDS = 20;
-var DEFAULT_PLAYERS = 2;
+const DEFAULT_ROUNDS = 20;
+const DEFAULT_PLAYERS = 2;
+
 /**
- * Each connection object represents a user connected through a unique socket.
- * Each connection object composed of {userId + socketId}. Both of them together are unique.
- *
+ * This is the Server Side model for the Room MongoDB - collection
  */
-var RoomSchema;
-RoomSchema = new mongoose.Schema({
+
+const RoomSchema = new mongoose.Schema({
   title: {type: String, required: true},
   connections: {
     type: [{

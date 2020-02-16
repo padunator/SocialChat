@@ -1,7 +1,5 @@
 /**
  * Emoji Selection - Code reference at https://morioh.com/p/b683020160b4
- *
- * Stefan Paduretu - Bachelor - Social Learning App
  */
 
 import { NgModule } from '@angular/core';

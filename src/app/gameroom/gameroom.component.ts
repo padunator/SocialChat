@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {GameService} from '../services/game.service';
 
+/**
+ * This code serves as logic, view & style related component of the game-room which is actually a pool of other components,
+ * such as UserList and Game Component
+ */
+
 @Component({
   selector: 'app-gameroom',
   templateUrl: './gameroom.component.html',

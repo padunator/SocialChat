@@ -7,6 +7,10 @@ import {User} from '../interfaces/user.model';
 import {map} from 'rxjs/operators';
 import {ChatSocket} from '../Sockets/ChatSocket';
 
+/**
+ * This Service serves as an endpoint interface for Backend Communication, for all Chatroom related operations
+ * Any operation needed inside the chatroom (Socket and REST) is being called or interpreted here
+ */
 
 @Injectable({providedIn: 'root'})
 export class ChatService {
@@ -27,26 +31,27 @@ export class ChatService {
     // Sending the message to the other users
     this.socket.emit('new-message', chatMsg);
     // Saving the message and doing sentiment logic
-    this.http.post<{ message: string, id: string }>('http://localhost:3000/api/chat', chatMsg)
+    this.http.post<{ message: string, id: string }>('http://192.168.0.164:3000/api/chat', chatMsg)
       .subscribe(responseData => {
         chatMsg.key = responseData.id;
-        // this.chatMessages.push(chatMsg);
-        // this.chatUpdated.next([...this.chatMessages]);
       });
   }
 
+  // Inform observable if emoji was selected
   addEmoji($event: any) {
     this.emojiSelected.next($event);
   }
 
+  // Rest API call for getting whole chat feed
   getMessages() {
-    this.http.get<{ message: string, chatMessages: any }>('http://localhost:3000/api/chat')
+    this.http.get<{ message: string, chatMessages: any }>('http://192.168.0.164:3000/api/chat')
       .subscribe(mappedMessage => {
         this.chatMessages = mappedMessage.chatMessages;
         this.chatUpdated.next([...this.chatMessages]);
       });
   }
 
+  // Get event listeners
   getChatUpdatedListener() {
     return this.chatUpdated.asObservable();
   }
@@ -59,8 +64,9 @@ export class ChatService {
     return this.userLoggedListener.asObservable();
   }
 
+  // Rest API call for getting list of all users
   getUsers() {
-    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsers')
+    this.http.get<{ user: User[] }>('http://192.168.0.164:3000/api/user/getUsers')
       .pipe(map(postData => {
         return postData.user.map(user => {
           return {

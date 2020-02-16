@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * This is the Check-Auth middleware which is porhibiting access to the the specified endpoints where this Middleware is defined
+ * @type {{JsonWebTokenError: function(*=, *=): void, TokenExpiredError: function(*=, *): void, sign: function(*=, *=, *=, *=): (undefined|undefined), verify: function(*=, *=, *=, *=): (void), decode: function(*=, *=): (null|{payload: *, signature: *, header: *}), NotBeforeError: function(*=, *): void}}
+ */
 const jwt = require ('jsonwebtoken');
 
 

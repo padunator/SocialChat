@@ -3,9 +3,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 /**
+ * This is the Server Side model for the question MongoDB - collection
  * Each connection object represents a user connected through a unique socket.
  * Each connection object composed of {userId + socketId}. Both of them together are unique.
- *
  */
 const QuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },

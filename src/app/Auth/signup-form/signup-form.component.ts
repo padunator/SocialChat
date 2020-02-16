@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import {NgForm} from '@angular/forms';
+
+/**
+ * This code serves as logic, view & style related component for registration related operations (Signup Form)
+ */
 
 @Component({
   selector: 'app-signup-form',

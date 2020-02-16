@@ -5,6 +5,10 @@ import {User} from '../interfaces/user.model';
 import {AuthService} from '../services/auth.service';
 import {Subscription} from 'rxjs/internal/Subscription';
 
+/**
+ * This code serves as logic, view & style related component which represents the Input Form for text input within the chat room
+ */
+
 @Component({
   selector: 'app-chat-form',
   templateUrl: './chat-form.component.html',

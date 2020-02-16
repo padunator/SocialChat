@@ -3,10 +3,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 /**
- * Each connection object represents a user connected through a unique socket.
- * Each connection object composed of {userId + socketId}. Both of them together are unique.
- *
+ * This is the Server Side model for the QuestionArchive MongoDB - collection
+ * This collection represents the question pool which is initially loaded from the questions_pool array, defined
+ * inside the quetsions_live data object
  */
+
 const QuestionArchive = new mongoose.Schema({
   question: { type: String, required: true },
   room: {type: String},

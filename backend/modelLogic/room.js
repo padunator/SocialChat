@@ -3,9 +3,10 @@ const Room = require('../models/Room');
 const User = require('../models/User');
 
 /**
- * Get all users in a room
- *
+ * This is a Logic Class which contains all methods to perform modifications on the room data collection
+ * @type {Model<Document>}
  */
+
 const updateConnections = async (obj) => {
   // Update Room-Connections with Game-Related Data of current running game
   await Room.updateOne({title: obj.roomID,'connections.userId': obj.email}, {'$set': {

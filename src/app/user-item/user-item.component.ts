@@ -3,6 +3,9 @@ import { User } from '../interfaces/user.model';
 import {AuthService} from '../services/auth.service';
 import {GameService} from '../services/game.service';
 
+/**
+ * This code serves as logic, view & style related component and represents the actual user object within the application
+ */
 
 @Component({
   selector: 'app-user-item',

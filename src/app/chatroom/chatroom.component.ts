@@ -1,6 +1,10 @@
 import {Component, OnInit, ViewChild, ElementRef, AfterViewChecked} from '@angular/core';
 import {ChatService} from '../services/chat.service';
 
+/**
+ * This code serves as logic, view & style related component of the chat-room which is actually a pool of other components,
+ * such as UserList, Feed and ChatForm Component
+ */
 
 @Component({
   selector: 'app-chatroom',

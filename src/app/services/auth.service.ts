@@ -5,8 +5,11 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {AuthData} from '../interfaces/auth.model';
 import {User} from '../interfaces/user.model';
 import {ChatSocket} from '../Sockets/ChatSocket';
-import {ChatMessage} from '../interfaces/chatMessage.model';
-import {GameService} from './game.service';
+
+/**
+ * This Service serves as an endpoint interface for Backend Communication, for all Chatroom related operations
+ * Any authentification related operation is being performed here
+ */
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -23,6 +26,7 @@ export class AuthService {
               private router: Router,
               private socket: ChatSocket) {}
 
+  // Getters
   get currUser(): User {
     return this._currUser;
   }
@@ -39,24 +43,26 @@ export class AuthService {
     return this._token;
   }
 
-    getUserLoggedListener() {
-      return this.userLoggedListener.asObservable();
-    }
+  // Get listeners for certain events
+  getUserLoggedListener() {
+    return this.userLoggedListener.asObservable();
+  }
 
-    getAuthStatusListener() {
-      return this.authStatusListener.asObservable();
-    }
+  getAuthStatusListener() {
+    return this.authStatusListener.asObservable();
+  }
 
-    getCredentialListener() {
-      return this.credentialListener.asObservable();
-    }
+  getCredentialListener() {
+    return this.credentialListener.asObservable();
+  }
 
-    login(email: string, password: string) {
+  // Rest API for login
+  login(email: string, password: string) {
 
       const authData: AuthData = ({
         email, password
       });
-      this.http.post<{token: string, expiresIn: number}>('http://localhost:3000/api/user/login', authData)
+      this.http.post<{token: string, expiresIn: number}>('http://192.168.0.164:3000/api/user/login', authData)
       .subscribe(response => {
           this._token = response.token;
           if (this._token) {
@@ -77,7 +83,8 @@ export class AuthService {
         });
     }
 
-    logout() {
+  // Rest API for logout
+  logout() {
       this.clearLocalStorage();
       this.setUserStatus(false).then(() => {
         this._isAuthenticated = false;
@@ -92,30 +99,32 @@ export class AuthService {
       });
     }
 
-
-    signUp(email: string, password: string, username: string) {
+  // Rest API for registration
+  signUp(email: string, password: string, username: string) {
     const userData: User = ({
       email, password, username, status: false
     });
-    this.http.post('http://localhost:3000/api/user/signup', userData)
+    this.http.post('http://192.168.0.164:3000/api/user/signup', userData)
       .subscribe(result => {
         console.log(result);
         this.router.navigate(['/login']);
       });
     }
 
-    getUser() {
-      this.http.get<{ message: string, user: User }>('http://localhost:3000/api/user/getUser/' + this._userMail)
+  // Rest API for getting the current user
+  getUser() {
+      this.http.get<{ message: string, user: User }>('http://192.168.0.164:3000/api/user/getUser/' + this._userMail)
         .subscribe(mappedResult => {
           this._currUser = mappedResult.user;
         });
     }
 
-     async setUserStatus(status: boolean): Promise<void> {
+  // Rest API for getting or setting the actual user status
+   async setUserStatus(status: boolean): Promise<void> {
       const data = {
         status: status
       };
-      this.http.put<{email: any}>('http://localhost:3000/api/user/changeStatus/' + this._userMail, data)
+      this.http.put<{email: any}>('http://192.168.0.164:3000/api/user/changeStatus/' + this._userMail, data)
       .subscribe(response => {
         this.socket.emit('changeStatus', {
           email: response.email,
@@ -125,7 +134,8 @@ export class AuthService {
        });
     }
 
-    autoAuthUser() {
+  // If page is reloaded - auto authenticate the user if token is still valid
+  autoAuthUser() {
       const authInfo =  this.getAuthData();
       if (!authInfo) {
         return;
@@ -139,17 +149,20 @@ export class AuthService {
       }
     }
 
-    private saveAuthData(token: string, expirationDate: Date, email: string) {
+  // Persist authentication data in local storage
+  private saveAuthData(token: string, expirationDate: Date, email: string) {
       localStorage.setItem('token', token);
       localStorage.setItem('expiration', expirationDate.toISOString());
       localStorage.setItem('email', email);
     }
 
-    private clearLocalStorage() {
+  // Clear whole local storage at logout
+  private clearLocalStorage() {
       localStorage.clear();
     }
 
-    private getAuthData() {
+  // Load authentication data from local storage
+  private getAuthData() {
       const token = localStorage.getItem('token');
       const expiration = localStorage.getItem('expiration');
       const email = localStorage.getItem('email');
@@ -164,17 +177,18 @@ export class AuthService {
       }
     }
 
-    private setAuthTimer(duration: number) {
+  // Set a timer for auto-logout after one hour
+  private setAuthTimer(duration: number) {
       this.tokenTimer = setTimeout(() => {
         this.logout();
       }, duration);
     }
 
+  // Auto restore authentication related information after page refresh
   private restoreAuthData(email: string) {
       // Add user related Information for User-List
       this._userMail = email;
       this.getUser();
-      // this.userLoggedListener.next(this._currUser);
       this._isAuthenticated = true;
       this.authStatusListener.next(true);
       this.setUserStatus(this._isAuthenticated);

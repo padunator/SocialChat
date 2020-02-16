@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import {Injectable, NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -28,11 +28,9 @@ import { UserItemComponent } from './user-item/user-item.component';
 import { ChatService } from './services/chat.service';
 import { AuthService } from './services/auth.service';
 import {ChatSocket} from './Sockets/ChatSocket';
-import {appRoutes, AppRoutingModule} from '../routes';
-import { environment } from '../environments/environment';
+import {AppRoutingModule} from '../routes';
 import {AuthInterceptor} from './services/auth-interceptor';
-import {SocketIoModule, SocketIoConfig, Socket} from 'ngx-socket-io';
-import {RoomSocket} from './Sockets/RoomSocket';
+import {SocketIoModule} from 'ngx-socket-io';
 import {GameSocket} from './Sockets/GameSocket';
 import {GameService} from './services/game.service';
 import { GameComponent } from './game/game.component';
@@ -42,9 +40,6 @@ import {AutosizeModule} from 'ngx-autosize';
 import {PickerModule} from '@ctrl/ngx-emoji-mart';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { ServerErrorComponent } from './error-pages/server-error/server-error.component';
-
-// const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {} };
-
 
 @NgModule({
   declarations: [
@@ -66,7 +61,6 @@ import { ServerErrorComponent } from './error-pages/server-error/server-error.co
   ],
   imports: [
     BrowserModule,
-    // RouterModule.forRoot(appRoutes),
     AppRoutingModule,
     FormsModule,
     IconsModule,
@@ -91,13 +85,12 @@ import { ServerErrorComponent } from './error-pages/server-error/server-error.co
     MatBadgeModule,
     AutosizeModule,
     MatCheckboxModule,
-    // SocketIoModule.forRoot(config)
   ],
   providers: [
     AuthService,
     ChatService,
     GameService,
-    ChatSocket, RoomSocket, GameSocket,
+    ChatSocket,  GameSocket,
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })

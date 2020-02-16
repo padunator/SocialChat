@@ -3,6 +3,10 @@ import { ChatService } from '../services/chat.service';
 import { ChatMessage} from '../interfaces/chatMessage.model';
 import {Subscription} from 'rxjs/internal/Subscription';
 
+/**
+ * This code serves as logic, view & style related component and represents the actual Chat feed within the application
+ */
+
 @Component({
   selector: 'app-feed',
   templateUrl: './feed.component.html',

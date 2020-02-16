@@ -5,7 +5,11 @@ const User = require('../models/User');
 const Room = require('../models/Room');
 const roomLogic = require('../modelLogic/room');
 const router = express.Router();
+/**
+ * Middleware for the authentication route which handle authentication and user related REST Api calls
+ */
 
+// Register a new user
 router.post("/signup", (req, res, next) => {
     bcrypt.hash(req.body.password, 10).then(hash => {
       const user = new User({
@@ -28,6 +32,7 @@ router.post("/signup", (req, res, next) => {
     });
   });
 
+// Check authentication data and create token for the acgtive session
 router.post("/login", (req, res, next) => {
   let fetchedUser;
 
@@ -64,6 +69,7 @@ router.post("/login", (req, res, next) => {
   });
 });
 
+// Change online/ offline status for the user
 router.put("/changeStatus/:email", (req, res, next) => {
   User.updateOne({email: req.params.email}, {status: req.body.status})
     .then(result => {
@@ -71,6 +77,7 @@ router.put("/changeStatus/:email", (req, res, next) => {
     });
 });
 
+// Get specific user
 router.get("/getUser/:email",  (req, res, next) => {
   console.log('In Server get Method for email ' + req.params.email);
   User.findOne({email: req.params.email}).
@@ -86,6 +93,7 @@ router.get("/getUser/:email",  (req, res, next) => {
     });
 });
 
+// Get list of users
 router.get("/getUsers",  (req, res, next) => {
   User.find().then(foundUsers => {
     return res.status(200).json({
@@ -94,6 +102,7 @@ router.get("/getUsers",  (req, res, next) => {
   });
 });
 
+// Get users in specific room
 router.get("/getUsersInRoom/:room",  (req, res, next) => {
   Room.findOne({title: req.params.room}).then(room => {
     roomLogic.getUsers(room, function (err, users, cuntUserInRoom) {

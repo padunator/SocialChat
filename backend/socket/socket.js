@@ -1,5 +1,13 @@
 'use strict';
 
+/**
+ * This is the Socket connection endpoint which is listening on the certain namespaces to execute the corresponding
+ * logic when event is emitted on the client side.
+ * The results are then sent back to the clients by using the event name of the so called socket-event-listeners
+ * which are defined in the corresponding service-classes.
+ * Occurring events mostly execute a predefined logic in the the OnInit Method of the corresponding Component
+ * @type {module:http}
+ */
 const http = require("http");
 const socketIO = require('socket.io');
 const Sockets = require('../models/UserSockets');
@@ -154,7 +162,6 @@ const ioEvents = function(io) {
         'connections.$.duration': obj.duration,
         'connections.$.score': obj.score
       }}, {new: true}).then(updatedConn => {
-        console.log('Connection updated!');
       }).catch(err => console.error('Error while updating connections for running game ' + err));
 
       // Update Question Collection with Game-Related answers of current running game
@@ -204,6 +211,7 @@ const ioEvents = function(io) {
   });
 };
 
+// Logic to remove the user of the corresponding socket from a given room
 const removeUserFromGame = (socket, room) => {
   roomLogic.removeUser(socket, room)
     .then((response) =>{
