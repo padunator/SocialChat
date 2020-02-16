@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, AfterViewChecked, ViewChild, ElementRef} from '@angular/core';
+import {Component, OnInit, Input} from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ChatMessage} from '../interfaces/chatMessage.model';
 
@@ -11,8 +11,11 @@ import { ChatMessage} from '../interfaces/chatMessage.model';
   templateUrl: './message.component.html',
   styleUrls: ['./message.component.css']
 })
-export class MessageComponent implements OnInit, AfterViewChecked {
+export class MessageComponent implements OnInit {
 
+  /**
+   * The actual message, introduced in the corresponding Template (html)
+   */
   @Input() chatMessage: ChatMessage;
   userEmail: string;
   userName: string;
@@ -21,13 +24,16 @@ export class MessageComponent implements OnInit, AfterViewChecked {
   isOwnMessage: boolean;
   url_matches: any;
 
-  // Needed for Microlink Preview
-/*  @Input() url: string;
-  @Input() options: object;
-  @Input() style: object;
-  @ViewChild('card', { static: false }) card: ElementRef;*/
+  /**
+   * Constructor for injecting the needed object instances into the Component
+   * @param authService The authentication service which holds user related data
+   */
   constructor(private authService: AuthService) {}
 
+  /**
+   * OnInit method which gets called always when this page/component is loaded
+   * @param chatMessage The introduced chat message which holds message, user, date etc.
+   */
   ngOnInit(chatMessage = this.chatMessage) {
     // this.url_matches = this.chatMessage.message.match(/\b(http|https)?:\/\/\S+/gi) || [];
     this.messageContent = chatMessage.message;
@@ -37,11 +43,4 @@ export class MessageComponent implements OnInit, AfterViewChecked {
     this.isOwnMessage = chatMessage.email === this.authService.userMail;
     this.url_matches = chatMessage.url_matches;
   }
-
-  ngAfterViewChecked(): void {
-    // @ts-ignore
-    // eslint-disable-next-line no-undef
-    // microlink(this.card.nativeElement, this.options);
-  }
-
 }

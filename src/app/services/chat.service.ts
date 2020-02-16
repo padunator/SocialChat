@@ -14,19 +14,48 @@ import {ChatSocket} from '../Sockets/ChatSocket';
 
 @Injectable({providedIn: 'root'})
 export class ChatService {
+  /**
+   * Array of actual chat messages, loaded from the DB
+   */
   private chatMessages: ChatMessage[] = [];
+  /**
+   * Array of currently registered users
+   */
   private users: User[] = [];
+  /**
+   * Subject to listen for logged in users
+   */
   private userLoggedListener = new Subject<User[]>();
+  /**
+   * Subject to indicate that chat content has been updated
+   */
   private chatUpdated = new Subject<ChatMessage[]>();
+  /**
+   * Event to listen for or indicate emoji selection
+   */
   private emojiSelected = new Subject<any>();
 
-  // Socket-event-listeners
+  /**
+   * Listens for new sent messages
+   */
   newMessage = this.socket.fromEvent<ChatMessage>('ChatMessage');
+  /**
+   * Listens for newly logged users
+   */
   newUser = this.socket.fromEvent<any>('userLogged');
 
+  /**
+   * Constructor with injected object instances needed during game execution
+   * @param http Http Client for REST API calls
+   * @param router Router for switching pages
+   * @param socket Chat Socket for socket communication within the chat namespace
+   */
   constructor(private http: HttpClient, private  router: Router, private socket: ChatSocket) { }
 
-  // Sending & Saving Chat messages - demonstration by using Socket and Rest API
+  /**
+   * Sending & Saving Chat messages - demonstration by using Socket and Rest API
+   * @param chatMsg The actual message sent
+   */
   sendMessage(chatMsg: ChatMessage) {
     // Sending the message to the other users
     this.socket.emit('new-message', chatMsg);
@@ -37,12 +66,17 @@ export class ChatService {
       });
   }
 
-  // Inform observable if emoji was selected
+  /**
+   * Inform observable that emoji was selected and send the emoji to the observable
+   * @param $event The actual emoji which has been selected
+   */
   addEmoji($event: any) {
     this.emojiSelected.next($event);
   }
 
-  // Rest API call for getting whole chat feed
+  /**
+   *  Rest API call for getting whole chat feed
+   */
   getMessages() {
     this.http.get<{ message: string, chatMessages: any }>('http://192.168.0.164:3000/api/chat')
       .subscribe(mappedMessage => {
@@ -51,20 +85,30 @@ export class ChatService {
       });
   }
 
-  // Get event listeners
+  /**
+   * Returns the observable for updated chats
+   */
   getChatUpdatedListener() {
     return this.chatUpdated.asObservable();
   }
 
+  /**
+   * Returns the observable for selected emojis
+   */
   getEmojiSelectedListener() {
     return this.emojiSelected.asObservable();
   }
 
+  /**
+   * Returns the observable for logged users
+   */
   getUserLoggedListener() {
     return this.userLoggedListener.asObservable();
   }
 
-  // Rest API call for getting list of all users
+  /**
+   * Rest API call for getting all registered users
+   */
   getUsers() {
     this.http.get<{ user: User[] }>('http://192.168.0.164:3000/api/user/getUsers')
       .pipe(map(postData => {

@@ -22,41 +22,42 @@ export class AuthService {
   private credentialListener = new Subject<boolean>();
   private tokenTimer: NodeJS.Timer;
 
+  /**
+   * Constructor with injected object instances needed during game execution
+   * @param http Http Client for REST API calls
+   * @param router Router for switching pages
+   * @param socket Chat Socket for socket communication within the chat namespace
+   */
   constructor(private http: HttpClient,
               private router: Router,
               private socket: ChatSocket) {}
 
-  // Getters
-  get currUser(): User {
-    return this._currUser;
-  }
-
-  get isAuthenticated(): boolean {
-    return this._isAuthenticated;
-  }
-
-  get userMail(): string {
-    return this._userMail;
-  }
-
-  get token(): string {
-    return this._token;
-  }
-
-  // Get listeners for certain events
+  /**
+   * Returns the observable for logged users
+   */
   getUserLoggedListener() {
     return this.userLoggedListener.asObservable();
   }
 
+  /**
+   * Returns the observable for changing (online/offline) status
+   */
   getAuthStatusListener() {
     return this.authStatusListener.asObservable();
   }
 
+  /**
+   * Returns the observable for wrong introduced credentials to show the message in the login dialog
+   */
   getCredentialListener() {
     return this.credentialListener.asObservable();
   }
 
-  // Rest API for login
+  /**
+   * Rest API for login
+   * @param email The username
+   * @param password The password
+   */
   login(email: string, password: string) {
 
       const authData: AuthData = ({
@@ -83,7 +84,9 @@ export class AuthService {
         });
     }
 
-  // Rest API for logout
+  /**
+   * Rest API for logout
+   */
   logout() {
       this.clearLocalStorage();
       this.setUserStatus(false).then(() => {
@@ -99,7 +102,12 @@ export class AuthService {
       });
     }
 
-  // Rest API for registration
+  /**
+   * Rest API for registration
+   * @param email The email
+   * @param password The password
+   * @param username The username
+   */
   signUp(email: string, password: string, username: string) {
     const userData: User = ({
       email, password, username, status: false
@@ -111,7 +119,9 @@ export class AuthService {
       });
     }
 
-  // Rest API for getting the current user
+  /**
+   * Rest API for getting the current user
+   */
   getUser() {
       this.http.get<{ message: string, user: User }>('http://192.168.0.164:3000/api/user/getUser/' + this._userMail)
         .subscribe(mappedResult => {
@@ -119,7 +129,11 @@ export class AuthService {
         });
     }
 
-  // Rest API for getting or setting the actual user status
+  /**
+   * Rest API for getting or setting the actual user status
+   * @param status The status the user has to be changed to (offline/online)
+   * @return Promise to indicate that the status change has been performed
+   */
    async setUserStatus(status: boolean): Promise<void> {
       const data = {
         status: status
@@ -134,7 +148,9 @@ export class AuthService {
        });
     }
 
-  // If page is reloaded - auto authenticate the user if token is still valid
+  /**
+   * If page is reloaded - auto authenticate the user if token is still valid
+   */
   autoAuthUser() {
       const authInfo =  this.getAuthData();
       if (!authInfo) {
@@ -149,19 +165,28 @@ export class AuthService {
       }
     }
 
-  // Persist authentication data in local storage
+  /**
+   * Persist authentication data in local storage
+   * @param token The generated token
+   * @param expirationDate The expiration date
+   * @param email The email of the current user
+   */
   private saveAuthData(token: string, expirationDate: Date, email: string) {
       localStorage.setItem('token', token);
       localStorage.setItem('expiration', expirationDate.toISOString());
       localStorage.setItem('email', email);
     }
 
-  // Clear whole local storage at logout
+  /**
+   * Clear whole local storage at logout
+   */
   private clearLocalStorage() {
       localStorage.clear();
     }
 
-  // Load authentication data from local storage
+  /**
+   *  Load authentication data from local storage
+   */
   private getAuthData() {
       const token = localStorage.getItem('token');
       const expiration = localStorage.getItem('expiration');
@@ -177,14 +202,20 @@ export class AuthService {
       }
     }
 
-  // Set a timer for auto-logout after one hour
+  /**
+   * Set a timer for auto-logout after one hour
+   * @param duration The time the token and therefor the connection should be active
+   */
   private setAuthTimer(duration: number) {
       this.tokenTimer = setTimeout(() => {
         this.logout();
       }, duration);
     }
 
-  // Auto restore authentication related information after page refresh
+  /**
+   * Auto restore authentication related information after page refresh
+   * @param email The email of the current user
+   */
   private restoreAuthData(email: string) {
       // Add user related Information for User-List
       this._userMail = email;
@@ -195,4 +226,23 @@ export class AuthService {
       // Update the Socket Entry for persistent communication after page refresh
       this.socket.emit('login', email);
   }
+
+
+  // Getters
+  get currUser(): User {
+    return this._currUser;
+  }
+
+  get isAuthenticated(): boolean {
+    return this._isAuthenticated;
+  }
+
+  get userMail(): string {
+    return this._userMail;
+  }
+
+  get token(): string {
+    return this._token;
+  }
+
 }

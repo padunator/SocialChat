@@ -15,6 +15,11 @@ export class GameroomComponent implements OnInit {
 
   constructor(private gameService: GameService) { }
 
+  /**
+   * OnInit method which gets called always when this page/component is loaded
+   * At the moment the local storage data is being (re)-loaded as soon as this component gets called to make sure
+   * we have a persistent connection / game even is page is reloaded during the game
+   */
   ngOnInit() {
     // Load actual values from local storage (must be done before loading Questions)
     this.gameService.restoreGameDate();

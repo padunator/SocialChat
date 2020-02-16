@@ -25,48 +25,147 @@ import {
   providedIn: 'root'
 })
 export class GameService {
-  // Game related data (used in game and result component
+  /**
+   * Saves the actual Room
+   */
   private game: Room;
+  /**
+   * Saves the loaded question array locally which has been loaded from the DB
+   */
   private _questions: Question[] = [];
+  /**
+   * Saves the player you are playing against
+   */
   private _opponent: string;
+  /**
+   * Saves the passed time in the game
+   */
   private _seconds = 0;
+  /**
+   * Saves the actual question progress in the game
+   */
   private _qnProgress: number;
+  /**
+   * Saves the actual score of the current player
+   */
   private _score: number;
+  /**
+   * Saves the score of the opponent
+   */
   private _opScore = 0;
+  /**
+   * Saves the room title of the game the user is in
+   */
   private _roomTitle: string;
+  /**
+   * Counts the correct answered questions
+   */
   private _correctAnswerCount: number;
+  /**
+   * String which switches between "own" and "opponents" to indicate for which one you should answer the question
+   */
   private _selectionString = 'own';
+  /**
+   * Boolean variable also indicates if you are currently selecting your own answer or the guess of the opponents answer
+   */
   private _ownSelection: boolean;
+  /**
+   * Indicates if opponent already answered the current question
+   */
   private _opponentFinished: boolean;
+  /**
+   * Indicates if you are already waiting for the other player to answer the question
+   */
   private _waitingForPlayer: boolean;
+  /**
+   * Indicates if the 50/50 has already been selected
+   */
   private _fiftyJokerIsPressed: boolean;
+  /**
+   * Indicates if the New Qn Joker is currently executed
+   */
   private _newQnJokerIsPressed: boolean;
+  /**
+   * Indicates if the 50/50 Joker is currently executed
+   */
   private _fiftyFiftyJokerSelected: boolean;
+  /**
+   * Indicates if the New Qn Joker has already been selected
+   */
   private _newQnSelected: boolean;
-  private playersJoined = new Subject<User[]>();
+  /**
+   * Flag for showing customized Message Dialogs while user is waiting during the game
+   */
   private _jokerUsed: boolean;
+  /**
+   * Timer which incremets the second variable during the game
+   */
   timer;
-  // Subjects for Observables
+  /**
+   * Subscription which gets called as soon as both players joined the room
+   */
+  private playersJoined = new Subject<User[]>();
+  /**
+   * Subscription which indicates if questions have been updated
+   */
   questionsUpdated = new Subject<Question[]>();
+  /**
+   * Subscription which gets called as soon as the high scores have been loaded from the DB
+   */
   highScoreLoaded = new Subject<HighScore[]>();
 
 
   // Socket listeners
+  /**
+   * Listens for Game Invitations
+   */
   gameRequest = this.socket.fromEvent<any>('ConfirmGame');
+  /**
+   * Is called as soon as other player accepts invitation to join the game
+   */
   joinRequest = this.socket.fromEvent<any>('JoinGame');
+  /**
+   * Is called as soon as both players joined the game
+   */
   gameReady = this.gameSocket.fromEvent<any>('GameReady');
+  /**
+   * Indicates if user disconnects from current game
+   */
   userDisconnected = this.gameSocket.fromEvent<User>('removeUser');
+  /**
+   * Listens for new created questions via the "Custom Qn Joker"
+   */
   jokerSelected = this.gameSocket.fromEvent<any>('joker-selected');
+  /**
+   * Inform the opponent about the Joker selection to prevent simultaneous usage
+   */
   jokerInformer = this.gameSocket.fromEvent<any>('notifyOpponent');
+  /**
+   * Listens for new answers from the opponent
+   */
   playerAnswered = this.gameSocket.fromEvent<any>('PlayerAnswered');
+  /**
+   * Array of current users in game
+   */
   private users: User[] = [];
+  /**
+   * Array of highscores
+   */
   private _scoreTable: HighScore[] = [];
 
+  /**
+   * Constructor with injected object instances needed during game execution
+   * @param http Http Client for Rest API calls
+   * @param router Responsible for routing to the result page after game is finished
+   * @param authService Authentication Service which holds the user data of actual connection
+   * @param socket Responsible for socket connection of "Chat" namespace
+   * @param gameSocket Responsible for socket connection of "Game" namespace
+   */
   constructor(private http: HttpClient, private  router: Router, private authService: AuthService,
               private socket: ChatSocket, private gameSocket: GameSocket) {
   }
 
-  // Event listeners
+
   getQuestionUpdatedListener() {
     return this.questionsUpdated.asObservable();
   }
@@ -79,7 +178,10 @@ export class GameService {
     return this.playersJoined.asObservable();
   }
 
-  // Rest API call for creating a new room and executing game initialization logic
+  /**
+   * Rest API call for creating a new room and executing game initialization logic
+   * @param The actual request object which holds the title of the newly created room
+   */
   createNewRoom(req: any) {
     const room: Room = ({title: req.title});
     this.http.post<{ roomId: string, message: string }>('http://192.168.0.164:3000/api/game/createRoom', {
@@ -100,7 +202,13 @@ export class GameService {
       });
   }
 
-  // Joining the room via socket connection
+  /**
+   * Joining the room via socket connection
+   * @param The actual request object which holds
+   * roomTitle
+   * Mail of current user
+   * Mail of opponent
+   */
   joinGame(req: any) {
     this.roomTitle = req.title;
     this.gameSocket.emit('join', {
@@ -119,12 +227,17 @@ export class GameService {
     });
   }
 
-  // Create room via socket connection (not used the moment)
+  /**
+   * Create room via socket connection (not used the moment)
+   * @param The title of the room to create
+   */
   createRoom(title: string) {
     this.gameSocket.emit('createRoom', title);
   }
 
-  // Start game timer during quiz
+  /**
+   * Start game timer during quiz
+   */
   startTimer() {
     if (this.timer) {
       clearInterval(this.timer);
@@ -134,17 +247,26 @@ export class GameService {
     }, 1000);
   }
 
-  // Stop game timer while user is waiting for opponent or if game is finished
+  /**
+   * Stop game timer while user is waiting for opponent or if game is finished
+   */
   stopTimer() {
     clearInterval(this.timer);
   }
 
-  // Display the elapsed time in the game page
+  /**
+   * Display the elapsed time in the game page
+   */
   displayTimeElapsed() {
     return Math.floor(this._seconds / 3600) + ':' + Math.floor(this._seconds / 60) + ':' + Math.floor(this._seconds % 60);
   }
 
-  // Send game request to the selected user via socket connection
+  /**
+   * Send game request to the selected user via socket connection
+   * @param title Room Title
+   * @param user Current User mail
+   * @param userMail Other users mail
+   */
   sendGameRequest(title: string, user: User, userMail: String) {
     this.socket.emit('sendGameRequest', {
       to: user.email,
@@ -178,8 +300,10 @@ export class GameService {
       });
   }
 
-  // Calculate actual score by comparing the answers of both players
-  // Right answer = 10 Points - Right answer & same answer = 15 points
+  /**
+   * Calculate actual score by comparing the answers of both players
+   * Right answer = 10 Points - Right answer & same answer = 15 points
+   */
   calculateScore() {
     const ownAnswer = this.getAnswer(this.authService.userMail);
     const oppAnswer = this.getAnswer(this._opponent);
@@ -201,12 +325,18 @@ export class GameService {
     }
   }
 
-  // Get the answer for a specific question and user from the local loaded question array
+  /**
+   * Get the answer for a specific question and user from the local loaded question array
+   * @param email Current users mail
+   * @param qnProgress Questions progress for actual game
+   */
   getAnswer(email, qnProgress = this._qnProgress) {
     return this.questions[qnProgress].answers.find(answer => answer.email === email);
   }
 
-  // Rest API call for getting all questions of the current game room the user is in
+  /**
+   * Rest API call for getting all questions of the current game room the user is in
+   */
   getQuestions() {
     this.http.get<{ message: string, questions: Question[] }>('http://192.168.0.164:3000/api/game/getQuestions/' + this._roomTitle)
       .pipe(map(data => {
@@ -227,7 +357,9 @@ export class GameService {
     });
   }
 
-  // When user responded to one question - the corresponding Question is being updated with his selections
+  /**
+   * When user responded to one question - the corresponding Question is being updated with his selections
+   */
   updateQuestionCatalog() {
     this.gameSocket.emit('new-game-response', {
       question: this._questions[this._qnProgress],
@@ -239,7 +371,9 @@ export class GameService {
     });
   }
 
-  // When user selected the new Qn Joker this questions is being saved in the question pool for future games
+  /**
+   * When user selected the new Qn Joker this questions is being saved in the question pool for future games
+   */
   executeQuestionUpdate() {
     this.gameSocket.emit('update-question', {
       roomID: this._roomTitle,
@@ -248,24 +382,36 @@ export class GameService {
     });
   }
 
-  // Helper method for calculating score
+  /**
+   * Helper method for calculating score
+   * @param qnNo Number of actual question
+   * @param optNo Actual selection
+   */
   isCorrect(qnNo: number, optNo: number) {
     const oppAnswer = this.getAnswer(this._opponent, qnNo);
     return (parseInt(oppAnswer.own.toString(), 10) === optNo);
   }
 
-  // Helper method for result page (show correct / wrong answers)
+  /**
+   * Helper method for result page (show correct / wrong answers)
+   * @param qnNo Number of actual question
+   * @param optNo Actual selection
+   */
   mySelection(qnNo: number, optNo: number) {
     const ownAnswer = this.getAnswer(this.authService.userMail, qnNo);
     return (parseInt(ownAnswer.guess.toString(), 10) === optNo);
   }
 
-  // Inform opponent if game is declined
+  /**
+   * Inform opponent if game is declined
+   */
   sendGameDecline() {
     this.gameSocket.emit('DeclineGame');
   }
 
-  // Get current users in current room
+  /**
+   * Get current users in current room
+   */
   getUsersInRoom() {
     this.http.get<{ user: User[] }>('http://192.168.0.164:3000/api/user/getUsersInRoom/' + this._roomTitle)
       .pipe(map(postData => {
@@ -292,7 +438,9 @@ export class GameService {
     });
   }
 
-  // Rest API call for posting new high score into the related collecion
+  /**
+   * Rest API call for posting new high score into the related collection
+   */
   insertHighScore() {
     this.http.post<{message: string, scores: HighScore []}>('http://192.168.0.164:3000/api/game/createHighScore', {
       roomID: this._roomTitle,
@@ -307,12 +455,16 @@ export class GameService {
       });
   }
 
-  // Rest API call for getting all the high scores
+  /**
+   * Rest API call for getting all the high scores
+   */
   getHighScores() {
     return this.http.get<{scores: HighScore []}>('http://192.168.0.164:3000/api/game/getHighScores');
   }
 
-  // Inform opponent over the active socket connection that joker has been selected
+  /**
+   * Inform opponent over the active socket connection that joker has been selected
+   */
   informOpponent() {
     this.gameSocket.emit('informOpponent', {
       roomID: this._roomTitle,
@@ -320,12 +472,16 @@ export class GameService {
     });
   }
 
-  // Leave the current game
+  /**
+   * Leave the current game
+   */
   leaveGame() {
     this.gameSocket.emit('leaveGame', this._roomTitle);
   }
 
-  // Restore temp data from local storage if page has been reloaded to have a persistent connection
+  /**
+   * Restore temp data from local storage if page has been reloaded to have a persistent connection
+   */
   restoreGameDate() {
     this._seconds = parseInt(localStorage.getItem('seconds'), 10) || 0;
     this._qnProgress = parseInt(localStorage.getItem('qnProgress'), 10) || 0;
@@ -333,7 +489,7 @@ export class GameService {
     this._opScore = parseInt(localStorage.getItem('opScore'), 10) || 0;
     this._correctAnswerCount = parseInt(localStorage.getItem('counter'), 10) || 0;
     this._waitingForPlayer = JSON.parse(localStorage.getItem('waiting')) || false;
-    this._jokerUsed = JSON.parse(localStorage.getItem('jokerUsed')) || false;
+    // this._jokerUsed = JSON.parse(localStorage.getItem('jokerUsed')) || false;
     this._newQnJokerIsPressed = JSON.parse(localStorage.getItem('newQnJokerPressed')) || false;
     this._fiftyJokerIsPressed = JSON.parse(localStorage.getItem('fiftyJokerPressed')) || false;
     this._opponentFinished = JSON.parse(localStorage.getItem('opponentFinished')) || false;
@@ -347,7 +503,9 @@ export class GameService {
     this._newQnSelected = JSON.parse(localStorage.getItem('newQnJoker')) || false;
   }
 
-  // Clear temp data from local storage if player leaves game
+  /**
+   * Clear temp data from local storage if player leaves game
+   */
   clearLocalGameStorage() {
     this.stopTimer();
     localStorage.removeItem('room');
@@ -369,7 +527,7 @@ export class GameService {
     localStorage.removeItem('seconds');
   }
 
-  // Setters
+
   set opScore(value: number) {
     this._opScore = value;
     localStorage.setItem('opScore', this._opScore.toString());
@@ -465,10 +623,6 @@ export class GameService {
     return this._newQnJokerIsPressed;
   }
 
-  get jokerUsed(): boolean {
-    return this._jokerUsed;
-  }
-
   get opScore(): number {
     return this._opScore;
   }
@@ -528,6 +682,9 @@ export class GameService {
     return this._correctAnswerCount;
   }
 
+  get jokerUsed(): boolean {
+    return this._jokerUsed;
+  }
 
   get scoreTable(): HighScore[] {
     return this._scoreTable;

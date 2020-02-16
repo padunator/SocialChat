@@ -5,6 +5,10 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './server-error.component.html',
   styleUrls: ['./server-error.component.css']
 })
+
+/**
+ * This model handles server error responses and shows the corresponding page in the browser
+ */
 export class ServerErrorComponent implements OnInit {
 
   public reportedError: boolean;

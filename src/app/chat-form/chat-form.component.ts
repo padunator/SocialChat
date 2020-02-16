@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { ChatService } from '../services/chat.service';
 import {ChatMessage} from '../interfaces/chatMessage.model';
 import {User} from '../interfaces/user.model';
@@ -16,27 +16,62 @@ import {Subscription} from 'rxjs/internal/Subscription';
 })
 
 export class ChatFormComponent implements OnInit {
+  /**
+   * Indicates if Emoji Dialog is currently shown or hidden
+   */
   showEmojiPicker = false;
+  /**
+   * Holds the actual message introduced in the Chat fom
+   */
   message: string;
+  /**
+   * Holds the currently connected user
+   */
   currUser: User;
+  /**
+   * Indicates if user is currently authenticated
+   */
   userAuthenticated = false;
+  /**
+   * Subscription which executes logic as soon user authenticates
+   */
   private authListenerSubscription: Subscription;
+  /**
+   * Subscription which executes as soon as an emoji is being selected in the ChatFeed Component's Emoji Mart
+   * Chat Feed -> Chat Service "next" -> Chat Form Subscription -> Chat Form addEmoji
+   */
   private emojiSelectedSubscription: Subscription;
 
+  /**
+   * Event Emitter which gets called if EmojiButton has been pressed
+   */
   @Output() emojiButtonPressed = new EventEmitter<boolean>();
+
+  /**
+   * Constructor with injected object instances needed during game execution
+   * @param chatService Chat Service which holds all chat related data
+   * @param authService Auth Service which holds all authentication & Connection related data
+   */
   constructor(private chatService: ChatService, private authService: AuthService) { }
 
+  /**
+   * OnInit Method which gets called every time the page is (re)loaded
+   * Executes the logic of the defined subscription as soon as the corresponding events are emitted
+   */
   ngOnInit() {
     this.userAuthenticated = this.authService.isAuthenticated;
     this.authListenerSubscription = this.authService.getUserLoggedListener().subscribe( (loggedUser: User) => {
       this.currUser =  loggedUser;
     });
-
+    // Chat Feed -> Chat Service "next" -> Chat Form Subscription -> Chat Form addEmoji
     this.emojiSelectedSubscription = this.chatService.getEmojiSelectedListener().subscribe( (event) => {
       this.addEmoji(event);
     });
   }
 
+  /**
+   * Prepare data for sending the actual chat message, and also extract URIs for Link Preview within the Chat feed
+   */
   send() {
 
     if (this.message.length !== 1) {
@@ -70,6 +105,9 @@ export class ChatFormComponent implements OnInit {
     this.message = '';
   }
 
+  /**
+   * Get the current date/time
+   */
   getTimeStamp() {
     const now = new Date();
     const date = now.getUTCDate() + '.' +
@@ -82,20 +120,24 @@ export class ChatFormComponent implements OnInit {
     return (date + ' ' + time);
   }
 
+  /**
+   * Toggles emoji dialog to show/hide the dialog
+   */
   toggleEmojiPicker() {
     this.showEmojiPicker = !this.showEmojiPicker;
     this.emojiButtonPressed.emit(this.showEmojiPicker);
 }
 
+  /**
+   * Adds the selected emoji into the current input dialog
+   * @param event The current selection
+   */
   addEmoji(event) {
     let message = '';
     if (this.message) {
       message = this.message;
     }
     const text = `${message}${event.emoji.native}`;
-
-    console.log('MESSAGE ' + message);
-    console.log('TEXT ' + text  );
 
     this.message = text;
     this.toggleEmojiPicker();
