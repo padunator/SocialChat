@@ -63,7 +63,7 @@ export class AuthService {
       const authData: AuthData = ({
         email, password
       });
-      this.http.post<{token: string, expiresIn: number}>('http://192.168.0.164:3000/api/user/login', authData)
+      this.http.post<{token: string, expiresIn: number}>('http://localhost:3000/api/user/login', authData)
       .subscribe(response => {
           this._token = response.token;
           if (this._token) {
@@ -112,9 +112,8 @@ export class AuthService {
     const userData: User = ({
       email, password, username, status: false
     });
-    this.http.post('http://192.168.0.164:3000/api/user/signup', userData)
+    this.http.post('http://localhost:3000/api/user/signup', userData)
       .subscribe(result => {
-        console.log(result);
         this.router.navigate(['/login']);
       });
     }
@@ -123,7 +122,7 @@ export class AuthService {
    * Rest API for getting the current user
    */
   getUser() {
-      this.http.get<{ message: string, user: User }>('http://192.168.0.164:3000/api/user/getUser/' + this._userMail)
+      this.http.get<{ message: string, user: User }>('http://localhost:3000/api/user/getUser/' + this._userMail)
         .subscribe(mappedResult => {
           this._currUser = mappedResult.user;
         });
@@ -138,7 +137,7 @@ export class AuthService {
       const data = {
         status: status
       };
-      this.http.put<{email: any}>('http://192.168.0.164:3000/api/user/changeStatus/' + this._userMail, data)
+      this.http.put<{email: any}>('http://localhost:3000/api/user/changeStatus/' + this._userMail, data)
       .subscribe(response => {
         this.socket.emit('changeStatus', {
           email: response.email,

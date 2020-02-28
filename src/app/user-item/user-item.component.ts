@@ -32,6 +32,7 @@ export class UserItemComponent {
    * @param user The selected user which should get the invitation
    */
   invite(user: User) {
+    console.log('INVITING!');
     if ( user.status && (user.email !==  this.authService.userMail) && this.gameService.seconds === 0)  {
       this.gameService.sendGameRequest(this.makeRandom(), user, this.authService.userMail);
     }

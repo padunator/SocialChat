@@ -9,6 +9,6 @@ import {Injectable} from '@angular/core';
 export class ChatSocket extends Socket {
 
   constructor() {
-    super({ url: 'http:// 192.168.0.164:3000/chat', options: {} });
+    super({ url: 'http://localhost:3000/chat', options: {} });
   }
 }

@@ -19,16 +19,22 @@ const gameRoutes = require( './routes/game');
 
 
 //Establish database connection with the MongoDB Cloud
+/**
+ * For every official Game of the Study - a separate Database was created in order to be able
+ * to distinguish between the particular Chat - Feeds. This could be improved in the future by implementing
+ * chat rooms!
+ */
 mongoose.connect(
-  // "mongodb+srv://stefanpadi:z1n%3B%21F1GkTZq@clearn-zrafl.mongodb.net/clearn-chatapp", Project0
-  // "mongodb+srv://stefanpadi:2809777paduretu@cluster0-exwix.mongodb.net/clearn-chatapp", // Game3_BAKK
-  "mongodb+srv://stefanpadi:z1n%3B%21F1GkTZq@cluster0-thibu.mongodb.net/clearn-chatapp", // SWA
+  // "mongodb+srv://stefanpadi:z1n%3B%21F1GkTZq@clearn-zrafl.mongodb.net/clearn-chatapp", Game1
+  // "mongodb+srv://stefanpadi:2809777paduretu@cluster0-exwix.mongodb.net/clearn-chatapp", // Game3
+  "mongodb+srv://stefanpadi:z1n%3B%21F1GkTZq@cluster0-thibu.mongodb.net/clearn-chatapp", // TEST
+  //"mongodb+srv://stefanpadi:2809777paduretu@cluster0-xhpy1.mongodb.net/clearn-chatapp", // Game2
   {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => {
-    console.log("Database connected!");
+    console.info("Database connected!");
   })
   .catch(() => {
-    console.log("Connection failed!");
+    console.info("Connection failed!");
   });
 
 

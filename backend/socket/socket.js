@@ -30,7 +30,7 @@ const ioEvents = function(io) {
 
   // Chat namespace
   io.of('/chat').on('connection', (socket) => {
-    console.log('Chat Socket connected on server');
+    console.info('Chat Socket connected on server');
 
     socket.on('new-message', (message) => {
       let result = sentiment.analyze(message.message);
@@ -89,7 +89,7 @@ const ioEvents = function(io) {
 
   // Game namespace
   io.of('/game').on('connection', function(socket) {
-    console.log('Game Socket connected on server');
+    console.info('Game Socket connected on server');
     // Create a new room UPDATE
     socket.on('createRoom', async (title) => {
       let room = await Room.findOne({title: title});
@@ -104,7 +104,6 @@ const ioEvents = function(io) {
 
     // Join a Gameroom
     socket.on('join', async function(obj,ack){
-      // let room = await Room.findOne({title: obj.title});
       let room = await  Room.findOne({title: obj.title});
         // Push a new connection object(i.e. {userId + socketId})
       if (room.noOfPlayers > room.connections.length) {
@@ -122,12 +121,10 @@ const ioEvents = function(io) {
         room = await room.save();
         socket.join(room.title);
         socket.username = obj.userId;
-
         // Join the room channel
         if (room.noOfPlayers === room.connections.length) {
           room.isOpen = false;
           room = await room.save();
-
           Promise.all(
             room.connections.map(connection => {
               return Question.find({room: room.title}).then(questions => {
@@ -205,7 +202,7 @@ const ioEvents = function(io) {
 
     // When a socket exits or refreshes the Page
     socket.on('disconnect', () => {
-      console.log('Disconnecting game socket...')
+      console.info('Disconnecting game socket...')
       // removeUserFromGame(socket);
     });
   });

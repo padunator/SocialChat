@@ -184,7 +184,7 @@ export class GameService {
    */
   createNewRoom(req: any) {
     const room: Room = ({title: req.title});
-    this.http.post<{ roomId: string, message: string }>('http://192.168.0.164:3000/api/game/createRoom', {
+    this.http.post<{ roomId: string, message: string }>('http://localhost:3000/api/game/createRoom', {
       room: room,
       email: this.authService.userMail
     }).subscribe(response => {
@@ -195,7 +195,7 @@ export class GameService {
   // Rest API call for getting specific room (not used at the moment)
   getGameRoom(title: string) {
     this.game = ({title: title});
-    this.http.get<{ room: Room }>('http://192.168.0.164:3000/api/game/createRoom' + title)
+    this.http.get<{ room: Room }>('http://localhost:3000/api/game/createRoom' + title)
       .subscribe(room => {
         // this.game.title = room.title;
         this.router.navigate(['/game']);
@@ -278,7 +278,7 @@ export class GameService {
 
   // Rest API call for getting a specific room
   getRoom() {
-    this.http.get<{ room: any }>('http://192.168.0.164:3000/api/getRoom')
+    this.http.get<{ room: any }>('http://localhost:3000/api/getRoom')
       .pipe(map(postData => {
         return postData.room.map(room => {
           return {
@@ -338,7 +338,7 @@ export class GameService {
    * Rest API call for getting all questions of the current game room the user is in
    */
   getQuestions() {
-    this.http.get<{ message: string, questions: Question[] }>('http://192.168.0.164:3000/api/game/getQuestions/' + this._roomTitle)
+    this.http.get<{ message: string, questions: Question[] }>('http://localhost:3000/api/game/getQuestions/' + this._roomTitle)
       .pipe(map(data => {
         return data.questions.map(result => {
           return {
@@ -351,7 +351,6 @@ export class GameService {
           };
         });
       })).subscribe(mappedQuestions => {
-      console.log(mappedQuestions);
       this._questions = mappedQuestions;
       this.questionsUpdated.next([...this._questions]);
     });
@@ -413,7 +412,7 @@ export class GameService {
    * Get current users in current room
    */
   getUsersInRoom() {
-    this.http.get<{ user: User[] }>('http://192.168.0.164:3000/api/user/getUsersInRoom/' + this._roomTitle)
+    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsersInRoom/' + this._roomTitle)
       .pipe(map(postData => {
         return postData.user.map(user => {
           return {
@@ -442,7 +441,7 @@ export class GameService {
    * Rest API call for posting new high score into the related collection
    */
   insertHighScore() {
-    this.http.post<{message: string, scores: HighScore []}>('http://192.168.0.164:3000/api/game/createHighScore', {
+    this.http.post<{message: string, scores: HighScore []}>('http://localhost:3000/api/game/createHighScore', {
       roomID: this._roomTitle,
       user: this.authService.userMail,
       round: this._qnProgress,
@@ -459,7 +458,7 @@ export class GameService {
    * Rest API call for getting all the high scores
    */
   getHighScores() {
-    return this.http.get<{scores: HighScore []}>('http://192.168.0.164:3000/api/game/getHighScores');
+    return this.http.get<{scores: HighScore []}>('http://localhost:3000/api/game/getHighScores');
   }
 
   /**

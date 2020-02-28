@@ -60,7 +60,7 @@ export class ChatService {
     // Sending the message to the other users
     this.socket.emit('new-message', chatMsg);
     // Saving the message and doing sentiment logic
-    this.http.post<{ message: string, id: string }>('http://192.168.0.164:3000/api/chat', chatMsg)
+    this.http.post<{ message: string, id: string }>('http://localhost:3000/api/chat', chatMsg)
       .subscribe(responseData => {
         chatMsg.key = responseData.id;
       });
@@ -78,7 +78,7 @@ export class ChatService {
    *  Rest API call for getting whole chat feed
    */
   getMessages() {
-    this.http.get<{ message: string, chatMessages: any }>('http://192.168.0.164:3000/api/chat')
+    this.http.get<{ message: string, chatMessages: any }>('http://localhost:3000/api/chat')
       .subscribe(mappedMessage => {
         this.chatMessages = mappedMessage.chatMessages;
         this.chatUpdated.next([...this.chatMessages]);
@@ -110,7 +110,7 @@ export class ChatService {
    * Rest API call for getting all registered users
    */
   getUsers() {
-    this.http.get<{ user: User[] }>('http://192.168.0.164:3000/api/user/getUsers')
+    this.http.get<{ user: User[] }>('http://localhost:3000/api/user/getUsers')
       .pipe(map(postData => {
         return postData.user.map(user => {
           return {

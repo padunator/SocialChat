@@ -40,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.newGameSub = this.gameService.gameRequest.subscribe((req) => {
       if (confirm(String(req.message))) {
+        console.log('GAME CONFIRMED!');
         this.gameService.createNewRoom(req);
       } else {
         this.gameService.sendGameDecline();
@@ -53,6 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.gameReadySub = this.gameService.gameReady.subscribe(ready => {
       if (ready) {
+        console.log('ROUTING TO GAME READY!');
         this.gameService.getUsersInRoom();
         this.router.navigate(['/game']);
       }

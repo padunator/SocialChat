@@ -79,7 +79,6 @@ router.put("/changeStatus/:email", (req, res, next) => {
 
 // Get specific user
 router.get("/getUser/:email",  (req, res, next) => {
-  console.log('In Server get Method for email ' + req.params.email);
   User.findOne({email: req.params.email}).
   then(foundUser => {
     return res.status(200).json({

@@ -64,6 +64,8 @@ router.post('/createRoom', checkAuth, async (req, res, next) => {
       message: 'New Room created!',
       result: newRoom
     });
+  }).catch(error => {
+    console.error('Post CreateRoom - Question insertion error: ' + error);
   });
 });
 
@@ -87,8 +89,7 @@ router.post('/createHighScore', checkAuth, (req, res, next) => {
       score: req.body.score,
       words: tokenCount,
       comparative: totalComparative
-    }).then(msg => {console.log(msg)})
-      .catch(err => {console.error('Game Route - Create High Score : ' + err)});
+    }).catch(err => {console.error('Game Route - Create High Score : ' + err)});
   });
 
   const newHighScore = new HighScore ({
