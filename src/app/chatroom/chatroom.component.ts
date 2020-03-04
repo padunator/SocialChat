@@ -22,6 +22,7 @@ export class ChatroomComponent implements OnInit, AfterViewChecked {
      this.chatService.getUsers();
   }
 
+  // Always scroll to bottom when message arrives
   scrollToBottom(): void {
     this.feedContainer.nativeElement.scrollTop
     = this.feedContainer.nativeElement.scrollHeight;

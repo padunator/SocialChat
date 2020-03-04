@@ -40,7 +40,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.newGameSub = this.gameService.gameRequest.subscribe((req) => {
       if (confirm(String(req.message))) {
-        console.log('GAME CONFIRMED!');
         this.gameService.createNewRoom(req);
       } else {
         this.gameService.sendGameDecline();

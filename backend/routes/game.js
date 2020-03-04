@@ -52,13 +52,14 @@ router.get("/getQuestions/:title",  (req, res, next) => {
 router.post('/createRoom', checkAuth, async (req, res, next) => {
   const room = new Room({title: req.body.room.title});
   const newRoom = await room.save();
-
+  // Insert Question Archive into the DB (only at first execution needed)
   await QuestionArchive.insertMany(questionData.questionPool);
+  // Get 20 random questions out of the existing Question Archive Collection and assign Room Number
   const selectedQuestions = await QuestionArchive.aggregate( [ { $sample: { size: 20 } } ]);
   selectedQuestions.forEach(question => {
     question.room = req.body.room.title;
   });
-
+  // Insert the random questions into the Question Collection
   Question.insertMany(selectedQuestions).then(inserted => {
     res.status(201).json({
       message: 'New Room created!',
