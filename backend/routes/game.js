@@ -8,6 +8,7 @@ const HighScore = require('../models/HighScore');
 const Sentiment = require('../models/Sentiment');
 const questionData = require('../data/questions_live');
 const roomLogic = require('../modelLogic/room');
+
 /**
  * Middleware for the game route which handle game related REST Api calls
  */
@@ -55,7 +56,9 @@ router.post('/createRoom', checkAuth, async (req, res, next) => {
   // Insert Question Archive into the DB (only at first execution needed)
   await QuestionArchive.insertMany(questionData.questionPool);
   // Get 20 random questions out of the existing Question Archive Collection and assign Room Number
-  const selectedQuestions = await QuestionArchive.aggregate( [ { $sample: { size: 20 } } ]);
+  let selectedQuestions = await QuestionArchive.aggregate( [
+    { $project: {_id: 0, question: 1, options: 1}},
+    { $sample: { size: 20 } } ]);
   selectedQuestions.forEach(question => {
     question.room = req.body.room.title;
   });
